@@ -194,3 +194,36 @@ def test_render_uses_gamut_mapping_not_hard_clip():
     # dove il taglio duro cambierebbe la luminanza, la mappatura la conserva meglio
     ideal = np.clip(_develop(make_scene(), dataclasses.replace(COLOR)) @ np.array(swap, np.float32).T @ W, 0, 1)
     assert np.abs(out @ W - ideal)[clipped].mean() < np.abs(hard @ W - ideal)[clipped].mean()
+
+
+def _dark_scene():
+    """Scena sottoesposta con un punto bianco: mezzitoni bassi, estremi presenti."""
+    rng = np.random.default_rng(3)
+    s = (0.02 + 0.08 * rng.random((120, 180, 3))).astype(np.float32)
+    s[10:30, 10:40] = 0.9   # bianco
+    s[90:110, 140:170] = 0.012  # nero
+    return s
+
+
+def _mid(img):
+    return float(np.median(img[40:80, 40:120].mean(-1)))
+
+
+def test_auto_exposure_brightens_dark_midtones():
+    p0 = dataclasses.replace(COLOR, paper_range=2.0, s_curve=1.5)
+    p1 = dataclasses.replace(p0, auto_exposure=1.0, exposure_target=0.6)
+    assert _mid(_develop(_dark_scene(), p1)) > 1.5 * _mid(_develop(_dark_scene(), p0))
+
+
+def test_auto_exposure_keeps_black_and_white_points():
+    p0 = dataclasses.replace(COLOR, paper_range=2.0, s_curve=1.5)
+    p1 = dataclasses.replace(p0, auto_exposure=1.0, exposure_target=0.6)
+    a, b = _develop(_dark_scene(), p0), _develop(_dark_scene(), p1)
+    assert abs(a[15:25, 15:35].mean() - b[15:25, 15:35].mean()) < 0.02
+    assert abs(a[95:105, 145:165].mean() - b[95:105, 145:165].mean()) < 0.01
+
+
+def test_auto_exposure_zero_is_unchanged():
+    p0 = dataclasses.replace(COLOR, paper_range=2.0, s_curve=1.5)
+    p1 = dataclasses.replace(p0, auto_exposure=0.0, exposure_target=0.6)
+    assert np.array_equal(_develop(_dark_scene(), p0), _develop(_dark_scene(), p1))

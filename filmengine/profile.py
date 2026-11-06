@@ -26,6 +26,10 @@ class FilmProfile:
     s_curve: float = 0.0
     # peso dei livelli del singolo fotogramma rispetto a quelli del rullino (0 = solo rullino)
     frame_balance: float = 0.0
+    # esposizione automatica come le stampatrici di laboratorio: porta i mezzitoni del fotogramma
+    # verso exposure_target (0 = nessuna correzione, 1 = piena) tenendo fissi nero e bianco
+    auto_exposure: float = 0.0
+    exposure_target: float = 0.5
 
 
 def _triple(data: dict, key: str) -> tuple[float, float, float]:
@@ -51,6 +55,13 @@ def _unit(data: dict, key: str) -> float:
     return v
 
 
+def _open_unit(data: dict, key: str, default: float) -> float:
+    v = float(data.get(key, default))
+    if not 0.0 < v < 1.0:
+        raise ValueError(f"'{key}' deve essere tra 0 e 1 esclusi")
+    return v
+
+
 def _parse(data: dict) -> FilmProfile:
     try:
         if data["type"] not in get_args(FilmType):
@@ -72,6 +83,8 @@ def _parse(data: dict) -> FilmProfile:
             paper_range=_optional_positive(data, "paper_range"),
             s_curve=float(data.get("s_curve", 0.0)),
             frame_balance=_unit(data, "frame_balance"),
+            auto_exposure=_unit(data, "auto_exposure"),
+            exposure_target=_open_unit(data, "exposure_target", 0.5),
         )
     except KeyError as e:
         raise ValueError(f"Campo mancante nel profilo: {e.args[0]}") from None

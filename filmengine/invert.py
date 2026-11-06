@@ -86,6 +86,24 @@ def gamut_map(rgb: np.ndarray) -> np.ndarray:
     return np.clip(out, 0.0, 1.0).astype(np.float32)
 
 
+AE_POWER_RANGE = (0.5, 2.0)
+
+
+def _auto_expose(n: np.ndarray, strength: float, target: float) -> np.ndarray:
+    """Curva di potenza che sposta la mediana dei mezzitoni verso `target`; 0 e 1 restano fissi.
+
+    È ciò che fa una stampatrice di laboratorio quando "integra" la densità del fotogramma:
+    una foto sottoesposta viene stampata più chiara, una sovraesposta più scura.
+    """
+    h, w = n.shape[:2]
+    my, mx = int(EDGE_IGNORE_FRAC * h), int(EDGE_IGNORE_FRAC * w)
+    core = n[my:h - my or None, mx:w - mx or None].mean(-1).ravel()
+    m = float(np.clip(np.median(core[:: max(1, core.size // MAX_SAMPLES)]), 0.05, 0.95))
+    goal = np.exp((1 - strength) * np.log(m) + strength * np.log(target))
+    p = float(np.clip(np.log(goal) / np.log(m), *AE_POWER_RANGE))
+    return np.power(n, p).astype(np.float32)
+
+
 def tone_curve(n: np.ndarray, k: float) -> np.ndarray:
     """Curva a S della carta su [0,1]: estremi fissi, monotona; k=0 è l'identità."""
     if k <= 0:
@@ -105,6 +123,8 @@ def render_positive(density_or_slide: np.ndarray, profile: FilmProfile, levels: 
     span = np.maximum(high - low, MIN_SPAN)
     # nero e bianco del rullino portati allo stesso valore su ogni canale: niente dominanti
     n = np.clip((lexp - low) / span, 0.0, 1.0)
+    if profile.auto_exposure > 0:
+        n = _auto_expose(n, profile.auto_exposure, profile.exposure_target)
     g = tone_curve(n, profile.s_curve)
     # carta da stampa: distende la gamma della scena sulla gamma di densità della carta
     # senza carta: gamma per canale, cioè la scena lineare ricostruita fedelmente

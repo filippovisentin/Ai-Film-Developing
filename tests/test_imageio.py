@@ -114,3 +114,28 @@ def test_outputs_embed_srgb_profile(tmp_path):
         prof = ImageCms.ImageCmsProfile(__import__("io").BytesIO(im.info["icc_profile"]))
         assert "srgb" in ImageCms.getProfileDescription(prof).lower()
     assert np.max(np.abs(load_image(tif).rgb - grad)) < 1e-3   # i valori non cambiano
+
+
+def _photo_like(h=96, w=128):
+    rng = np.random.default_rng(0)
+    y, x = np.mgrid[0:h, 0:w].astype(np.float32)
+    img = np.stack([x / w, y / h, 0.5 + 0.5 * np.sin(x / 7)], -1) * 0.8
+    return np.clip(img + rng.normal(0, 0.01, img.shape), 0, 1).astype(np.float32)
+
+
+def test_jpeg_keeps_full_colour_resolution_and_names_the_software(tmp_path):
+    from PIL import Image, JpegImagePlugin
+    _, jpg = save_outputs(_photo_like(), tmp_path / "out")
+    with Image.open(jpg) as im:
+        assert JpegImagePlugin.get_sampling(im) == 0      # 4:4:4, niente colore dimezzato
+        assert "Ai-Film-Developing" in str(im.getexif().get(0x0131, ""))  # tag Software
+
+
+def test_tiff_is_losslessly_compressed(tmp_path):
+    import tifffile
+    img = _photo_like(256, 384)
+    tif, _ = save_outputs(img, tmp_path / "out")
+    with tifffile.TiffFile(tif) as t:
+        assert t.pages[0].compression != 1  # 1 = nessuna compressione
+        assert t.pages[0].dtype == np.uint16
+    assert np.max(np.abs(load_image(tif).rgb - img)) < 1e-3

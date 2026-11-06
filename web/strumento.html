@@ -68,13 +68,14 @@
   .dl { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
   .dl a { color:var(--text); background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:7px 12px; font-size:13.5px; text-decoration:none; }
   .dl a:hover { border-color:var(--accent); }
+  .dl a.tif { color:var(--muted); }
   .spinner { width:22px; height:22px; border:3px solid var(--line); border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite; display:inline-block; vertical-align:middle; margin-right:8px; }
   @keyframes spin { to { transform:rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .spinner { animation:none; } }
 </style>
 </head>
 <body>
-<nav><a href="come-funziona.html">Come funziona</a><a href="strumento.html" aria-current="page">Strumento</a><a href="index.html">Galleria di prova</a></nav>
+<nav><a href="come-funziona.html">Come funziona</a><a href="strumento.html" aria-current="page">Strumento</a><a href="index.html">Galleria di prova</a><a href="tool.html" lang="en">English</a></nav>
 <main>
   <form class="panel" id="form" novalidate>
     <h1>Sviluppa il tuo negativo</h1>
@@ -132,7 +133,7 @@
 <script>
 const $ = s => document.querySelector(s);
 const files = {};
-let sr = 2, results = null, current = "originale";
+let sr = 2, results = null, tiffs = {}, current = "originale";
 const LABELS = { originale: "Originale", migliorata: "Migliorata", restaurata: "Restauro AI", ai: "AI" };
 const NOTES = {
   originale: "Lo sviluppo fedele: solo ciò che c'è sul negativo.",
@@ -194,7 +195,7 @@ $("#form").addEventListener("submit", async e => {
         profilo: $("#profilo").value, migliora: $("#migliora").checked, restauro: $("#restauro").checked, super_ris: $("#ai").checked ? sr : 0 }) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.errore || "errore");
-    results = data.immagini; msg.textContent = "Fatto.";
+    results = data.immagini; tiffs = data.tiff || {}; msg.textContent = "Fatto.";
     for (const a of data.avvisi) { const li = document.createElement("li"); li.textContent = a; $("#avvisi").append(li); }
     show(results.ai ? "ai" : results.restaurata ? "restaurata" : results.migliorata ? "migliorata" : "originale");
   } catch (err) { msg.textContent = "Non riuscito: " + err.message; msg.className = "msg err"; }
@@ -217,7 +218,8 @@ function show(key) {
   const note = $("#note"); note.textContent = NOTES[key]; note.className = "note" + (key === "ai" ? " ai" : "");
   const dl = $("#dl"); dl.innerHTML = "";
   for (const k of Object.keys(LABELS)) if (results[k]) {
-    const a = document.createElement("a"); a.href = results[k]; a.download = `negativo_${k}.jpg`; a.textContent = "Scarica " + LABELS[k]; dl.append(a);
+    const a = document.createElement("a"); a.href = results[k]; a.download = `negativo_${k}.jpg`; a.textContent = "Scarica " + LABELS[k] + " · JPEG"; dl.append(a);
+    if (tiffs[k]) { const t = document.createElement("a"); t.href = tiffs[k]; t.download = `negativo_${k}_16bit.tif`; t.textContent = LABELS[k] + " · TIFF 16 bit"; t.className = "tif"; dl.append(t); }
   }
   $("#lens").hidden = key === "originale";
   if (key !== "originale") { $("#capB").textContent = LABELS[key] + " (ingrandita)"; lensAt(0.5, 0.5); }

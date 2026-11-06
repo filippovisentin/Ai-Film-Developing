@@ -15,16 +15,18 @@ import contextlib
 import io
 import json
 import sys
+import re
+import secrets
 import tempfile
+import threading
+from collections import OrderedDict
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-import numpy as np
-
 from filmengine import enhance
 from filmengine.calibration import correct_light, light_is_clipped, measure_base
-from filmengine.imageio_ import linear_to_srgb, load_image
+from filmengine.imageio_ import load_image
 from filmengine.pipeline import Calibration, develop_roll
 from filmengine.profile import list_profiles, load_profile
 
@@ -55,12 +57,30 @@ def _decode_image(url: str, dest: Path) -> Path:
 
 
 def _to_jpeg_url(path: Path) -> str:
-    from PIL import Image
+    """Il JPEG salvato dal motore così com'è (4:4:4, profilo sRGB): nessuna seconda compressione."""
+    return "data:image/jpeg;base64," + base64.b64encode(Path(path).read_bytes()).decode()
 
-    enc = linear_to_srgb(load_image(path).rgb)
-    buf = io.BytesIO()
-    Image.fromarray((enc * 255).round().astype(np.uint8)).save(buf, "JPEG", quality=92)
-    return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+
+_STORE: "OrderedDict[str, bytes]" = OrderedDict()
+_STORE_LOCK = threading.Lock()
+STORE_MAX = 24  # ultimi TIFF scaricabili, tenuti solo in memoria
+_ID_RE = re.compile(r"^[A-Za-z0-9_-]{20,}\.tif$")
+
+
+def _store_tiff(path: Path) -> str:
+    fid = secrets.token_urlsafe(18) + ".tif"
+    with _STORE_LOCK:
+        _STORE[fid] = Path(path).read_bytes()
+        while len(_STORE) > STORE_MAX:
+            _STORE.popitem(last=False)
+    return f"/api/file/{fid}"
+
+
+def stored_file(fid: str) -> bytes | None:
+    if not isinstance(fid, str) or not _ID_RE.match(fid):
+        return None
+    with _STORE_LOCK:
+        return _STORE.get(fid)
 
 
 def profiles() -> list[dict]:
@@ -95,15 +115,19 @@ def process(payload: dict) -> dict:
             r = develop_roll([neg], load_profile(pid), Calibration(base, light), tmp / "out",
                              enhance=bool(payload.get("migliora")), super_res=sr,
                              restore=bool(payload.get("restauro")))[0]
-        images = {"originale": _to_jpeg_url(r.outputs[0])}
+        images = {"originale": _to_jpeg_url(r.outputs[1])}
+        tiffs = {"originale": _store_tiff(r.outputs[0])}
         if r.enhanced:
-            images["migliorata"] = _to_jpeg_url(r.enhanced[0])
+            images["migliorata"] = _to_jpeg_url(r.enhanced[1])
+            tiffs["migliorata"] = _store_tiff(r.enhanced[0])
         if r.restored:
-            images["restaurata"] = _to_jpeg_url(r.restored[0])
+            images["restaurata"] = _to_jpeg_url(r.restored[1])
+            tiffs["restaurata"] = _store_tiff(r.restored[0])
         if r.ai:
-            images["ai"] = _to_jpeg_url(r.ai[0])
+            images["ai"] = _to_jpeg_url(r.ai[1])
+            tiffs["ai"] = _store_tiff(r.ai[0])
         avvisi = [w for w in r.warnings if "non RAW" not in w]
-        return {"immagini": images, "avvisi": avvisi}
+        return {"immagini": images, "tiff": tiffs, "avvisi": avvisi}
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -123,6 +147,17 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200, profiles())
         if self.path == "/api/capacita":
             return self._json(200, capabilities())
+        if self.path.startswith("/api/file/"):
+            data = stored_file(self.path[len("/api/file/"):])
+            if data is None:
+                return self._json(404, {"errore": "file scaduto o inesistente: sviluppa di nuovo"})
+            self.send_response(200)
+            self.send_header("Content-Type", "image/tiff")
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Content-Disposition", 'attachment; filename="sviluppo_16bit.tif"')
+            self.end_headers()
+            self.wfile.write(data)
+            return None
         return super().do_GET()
 
     def do_POST(self):

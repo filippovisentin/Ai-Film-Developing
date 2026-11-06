@@ -105,3 +105,23 @@ def test_process_restore_returns_restored_version(monkeypatch):
     monkeypatch.setattr(pl, "restore_image", lambda rgb: rgb)
     out = server.process(_payload(restauro=True))
     assert set(out["immagini"]) == {"originale", "restaurata"}
+
+
+def test_process_sends_saved_jpeg_without_recompressing():
+    from PIL import JpegImagePlugin
+    out = server.process(_payload())
+    raw = base64.b64decode(out["immagini"]["originale"].split(",", 1)[1])
+    with Image.open(io.BytesIO(raw)) as im:
+        assert JpegImagePlugin.get_sampling(im) == 0
+
+
+def test_process_offers_16bit_tiff_download():
+    out = server.process(_payload(migliora=True))
+    assert set(out["tiff"]) == {"originale", "migliorata"}
+    data = server.stored_file(out["tiff"]["originale"].rsplit("/", 1)[-1])
+    assert data[:4] in (b"II*\x00", b"MM\x00*")
+
+
+def test_stored_file_rejects_unknown_or_malformed_ids():
+    for bad in ["nessuno", "../../etc/passwd", ""]:
+        assert server.stored_file(bad) is None

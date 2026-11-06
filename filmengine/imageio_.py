@@ -109,6 +109,9 @@ def _srgb_icc() -> bytes:
     return ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB")).tobytes()
 
 
+SOFTWARE = "Ai-Film-Developing (filmengine)"
+
+
 def save_outputs(rgb_linear: np.ndarray, out_stem: Path) -> tuple[Path, Path]:
     from PIL import Image
 
@@ -118,7 +121,14 @@ def save_outputs(rgb_linear: np.ndarray, out_stem: Path) -> tuple[Path, Path]:
     tif = out_stem.with_suffix(".tif")
     jpg = out_stem.with_suffix(".jpg")
     icc = _srgb_icc()
+    # TIFF 16 bit per l'archivio e la post-produzione: compressione senza perdita (deflate)
     tifffile.imwrite(tif, np.round(enc * 65535).astype(np.uint16), photometric="rgb",
+                     compression="zlib", software=SOFTWARE,
                      extratags=[(34675, "B", len(icc), icc, True)])
-    Image.fromarray(np.round(enc * 255).astype(np.uint8)).save(jpg, quality=95, icc_profile=icc)
+    # JPEG per condividere: qualità 95 con colore a piena risoluzione (4:4:4, non 4:2:0)
+    exif = Image.Exif()
+    exif[0x0131] = SOFTWARE
+    Image.fromarray(np.round(enc * 255).astype(np.uint8)).save(
+        jpg, quality=95, subsampling=0, optimize=True, progressive=True, icc_profile=icc,
+        exif=exif.tobytes())
     return tif, jpg
