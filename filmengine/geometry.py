@@ -148,6 +148,8 @@ def warp_frame(img: np.ndarray, corners: np.ndarray, aspect: float = 1.5) -> np.
 
 DARK_EDGE_RATIO = 0.25
 DARK_EDGE_MAX_FRAC = 0.05
+DARK_EDGE_OUTER_FRAC = 0.02   # righe esterne di transizione tollerate
+DARK_EDGE_SOFT = 2.0          # "quasi scure": sotto il doppio della soglia
 
 
 def trim_dark_edges(img: np.ndarray, ratio: float = DARK_EDGE_RATIO,
@@ -162,9 +164,20 @@ def trim_dark_edges(img: np.ndarray, ratio: float = DARK_EDGE_RATIO,
 
     def count(lines: np.ndarray) -> int:
         n = int(max_frac * lines.shape[0])
-        dark = np.median(lines[:n + 1], axis=1) < limit
-        k = int(np.argmin(dark)) if not dark.all() else n + 1
-        return 0 if k > n else k
+        outer = max(2, int(DARK_EDGE_OUTER_FRAC * lines.shape[0]))
+        med = np.median(lines[:n + 1], axis=1)
+        dark = med < limit
+        # le righe più esterne possono essere una transizione sfumata (luce che filtra dal bordo):
+        # si saltano solo se subito dopo c'è davvero il bordo nero
+        soft = med < DARK_EDGE_SOFT * limit
+        k, seen = 0, False
+        for i in range(len(med)):
+            if dark[i]:
+                seen = True
+            elif not (soft[i] and i < outer and not seen):
+                break
+            k = i + 1
+        return k if seen and k <= n else 0
 
     top, bottom = count(lum), count(lum[::-1])
     left, right = count(lum.T), count(lum.T[::-1])

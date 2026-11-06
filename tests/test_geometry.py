@@ -214,3 +214,21 @@ def test_trim_rebate_stops_at_uniform_shadow_content():
     img[-30:] = (0.64, 0.4, 0.26)      # bordo della pellicola
     out = trim_rebate_edges(img)
     assert out.shape[0] >= 300 - 30 - 6   # toglie il bordo, non l'ombra
+
+
+def test_trim_dark_edges_skips_soft_transition_lines():
+    # come nella scansione reale: 2 colonne esterne appena sopra la soglia di "scuro", poi il bordo nero
+    from filmengine.geometry import trim_dark_edges
+    img = _texture(300, 400)[..., None].repeat(3, 2) + 0.3
+    img[:, -8:] = 0.03                      # bordo nero dello scanner
+    img[:, -1] = 0.16                       # colonne esterne sfumate (luce che filtra)
+    img[:, -2] = 0.14
+    out = trim_dark_edges(img)
+    assert out.shape[1] <= 400 - 8
+
+
+def test_trim_dark_edges_soft_lines_alone_are_kept():
+    from filmengine.geometry import trim_dark_edges
+    img = _texture(300, 400)[..., None].repeat(3, 2) + 0.3
+    img[:, -2:] = 0.16                      # solo colonne un po' scure, nessun bordo nero dopo
+    assert trim_dark_edges(img).shape[1] == 400
