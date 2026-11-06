@@ -148,3 +148,42 @@ def test_phone_capture_crop_has_no_film_border(tmp_path):
         lum = x.mean(-1)
         return np.array([lum[:4].mean(), lum[-4:].mean(), lum[:, :4].mean(), lum[:, -4:].mean()])
     assert np.all(edges(out) > 0.6 * edges(ref))
+
+
+def _noisy_copies(tmp_path, n, noise=0.02, seed=0):
+    neg = make_negative(make_scene(seed=3), MASK, GAMMA, border_px=30)
+    rng = np.random.default_rng(seed)
+    paths = []
+    for i in range(n):
+        noisy = np.clip(neg + rng.normal(0, noise, neg.shape).astype(np.float32), 0, 1)
+        p, _ = save_outputs(noisy, tmp_path / "burst" / f"f_{i}")
+        paths.append(p)
+    clean, _ = save_outputs(neg, tmp_path / "clean" / "f")
+    return paths, clean
+
+
+def test_group_of_captures_is_stacked(tmp_path):
+    paths, clean = _noisy_copies(tmp_path, 4)
+    prof, cal = load_profile("generic_color"), Calibration(base_rgb=np.array(MASK, np.float32))
+    ref = load_image(develop_roll([clean], prof, cal, tmp_path / "r")[0].outputs[0]).rgb
+    one = load_image(develop_roll([paths[0]], prof, cal, tmp_path / "o1")[0].outputs[0]).rgb
+    res = develop_roll([paths], prof, cal, tmp_path / "o4")
+    assert len(res) == 1 and res[0].source == paths[0]
+    four = load_image(res[0].outputs[0]).rgb
+    assert np.abs(four - ref).mean() < 0.7 * np.abs(one - ref).mean()
+    assert any("4 scatti" in w for w in res[0].warnings)
+
+
+def test_cli_stack_groups_consecutive_files(tmp_path):
+    paths, _ = _noisy_copies(tmp_path, 4)
+    rc = main(["develop", *map(str, paths), "--profile", "generic_color", "--stack", "2",
+               "--out", str(tmp_path / "out")])
+    assert rc == 0
+    assert sorted(p.name for p in (tmp_path / "out").glob("*.tif")) == ["f_0_originale.tif", "f_2_originale.tif"]
+
+
+def test_cli_stack_not_divisible_is_error(tmp_path, capsys):
+    paths, _ = _noisy_copies(tmp_path, 3)
+    rc = main(["develop", *map(str, paths), "--profile", "generic_color", "--stack", "2",
+               "--out", str(tmp_path / "out")])
+    assert rc == 2 and "multiplo" in capsys.readouterr().err

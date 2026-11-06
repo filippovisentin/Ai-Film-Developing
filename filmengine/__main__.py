@@ -22,6 +22,8 @@ def _parser() -> argparse.ArgumentParser:
     d.add_argument("--light", type=Path, help="foto della fonte di luce senza pellicola")
     d.add_argument("--out", type=Path, default=Path("risultati"), help="cartella di uscita")
     d.add_argument("--no-crop", action="store_true", help="non cercare né ritagliare il fotogramma")
+    d.add_argument("--stack", type=int, default=1,
+                   help="multi-scatto: unisce ogni N file consecutivi (in ordine di nome) in un fotogramma")
     return p
 
 
@@ -36,7 +38,12 @@ def main(argv: list[str] | None = None) -> int:
         light = load_image(args.light).rgb if args.light else None
         usable = None if light is None or light_is_clipped(light) else light
         base = measure_base(correct_light(load_image(args.base).rgb, usable)) if args.base else None
-        results = develop_roll(args.frames, profile, Calibration(base, light), args.out,
+        frames = sorted(args.frames, key=lambda p: (p.name, str(p)))
+        if args.stack < 1 or len(frames) % args.stack:
+            raise ValueError(f"Con --stack {args.stack} il numero di file deve esserne un multiplo "
+                             f"(ricevuti {len(frames)})")
+        groups = [frames[i:i + args.stack] for i in range(0, len(frames), args.stack)]
+        results = develop_roll(groups, profile, Calibration(base, light), args.out,
                                crop=not args.no_crop)
     except (ValueError, FileNotFoundError) as e:
         print(f"Errore: {e}", file=sys.stderr)

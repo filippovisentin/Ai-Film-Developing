@@ -21,7 +21,7 @@ from filmengine.imageio_ import load_image, save_outputs
 from filmengine.pipeline import Calibration, develop_roll
 from filmengine.profile import load_profile
 from tools.evaluate import compare
-from tools.phone_sim import PhoneSetup, simulate
+from tools.phone_sim import PhoneSetup, simulate, simulate_burst
 
 WB = (0.85, 1.0, 1.25)  # il bilanciamento automatico del telefono "corregge" la maschera
 SCENARI = {
@@ -38,10 +38,14 @@ SCENARI = {
                                            noise=0.008, jpeg_quality=85, blur=0.8), True),
     "realistico senza calibrazione": (PhoneSetup(tilt_deg=3, perspective=0.03, vignette=0.3, wb=WB,
                                                  veil=0.01, noise=0.008, jpeg_quality=85, blur=0.8), False),
+    "rumore+jpeg+sfocatura, 4 scatti": (PhoneSetup(noise=0.01, jpeg_quality=85, blur=1.0, shake_px=3), True, 4),
+    "realistico+calibrazione, 4 scatti": (PhoneSetup(tilt_deg=3, perspective=0.03, vignette=0.3, wb=WB,
+                                                     veil=0.01, noise=0.008, jpeg_quality=85, blur=0.8,
+                                                     shake_px=3), True, 4),
 }
 
 
-def _develop(path: Path, calib: Calibration, out: Path) -> tuple[np.ndarray, list[str]]:
+def _develop(path, calib: Calibration, out: Path) -> tuple[np.ndarray, list[str]]:
     with contextlib.redirect_stderr(io.StringIO()):
         r = develop_roll([path], load_profile("generic_color"), calib, out)[0]
     return load_image(r.outputs[0]).rgb, r.warnings
@@ -56,9 +60,13 @@ def evaluate(root: Path, frames: int | None = None, scenari=SCENARI) -> dict:
             ref, _ = _develop(f, Calibration(), tmp / "ref")
             # i bordi neri sono un artefatto dello scanner, non fanno parte della pellicola fisica
             neg = trim_dark_edges(load_image(f).rgb)
-            for name, (setup, calibrate) in scenari.items():
-                cap = simulate(neg, setup, seed=i)
-                src, _ = save_outputs(cap.image, tmp / "cap" / f"{f.stem}")
+            for name, spec in scenari.items():
+                setup, calibrate = spec[0], spec[1]
+                n_shots = spec[2] if len(spec) > 2 else 1
+                shots = simulate_burst(neg, setup, n_shots, seed=i) if n_shots > 1 else [simulate(neg, setup, seed=i)]
+                cap = shots[0]
+                srcs = [save_outputs(sh.image, tmp / "cap" / f"{f.stem}_{k}")[0] for k, sh in enumerate(shots)]
+                src = srcs if n_shots > 1 else srcs[0]
                 calib = Calibration()
                 if calibrate:
                     usable = None if light_is_clipped(cap.light) else cap.light

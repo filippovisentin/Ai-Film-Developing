@@ -58,3 +58,19 @@ def test_light_photo_is_auto_exposed_unless_forced():
     assert a.light.max() < 0.95  # come l'esposizione automatica del telefono
     b = simulate(_neg(), PhoneSetup(vignette=0.4, light_overexposed=True), seed=0)
     assert b.light.max() >= 0.99
+
+
+def test_burst_has_same_light_and_shaken_frames():
+    from tools.phone_sim import simulate_burst
+    shots = simulate_burst(_neg(), PhoneSetup(noise=0.01, shake_px=3), n=3, seed=5)
+    assert len(shots) == 3
+    assert all(np.array_equal(s.light, shots[0].light) for s in shots)
+    d = [np.abs(s.corners - shots[0].corners).max() for s in shots[1:]]
+    assert all(0 < x <= 3 * 1.5 for x in d)          # mano che trema: pochi pixel
+
+
+def test_no_shake_keeps_geometry():
+    from tools.phone_sim import simulate_burst
+    shots = simulate_burst(_neg(), PhoneSetup(noise=0.01), n=2, seed=5)
+    assert np.allclose(shots[0].corners, shots[1].corners)
+    assert not np.array_equal(shots[0].image, shots[1].image)   # rumore diverso

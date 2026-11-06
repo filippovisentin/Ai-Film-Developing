@@ -33,6 +33,7 @@ class PhoneSetup:
     jpeg_quality: int | None = None
     holder: bool = False              # porta-negativi nero invece della luce nuda intorno
     light_overexposed: bool = False   # foto della luce scattata con la stessa esposizione (bruciata)
+    shake_px: float = 0.0             # mano che trema tra gli scatti di una raffica (pixel)
 
 
 @dataclass
@@ -66,7 +67,8 @@ def _finish(img: np.ndarray, s: PhoneSetup, rng: np.random.Generator, veil: bool
     return img
 
 
-def simulate(neg: np.ndarray, s: PhoneSetup, seed: int = 0) -> Capture:
+def simulate(neg: np.ndarray, s: PhoneSetup, seed: int = 0,
+             shift: tuple[float, float] = (0.0, 0.0)) -> Capture:
     rng = np.random.default_rng(seed)
     base = np.percentile(neg.reshape(-1, 3), 99.9, axis=0).astype(np.float32)
     k = BASE_TRANSMISSION / float(base.max())
@@ -84,7 +86,8 @@ def simulate(neg: np.ndarray, s: PhoneSetup, seed: int = 0) -> Capture:
     m = int(MARGIN * max(sh, sw))
     ch, cw = sh + 2 * m, sw + 2 * m
     surround = 0.005 if s.holder else 1.0
-    c = np.array([cw / 2, ch / 2], np.float32)
+    sc0 = OUT_LONG / max(ch, cw)
+    c = np.array([cw / 2 + shift[0] / sc0, ch / 2 + shift[1] / sc0], np.float32)
     src = np.float32([[0, 0], [sw, 0], [sw, sh], [0, sh]])
     dst = src - [sw / 2, sh / 2]
     dst[1, 1] -= s.perspective * sh / 2
@@ -110,3 +113,16 @@ def simulate(neg: np.ndarray, s: PhoneSetup, seed: int = 0) -> Capture:
     light_img = _finish(light * gain, s, np.random.default_rng(seed + 1), veil=False)
     base_img = _finish(np.ones_like(light) * base * light, s, np.random.default_rng(seed + 2), veil=True)
     return Capture(image, light_img, base_img, corners.astype(np.float32), base)
+
+
+def simulate_burst(neg: np.ndarray, s: PhoneSetup, n: int, seed: int = 0) -> list[Capture]:
+    """Raffica di n scatti dello stesso fotogramma: rumore diverso, mano che trema di pochi pixel.
+    La foto della luce e quella della base sono una sola per tutta la raffica."""
+    rng = np.random.default_rng(seed)
+    shots = []
+    for i in range(n):
+        shift = (0.0, 0.0) if i == 0 else tuple(rng.uniform(-s.shake_px, s.shake_px, 2))
+        shots.append(simulate(neg, s, seed=seed * 1000 + i, shift=shift))
+    for sh in shots[1:]:
+        sh.light, sh.base_patch = shots[0].light, shots[0].base_patch
+    return shots

@@ -12,6 +12,7 @@ from .geometry import find_frame_corners, snap_aspect, trim_dark_edges, trim_reb
 from .imageio_ import load_image, save_outputs
 from .invert import compute_roll_levels, render_positive, to_density
 from .profile import FilmProfile
+from .stack import stack_captures
 
 
 @dataclass
@@ -47,11 +48,29 @@ def _frame_base(f: Path, img: np.ndarray, base: np.ndarray, w: list[str]) -> np.
     return base
 
 
-def develop_roll(frames: list[Path], profile: FilmProfile, calib: Calibration,
+def _load_frame(group: list[Path]) -> tuple[np.ndarray, list[str]]:
+    """Carica un fotogramma; se è un gruppo di scatti (multi-scatto) li allinea e li media."""
+    loaded = [load_image(p) for p in group]
+    warnings = list(loaded[0].warnings)
+    if len(loaded) == 1:
+        return loaded[0].rgb, warnings
+    img, rep = stack_captures([x.rgb for x in loaded], return_report=True)
+    msg = f"{group[0].name}: uniti {rep['usati']} scatti per ridurre il rumore"
+    if rep["scartati"]:
+        msg += f" ({rep['scartati']} scartati: mossi o di un altro fotogramma)"
+    warnings.append(msg)
+    return img, warnings
+
+
+def develop_roll(frames: list[Path | list[Path]], profile: FilmProfile, calib: Calibration,
                  out_dir: Path, crop: bool = True) -> list[FrameResult]:
-    frames = sorted((Path(f) for f in frames), key=lambda p: (p.name, str(p)))
-    if not frames:
+    """Sviluppa un rullino. Ogni elemento di `frames` è un file o un gruppo di scatti dello
+    stesso fotogramma (multi-scatto); il risultato prende il nome dal primo file."""
+    groups = [[Path(x) for x in f] if isinstance(f, (list, tuple)) else [Path(f)] for f in frames]
+    groups = sorted(groups, key=lambda g: (g[0].name, str(g[0])))
+    if not groups:
         raise ValueError("Nessun fotogramma da sviluppare")
+    frames = [g[0] for g in groups]
     out_dir = Path(out_dir)
 
     light = calib.light
@@ -66,10 +85,10 @@ def develop_roll(frames: list[Path], profile: FilmProfile, calib: Calibration,
     prepared: list[np.ndarray] = []
     warnings: list[list[str]] = []
     base_candidates: list[np.ndarray] = []
-    for f in frames:
-        loaded = load_image(f)
-        w = list(loaded.warnings) + roll_warnings
-        img = correct_light(loaded.rgb, light)
+    for f, group in zip(frames, groups):
+        rgb, load_warnings = _load_frame(group)
+        w = load_warnings + roll_warnings
+        img = correct_light(rgb, light)
         if calib.base_rgb is None and profile.type != "slide":
             base_candidates.append(estimate_base_from_border(img))
         if crop:
