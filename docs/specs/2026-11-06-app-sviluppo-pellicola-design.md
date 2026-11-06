@@ -106,3 +106,73 @@ dall'immagine.
 
 Diapositive, medio formato (120), super-risoluzione, riconoscimento automatico
 della pellicola, scatto automatico, AI Pro nel cloud.
+
+## 10. Modulo "Sviluppo a casa" (proposta, da approvare)
+
+*Aggiunto il 6 novembre 2026.* Il telefono non può leggere un rullino non sviluppato:
+l'immagine latente è invisibile e la luce la cancella. Lo sviluppo chimico resta
+obbligatorio, ma si può fare a casa. L'app accompagna l'utente dal rullino scattato fino
+al file digitale.
+
+### Flusso
+
+1. **Scegli il rullino**: pellicola dal catalogo → l'app deduce il processo (C-41 colore,
+   bianco e nero; E-6 diapositive più avanti) e l'ISO a cui è stata esposta (push/pull).
+2. **Scegli i chimici**: kit C-41 (2 o 3 bagni) o rivelatore B/N con diluizione.
+3. **Lista del materiale** con spunte: tank, spirale, sacca a tenuta di luce, termometro,
+   cilindri graduati, guanti, mollette.
+4. **Caricamento al buio**: istruzioni illustrate passo passo per caricare la spirale nella
+   sacca (è il punto in cui i principianti sbagliano di più).
+5. **Preparazione dei bagni**: quantità per la tank scelta, temperatura obiettivo.
+6. **Timer guidato**: sequenza dei bagni con conto alla rovescia, avvisi di agitazione
+   (suono + vibrazione), tempo corretto in base alla **temperatura misurata** e all'**uso
+   del kit** (i chimici si esauriscono).
+7. **Lavaggio e asciugatura**, poi un collegamento diretto a **"Digitalizza questo rullino"**,
+   con pellicola, processo e push/pull già compilati (il motore usa queste informazioni).
+
+### Componenti
+
+- **Ricettario** (file di dati, come i profili pellicola): processi, bagni, tempi per
+  pellicola × chimico × diluizione × temperatura × push/pull. I dati vengono dalle schede
+  tecniche pubbliche dei produttori, con la fonte indicata; si aggiungono senza aggiornare
+  l'app. Nessun dato copiato da tabelle protette di terzi.
+- **Calcolatore dei tempi**: compensazione della temperatura (tabelle del produttore, o la
+  regola tempo/temperatura per il B/N) e dell'esaurimento del kit (contatore dei rullini già
+  sviluppati con quei chimici e incremento indicato dal produttore del kit).
+- **Timer**: macchina a stati (bagno → agitazione → scarico → bagno successivo) che continua
+  con lo schermo spento e l'app in background, tramite notifiche locali.
+- **Registro del rullino**: data, chimici, temperatura, tempi effettivi; finisce nei metadati
+  dei file esportati.
+
+### Sicurezza
+
+- Avvisi chiari: guanti, ambiente aerato, chimici lontani da cibo e bambini.
+- **Smaltimento**: fissaggio e sbianca-fissaggio contengono argento, non vanno nello
+  scarico; l'app ricorda di portarli in un centro di raccolta secondo le regole locali.
+- Promemoria iniziale: **mai aprire alla luce un rullino non sviluppato**.
+
+### MVP del modulo
+
+- Bianco e nero (più economico e tollerante) e un kit C-41 generico a 2 bagni.
+- 10 pellicole popolari con tempi da scheda tecnica; push/pull di ±1 stop.
+- Timer con agitazione, compensazione della temperatura, contatore di esaurimento.
+- Fuori dall'MVP: E-6, sviluppo "stand", rivelatori casalinghi (caffenol), push/pull oltre
+  ±1 stop.
+
+### Verifica
+
+- Test unitari del calcolatore (temperatura, esaurimento, push/pull) sui valori delle schede
+  tecniche.
+- Test della macchina a stati del timer (pausa, ripresa, app in background).
+- Prova pratica: un rullino B/N e uno a colori sviluppati seguendo solo l'app.
+
+## 11. Risultati delle prove del motore (6 novembre 2026)
+
+Dataset BlueNeg (Copyrighted by Tien-Tsin Wong): 13 negativi reali di 4 pellicole, con le
+stampe di laboratorio.
+
+- Confronto con le stampe di laboratorio: ΔE medio da 23,4 (prima versione) a 16,0.
+- Scatto da telefono simulato rispetto alla scansione dello stesso negativo: ΔE 4,5 in
+  condizioni ideali, 8,4 in condizioni realistiche con calibrazione, 11,1 senza calibrazione.
+- Indicazioni per la cattura guidata: la foto della luce va scattata con l'esposizione
+  automatica (mai bruciata), e la calibrazione conviene sempre.
