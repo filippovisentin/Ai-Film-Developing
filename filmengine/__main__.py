@@ -15,7 +15,7 @@ def _parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="filmengine", description="Sviluppo digitale di negativi")
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("profiles", help="elenca i profili pellicola")
-    d = sub.add_parser("develop", help="sviluppa un rullino nella versione Originale")
+    d = sub.add_parser("develop", help="sviluppa un rullino (Originale, e a richiesta Migliorata e AI)")
     d.add_argument("frames", nargs="+", type=Path, help="foto dei fotogrammi")
     d.add_argument("--profile", required=True, help="id del profilo o percorso di un .json")
     d.add_argument("--base", type=Path, help="foto della pellicola non esposta")
@@ -24,6 +24,10 @@ def _parser() -> argparse.ArgumentParser:
     d.add_argument("--no-crop", action="store_true", help="non cercare né ritagliare il fotogramma")
     d.add_argument("--stack", type=int, default=1,
                    help="multi-scatto: unisce ogni N file consecutivi (in ordine di nome) in un fotogramma")
+    d.add_argument("--migliora", action="store_true",
+                   help="salva anche la versione migliorata (polvere, rumore, nitidezza)")
+    d.add_argument("--super-ris", type=int, choices=(2, 4), default=0,
+                   help="salva anche una versione ingrandita dall'AI (pixel inventati)")
     return p
 
 
@@ -44,12 +48,16 @@ def main(argv: list[str] | None = None) -> int:
                              f"(ricevuti {len(frames)})")
         groups = [frames[i:i + args.stack] for i in range(0, len(frames), args.stack)]
         results = develop_roll(groups, profile, Calibration(base, light), args.out,
-                               crop=not args.no_crop)
+                               crop=not args.no_crop, enhance=args.migliora,
+                               super_res=args.super_ris)
     except (ValueError, FileNotFoundError) as e:
         print(f"Errore: {e}", file=sys.stderr)
         return 2
     for r in results:
         print(f"{r.source.name} -> {r.outputs[0]}")
+        for extra in (r.enhanced, r.ai):
+            if extra:
+                print(f"{'':{len(r.source.name)}}    {extra[0]}")
     return 0
 
 

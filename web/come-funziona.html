@@ -60,7 +60,7 @@
 </style>
 </head>
 <body>
-<nav><a href="come-funziona.html" aria-current="page">Come funziona</a><a href="index.html">Prova del motore (galleria)</a></nav>
+<nav><a href="come-funziona.html" aria-current="page">Come funziona</a><a href="strumento.html">Strumento</a><a href="index.html">Galleria di prova</a></nav>
 <main>
 
 <div class="kicker">Guida illustrata</div>
@@ -258,19 +258,36 @@
 </div>
 <p class="note" style="margin-top:16px">La pellicola già sviluppata non si rovina fotografandola: la luce non la cambia più. Un rullino <b>non ancora sviluppato</b>, invece, non va mai aperto alla luce.</p>
 
-<!-- ============ 6. A che punto siamo ============ -->
+<!-- ============ 6. Tre versioni ============ -->
+<h2>Tre versioni della stessa foto</h2>
+<p class="note">Dopo lo sviluppo puoi scegliere quanto "aiutare" l'immagine. Ogni passo in più rende la foto più bella, ma un po' meno fedele alla pellicola: per questo le versioni restano separate e l'Originale non viene mai toccato.</p>
+<div class="kit">
+  <div class="card">
+    <svg viewBox="0 0 120 80" aria-hidden="true"><g fill="#8a7c66"><rect x="20" y="10" width="20" height="20"/><rect x="60" y="10" width="20" height="20" fill="#b9a27c"/><rect x="40" y="30" width="20" height="20" fill="#5f5546"/><rect x="80" y="30" width="20" height="20" fill="#b9a27c"/><rect x="20" y="50" width="20" height="20" fill="#5f5546"/><rect x="60" y="50" width="20" height="20"/></g><g fill="#a89676"><rect x="40" y="10" width="20" height="20"/><rect x="80" y="10" width="20" height="20"/><rect x="20" y="30" width="20" height="20"/><rect x="60" y="30" width="20" height="20"/><rect x="40" y="50" width="20" height="20"/><rect x="80" y="50" width="20" height="20"/></g><circle cx="33" cy="22" r="2" fill="#fff"/><circle cx="71" cy="57" r="1.6" fill="#d06a5a"/></svg>
+    <b>Originale</b>Lo sviluppo fedele: colori della pellicola, con la sua grana, la polvere e il rumore dello scatto.</div>
+  <div class="card">
+    <svg viewBox="0 0 120 80" aria-hidden="true"><g fill="#9a8a70"><rect x="20" y="10" width="20" height="20"/><rect x="60" y="10" width="20" height="20" fill="#ae9a77"/><rect x="40" y="30" width="20" height="20" fill="#6a5f4e"/><rect x="80" y="30" width="20" height="20" fill="#ae9a77"/><rect x="20" y="50" width="20" height="20" fill="#6a5f4e"/><rect x="60" y="50" width="20" height="20"/></g><g fill="#a29274"><rect x="40" y="10" width="20" height="20"/><rect x="80" y="10" width="20" height="20"/><rect x="20" y="30" width="20" height="20"/><rect x="60" y="30" width="20" height="20"/><rect x="40" y="50" width="20" height="20"/><rect x="80" y="50" width="20" height="20"/></g></svg>
+    <b>Migliorata</b>Toglie i granelli di polvere (solo quelli isolati su fondo chiaro), il rumore colorato e rende un po' più nitida. <i>Non inventa nulla</i>: lavora solo sui pixel che ci sono.</div>
+  <div class="card">
+    <svg viewBox="0 0 120 80" aria-hidden="true"><defs><pattern id="mini" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="#9a8a70"/><rect width="2.5" height="2.5" fill="#b8a580"/><rect x="2.5" y="2.5" width="2.5" height="2.5" fill="#7d705b"/></pattern></defs><rect x="20" y="10" width="80" height="60" fill="url(#mini)"/><path d="M20 70 Q60 20 100 40" stroke="#4d4538" stroke-width="5" fill="none"/><rect x="20" y="10" width="80" height="60" fill="none" stroke="#b48cf2" stroke-width="2" stroke-dasharray="4 3"/></svg>
+    <b style="color:#b48cf2">Ingrandimento AI</b>Una rete neurale (Real-ESRGAN) ingrandisce 2 o 4 volte e <span style="font-weight:700;color:var(--text)">inventa</span> pixel e dettagli plausibili. Più nitida, ma quei dettagli non erano sulla pellicola.</div>
+</div>
+<p class="note" style="margin-top:16px">Misurato su 13 negativi con scatti da telefono simulati: la versione Migliorata avvicina i colori alla scansione di laboratorio (differenza ΔE da 7,6 a 6,9) senza perdere dettaglio. L'ingrandimento AI risulta circa 3 volte più nitido di un ingrandimento classico, ma meno fedele all'originale: è una scelta estetica, non un recupero di informazioni. <a href="strumento.html" style="color:var(--accent)">Provalo nello strumento</a>.</p>
+
+<!-- ============ 7. A che punto siamo ============ -->
 <h2>A che punto siamo</h2>
 <div class="status">
   <div class="card"><h3>Pronto e testato (prototipi)</h3><ul>
-    <li><b>Motore di conversione</b>: provato su 13 negativi reali di 4 pellicole, con 130 test automatici.</li>
+    <li><b>Motore di conversione</b>: provato su 13 negativi reali di 4 pellicole, con 167 test automatici.</li>
     <li><b>Scatto da telefono</b> (simulato): in condizioni realistiche il risultato differisce dalla scansione di ΔE ≈ 8.</li>
     <li><b>Sviluppo a casa</b>: tempi da schede ufficiali (Ilford HP5 Plus, CineStill Cs41), timer guidato.</li>
-    <li><b>Pagina di prova</b> con i confronti: <a href="index.html" style="color:var(--accent)">apri la galleria</a>.</li>
+    <li><b>Versioni Migliorata e AI</b>: pulizia di polvere e rumore, ingrandimento con pixel inventati.</li>
+    <li><b>Strumento</b> per sviluppare le tue foto: <a href="strumento.html" style="color:var(--accent)">apri lo strumento</a>. Confronti: <a href="index.html" style="color:var(--accent)">galleria</a>.</li>
   </ul></div>
   <div class="card"><h3>Prossimi passi</h3><ul>
     <li>Ridurre l'effetto di rumore e compressione dello scatto (il difetto che pesa di più).</li>
     <li>Prova con un rullino vero fotografato con un telefono vero.</li>
-    <li>Modulo AI (polvere, graffi, colore).</li>
+    <li>AI per graffi e colori sbiaditi; polvere anche nelle zone scure.</li>
     <li>Più pellicole nel ricettario e nei profili.</li>
     <li>Più avanti: l'app vera e propria per iPhone e Android.</li>
   </ul></div>

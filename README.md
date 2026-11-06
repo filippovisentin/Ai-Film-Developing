@@ -24,12 +24,12 @@ Guida illustrata: [`web/come-funziona.html`](web/come-funziona.html).
 
 | Cartella | Contenuto |
 |---|---|
-| `filmengine/` | Motore di conversione: lettura (DNG/JPEG/TIFF), correzione della luce, ritaglio, inversione in densità, carta da stampa, multi-scatto |
+| `filmengine/` | Motore di conversione: lettura (DNG/JPEG/TIFF), correzione della luce, ritaglio, inversione in densità, carta da stampa, multi-scatto, versione Migliorata e ingrandimento AI (`enhance.py`) |
 | `profiles/` | Profili pellicola (JSON) |
 | `devguide/` | Sviluppo a casa: ricettario, calcolo dei tempi, timer guidato |
 | `recipes/` | Ricette con fonte obbligatoria (Ilford HP5 Plus, CineStill Cs41) |
-| `tools/` | Valutazione su negativi reali, simulatore di scatto da telefono, pagina di confronto |
-| `web/` | Pagine di prova (`come-funziona.html`, `index.html`) |
+| `tools/` | Valutazione su negativi reali, simulatore di scatto da telefono, pagina di confronto, server locale dello strumento, download del modello AI |
+| `web/` | `come-funziona.html` (spiegazione), `strumento.html` (solo lo strumento), `index.html` (galleria di prova) |
 | `docs/` | Specifica di progetto e piani di implementazione |
 | `tests/` | Test automatici (pytest) |
 
@@ -47,6 +47,21 @@ Sviluppare negativi fotografati (anche più scatti per fotogramma):
 .venv/Scripts/python -m filmengine develop foto/*.jpg --profile generic_color --base base.jpg --light luce.jpg --stack 4
 ```
 
+Versione migliorata (polvere, rumore, nitidezza: nessun pixel inventato) e ingrandimento AI
+(Real-ESRGAN: aggiunge dettagli **inventati**). Il modello AI (~5 MB) si scarica a parte:
+
+```bash
+.venv/Scripts/python -m pip install -e .[ai]
+.venv/Scripts/python -m tools.get_model
+.venv/Scripts/python -m filmengine develop foto.jpg --profile portra_400 --migliora --super-ris 4
+```
+
+Strumento nel browser (solo in locale, le foto non lasciano il computer):
+
+```bash
+.venv/Scripts/python -m tools.server      # poi apri http://127.0.0.1:8765/strumento.html
+```
+
 Piano di sviluppo a casa:
 
 ```bash
@@ -62,6 +77,10 @@ Piano di sviluppo a casa:
   [BlueNeg](https://huggingface.co/datasets/ttgroup/blueneg-release)
   ("Copyrighted by Tien-Tsin Wong"); `tools/evaluate.py` e `tools/build_gallery.py`
   lavorano su una copia locale in `testdata/`.
+- **Modello di ingrandimento AI**: Real-ESRGAN General x4v3 in formato ONNX, pubblicato da
+  [Qualcomm AI Hub](https://huggingface.co/qualcomm/Real-ESRGAN-General-x4v3) (licenza BSD-3-Clause).
+  Non incluso nel repository: `tools/get_model.py` lo scarica e lo accetta solo se l'impronta
+  SHA-256 coincide. Il formato ONNX contiene solo pesi, non codice eseguibile.
 
 ## Sicurezza
 

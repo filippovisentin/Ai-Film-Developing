@@ -9,6 +9,7 @@ import numpy as np
 
 from .calibration import correct_light, estimate_base_from_border, light_is_clipped
 from .geometry import find_frame_corners, snap_aspect, trim_dark_edges, trim_rebate_edges, warp_frame
+from .enhance import enhance as enhance_image, super_resolve
 from .imageio_ import load_image, save_outputs
 from .invert import compute_roll_levels, render_positive, to_density
 from .profile import FilmProfile
@@ -26,6 +27,8 @@ class FrameResult:
     source: Path
     outputs: tuple[Path, Path]
     warnings: list[str] = field(default_factory=list)
+    enhanced: tuple[Path, Path] | None = None  # versione migliorata (nessun pixel inventato)
+    ai: tuple[Path, Path] | None = None  # super-risoluzione: dettagli inventati dalla rete
 
 
 def _warn(msg: str) -> None:
@@ -63,7 +66,8 @@ def _load_frame(group: list[Path]) -> tuple[np.ndarray, list[str]]:
 
 
 def develop_roll(frames: list[Path | list[Path]], profile: FilmProfile, calib: Calibration,
-                 out_dir: Path, crop: bool = True) -> list[FrameResult]:
+                 out_dir: Path, crop: bool = True, enhance: bool = False,
+                 super_res: int = 0) -> list[FrameResult]:
     """Sviluppa un rullino. Ogni elemento di `frames` è un file o un gruppo di scatti dello
     stesso fotogramma (multi-scatto); il risultato prende il nome dal primo file."""
     groups = [[Path(x) for x in f] if isinstance(f, (list, tuple)) else [Path(f)] for f in frames]
@@ -121,6 +125,15 @@ def develop_roll(frames: list[Path | list[Path]], profile: FilmProfile, calib: C
         for msg in w:
             if "base stimata" not in msg and msg not in roll_warnings:
                 _warn(msg)
-        outputs = save_outputs(render_positive(d, profile, levels), out_dir / f"{f.stem}_originale")
-        results.append(FrameResult(source=f, outputs=outputs, warnings=w))
+        positive = render_positive(d, profile, levels)
+        outputs = save_outputs(positive, out_dir / f"{f.stem}_originale")
+        res = FrameResult(source=f, outputs=outputs, warnings=w)
+        if enhance or super_res:
+            better = enhance_image(positive)
+            if enhance:
+                res.enhanced = save_outputs(better, out_dir / f"{f.stem}_migliorata")
+            if super_res:
+                res.ai = save_outputs(super_resolve(better, scale=super_res),
+                                      out_dir / f"{f.stem}_ai_x{super_res}")
+        results.append(res)
     return results

@@ -187,3 +187,33 @@ def test_cli_stack_not_divisible_is_error(tmp_path, capsys):
     rc = main(["develop", *map(str, paths), "--profile", "generic_color", "--stack", "2",
                "--out", str(tmp_path / "out")])
     assert rc == 2 and "multiplo" in capsys.readouterr().err
+
+
+def test_develop_roll_enhanced_version_next_to_original(tmp_path):
+    frames, light_path = _roll(tmp_path, names=("x",))
+    calib = Calibration(base_rgb=np.array(MASK, np.float32), light=load_image(light_path).rgb)
+    r = develop_roll(frames, load_profile("generic_color"), calib, tmp_path / "out", enhance=True)[0]
+    assert r.enhanced is not None and r.enhanced[0].name == "x_migliorata.tif"
+    orig, enh = load_image(r.outputs[0]).rgb, load_image(r.enhanced[0]).rgb
+    assert enh.shape == orig.shape
+    assert not np.array_equal(enh, orig)
+    assert np.abs(enh - orig).mean() < 0.03  # migliora, non stravolge
+
+
+def test_original_is_identical_whether_or_not_enhanced(tmp_path):
+    frames, light_path = _roll(tmp_path, names=("x",))
+    calib = Calibration(base_rgb=np.array(MASK, np.float32), light=load_image(light_path).rgb)
+    a = develop_roll(frames, load_profile("generic_color"), calib, tmp_path / "a")[0]
+    b = develop_roll(frames, load_profile("generic_color"), calib, tmp_path / "b", enhance=True)[0]
+    assert a.enhanced is None
+    assert np.array_equal(load_image(a.outputs[0]).rgb, load_image(b.outputs[0]).rgb)
+
+
+def test_cli_enhance_flag(tmp_path):
+    frames, _ = _roll(tmp_path, names=("x",))
+    base_patch, _ = save_outputs(np.ones((40, 40, 3), np.float32) * np.array(MASK, np.float32),
+                                 tmp_path / "in" / "base")
+    rc = main(["develop", str(frames[0]), "--profile", "generic_color", "--base", str(base_patch),
+               "--out", str(tmp_path / "out"), "--migliora"])
+    assert rc == 0
+    assert (tmp_path / "out" / "x_migliorata.jpg").exists()

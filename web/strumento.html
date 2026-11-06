@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sviluppa il tuo negativo</title>
+<style>
+  :root { --bg:#111110; --panel:#1a1a18; --line:#2c2b28; --text:#ecebe6; --muted:#9a988f;
+          --accent:#e8a33d; --ai:#b48cf2; --warn:#e0b04f; --bad:#e46c5c; --radius:10px; }
+  * { box-sizing: border-box; }
+  [hidden] { display:none !important; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  nav { max-width:1180px; margin:0 auto; padding:18px 24px 0; font-size:14px; }
+  nav a { color:var(--muted); text-decoration:none; margin-right:18px; }
+  nav a[aria-current] { color:var(--accent); }
+  main { max-width:1180px; margin:0 auto; padding:20px 24px 60px; display:grid; grid-template-columns:340px minmax(0,1fr); gap:24px; align-items:start; }
+  @media (max-width:900px) { main { grid-template-columns:1fr; } }
+  h1 { font-size:22px; margin:0 0 4px; letter-spacing:-.01em; }
+  .muted { color:var(--muted); font-size:14px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px; }
+  .drop { display:block; border:1.5px dashed var(--line); border-radius:8px; padding:12px; margin:12px 0 0; cursor:pointer; position:relative; transition:border-color .15s; }
+  .drop:hover, .drop:focus-within, .drop.over { border-color:var(--accent); }
+  .drop input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .drop .t { font-weight:600; font-size:14.5px; }
+  .drop .d { color:var(--muted); font-size:13px; }
+  .drop .ok { color:var(--accent); font-size:13px; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .drop img { display:none; width:100%; max-height:110px; object-fit:contain; margin-top:8px; border-radius:4px; background:#000; }
+  .drop.has img { display:block; }
+  label.f { display:block; font-size:13px; color:var(--muted); margin:16px 0 6px; }
+  select { width:100%; background:#0d0d0c; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:9px 10px; font:inherit; }
+  .opt { display:flex; gap:10px; align-items:flex-start; margin-top:12px; font-size:14.5px; cursor:pointer; }
+  .opt input { margin-top:4px; accent-color:var(--accent); }
+  .opt small { display:block; color:var(--muted); font-size:12.5px; }
+  .opt.ai input { accent-color:var(--ai); }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; margin:6px 0 0 26px; }
+  .seg button { background:none; color:var(--muted); border:0; padding:4px 12px; font:inherit; font-size:13px; cursor:pointer; }
+  .seg button[aria-pressed="true"] { background:var(--ai); color:#111; }
+  .seg button:disabled { opacity:.4; cursor:not-allowed; }
+  .go { width:100%; margin-top:18px; background:var(--accent); color:#111; border:0; border-radius:8px; padding:12px; font:inherit; font-weight:650; cursor:pointer; }
+  .go:disabled { opacity:.45; cursor:not-allowed; }
+  .msg { margin-top:12px; font-size:13.5px; min-height:1em; }
+  .msg.err { color:var(--bad); }
+  .avvisi { margin:10px 0 0; padding-left:18px; color:var(--warn); font-size:13px; }
+  /* risultati */
+  .empty { aspect-ratio:3/2; display:grid; place-items:center; text-align:center; color:var(--muted); border:1px dashed var(--line); border-radius:var(--radius); padding:24px; }
+  .tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+  .tabs button { background:var(--panel); color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:6px 14px; font:inherit; font-size:14px; cursor:pointer; }
+  .tabs button[aria-pressed="true"] { color:#111; background:var(--accent); border-color:var(--accent); }
+  .tabs button.ai[aria-pressed="true"] { background:var(--ai); border-color:var(--ai); }
+  .compare { position:relative; border-radius:var(--radius); overflow:hidden; background:#000; user-select:none; touch-action:none; cursor:ew-resize; }
+  .compare img { display:block; width:100%; height:auto; }
+  .compare img.top { position:absolute; inset:0; height:100%; object-fit:fill; clip-path:inset(0 calc(100% - var(--pos,50%)) 0 0); }
+  .compare .bar { position:absolute; top:0; bottom:0; left:var(--pos,50%); width:2px; background:var(--accent); transform:translateX(-1px); pointer-events:none; }
+  .compare .tag { position:absolute; top:12px; padding:4px 10px; border-radius:999px; background:rgba(0,0,0,.62); font-size:12.5px; }
+  .compare .tag.l { left:12px; } .compare .tag.r { right:12px; }
+  .compare.single img.top, .compare.single .bar, .compare.single .tag.l { display:none; }
+  .compare.single { cursor:default; }
+  .lens { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+  .lens figure { margin:0; }
+  .lens canvas { width:100%; aspect-ratio:1; border-radius:8px; background:#000; image-rendering:pixelated; display:block; }
+  .lens figcaption { font-size:12.5px; color:var(--muted); margin-top:4px; }
+  .note { margin-top:12px; font-size:13.5px; color:var(--muted); }
+  .note.ai { color:var(--ai); }
+  .dl { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .dl a { color:var(--text); background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:7px 12px; font-size:13.5px; text-decoration:none; }
+  .dl a:hover { border-color:var(--accent); }
+  .spinner { width:22px; height:22px; border:3px solid var(--line); border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite; display:inline-block; vertical-align:middle; margin-right:8px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation:none; } }
+</style>
+</head>
+<body>
+<nav><a href="come-funziona.html">Come funziona</a><a href="strumento.html" aria-current="page">Strumento</a><a href="index.html">Galleria di prova</a></nav>
+<main>
+  <form class="panel" id="form" novalidate>
+    <h1>Sviluppa il tuo negativo</h1>
+    <div class="muted">Le foto restano sul tuo computer: l'elaborazione è locale.</div>
+
+    <label class="drop" data-key="negativo"><input type="file" accept="image/*,.dng,.tif,.tiff" aria-label="Foto del negativo">
+      <div class="t">1 · Foto del negativo <span style="color:var(--accent)">*</span></div>
+      <div class="d">Pellicola sulla luce, fotogramma intero e a fuoco. JPEG, PNG, TIFF o DNG (RAW).</div>
+      <div class="ok"></div><img alt=""></label>
+    <label class="drop" data-key="luce"><input type="file" accept="image/*,.dng,.tif,.tiff" aria-label="Foto della sola luce">
+      <div class="t">2 · Foto della sola luce <span class="muted">(consigliata)</span></div>
+      <div class="d">Stessa posizione, senza pellicola: corregge la luce non uniforme.</div>
+      <div class="ok"></div><img alt=""></label>
+    <label class="drop" data-key="base"><input type="file" accept="image/*,.dng,.tif,.tiff" aria-label="Foto della pellicola non esposta">
+      <div class="t">3 · Pellicola non esposta <span class="muted">(consigliata)</span></div>
+      <div class="d">Un pezzo di bordo o di coda del rullino: colori molto più precisi.</div>
+      <div class="ok"></div><img alt=""></label>
+
+    <label class="f" for="profilo">Pellicola</label>
+    <select id="profilo"><option>caricamento…</option></select>
+
+    <label class="opt"><input type="checkbox" id="migliora" checked>
+      <span>Versione migliorata<small>Toglie polvere e rumore, aumenta un po' la nitidezza. Non inventa nulla.</small></span></label>
+    <label class="opt ai"><input type="checkbox" id="ai">
+      <span>Ingrandimento AI<small>Una rete neurale aggiunge pixel e dettagli <b>inventati</b>: più nitida, meno fedele.</small></span></label>
+    <div class="seg" role="group" aria-label="Fattore di ingrandimento">
+      <button type="button" data-sr="2" aria-pressed="true" disabled>×2</button><button type="button" data-sr="4" aria-pressed="false" disabled>×4</button>
+    </div>
+
+    <button class="go" id="go" type="submit" disabled>Sviluppa</button>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    <ul class="avvisi" id="avvisi"></ul>
+  </form>
+
+  <section aria-label="Risultato">
+    <div class="empty" id="empty">Carica la foto del negativo e premi <b>Sviluppa</b>.<br>Qui vedrai la versione Originale e quelle migliorate.</div>
+    <div id="out" hidden>
+      <div class="tabs" id="tabs"></div>
+      <div class="compare" id="compare" style="--pos:50%">
+        <img id="imgBase" alt="Risultato selezionato">
+        <img id="imgTop" class="top" alt="Originale per confronto">
+        <div class="bar"></div><span class="tag l">Originale</span><span class="tag r" id="tagR"></span>
+      </div>
+      <div class="lens" id="lens" hidden>
+        <figure><canvas id="lensA" width="256" height="256"></canvas><figcaption id="capA">Originale (ingrandita)</figcaption></figure>
+        <figure><canvas id="lensB" width="256" height="256"></canvas><figcaption id="capB"></figcaption></figure>
+      </div>
+      <div class="note" id="note"></div>
+      <div class="dl" id="dl"></div>
+    </div>
+  </section>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const files = {};
+let sr = 2, results = null, current = "originale";
+const LABELS = { originale: "Originale", migliorata: "Migliorata", ai: "AI" };
+const NOTES = {
+  originale: "Lo sviluppo fedele: solo ciò che c'è sul negativo.",
+  migliorata: "Pulita: polvere e rumore ridotti, nitidezza moderata. Nessun dettaglio inventato. Trascina la barra per confrontare.",
+  ai: "Attenzione: i dettagli fini di questa versione sono stati inventati dalla rete neurale (Real-ESRGAN). Belli da vedere, ma non sono sulla pellicola."
+};
+
+fetch("/api/profili").then(r => r.json()).then(list => {
+  const sel = $("#profilo"); sel.innerHTML = "";
+  for (const p of list) sel.add(new Option(p.nome, p.id, false, p.id === "generic_color"));
+}).catch(() => { $("#msg").textContent = "Server non raggiungibile: avvia 'python -m tools.server'."; $("#msg").className = "msg err"; });
+
+document.querySelectorAll(".drop").forEach(drop => {
+  const input = drop.querySelector("input");
+  const take = file => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      files[drop.dataset.key] = reader.result;
+      drop.querySelector(".ok").textContent = "✓ " + file.name;
+      const img = drop.querySelector("img");
+      if (/^image\/(jpeg|png|webp)/.test(file.type)) { img.src = reader.result; drop.classList.add("has"); }
+      else drop.classList.remove("has");
+      $("#go").disabled = !files.negativo;
+    };
+    reader.readAsDataURL(file);
+  };
+  input.addEventListener("change", () => take(input.files[0]));
+  drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); take(e.dataTransfer.files[0]); });
+});
+
+$("#ai").addEventListener("change", e => document.querySelectorAll(".seg button").forEach(b => b.disabled = !e.target.checked));
+document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
+  sr = +b.dataset.sr;
+  document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+}));
+
+$("#form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!files.negativo) return;
+  const msg = $("#msg"); msg.className = "msg";
+  msg.innerHTML = '<span class="spinner"></span>' + ($("#ai").checked ? "Sviluppo e ingrandimento AI in corso (può servire qualche decina di secondi)…" : "Sviluppo in corso…");
+  $("#go").disabled = true; $("#avvisi").innerHTML = "";
+  try {
+    const res = await fetch("/api/sviluppa", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ negativo: files.negativo, luce: files.luce || null, base: files.base || null,
+        profilo: $("#profilo").value, migliora: $("#migliora").checked, super_ris: $("#ai").checked ? sr : 0 }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.errore || "errore");
+    results = data.immagini; msg.textContent = "Fatto.";
+    for (const a of data.avvisi) { const li = document.createElement("li"); li.textContent = a; $("#avvisi").append(li); }
+    show(results.ai ? "ai" : results.migliorata ? "migliorata" : "originale");
+  } catch (err) { msg.textContent = "Non riuscito: " + err.message; msg.className = "msg err"; }
+  finally { $("#go").disabled = !files.negativo; }
+});
+
+function show(key) {
+  current = key;
+  $("#empty").hidden = true; $("#out").hidden = false;
+  const tabs = $("#tabs"); tabs.innerHTML = "";
+  for (const k of Object.keys(LABELS)) if (results[k]) {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = LABELS[k];
+    if (k === "ai") b.className = "ai";
+    b.setAttribute("aria-pressed", String(k === key)); b.onclick = () => show(k); tabs.append(b);
+  }
+  $("#imgBase").src = results[key]; $("#imgTop").src = results.originale;
+  $("#compare").classList.toggle("single", key === "originale");
+  $("#tagR").textContent = LABELS[key];
+  const note = $("#note"); note.textContent = NOTES[key]; note.className = "note" + (key === "ai" ? " ai" : "");
+  const dl = $("#dl"); dl.innerHTML = "";
+  for (const k of Object.keys(LABELS)) if (results[k]) {
+    const a = document.createElement("a"); a.href = results[k]; a.download = `negativo_${k}.jpg`; a.textContent = "Scarica " + LABELS[k]; dl.append(a);
+  }
+  $("#lens").hidden = key === "originale";
+  if (key !== "originale") { $("#capB").textContent = LABELS[key] + " (ingrandita)"; lensAt(0.5, 0.5); }
+}
+
+const imgs = {};
+function load(src) { if (!imgs[src]) { imgs[src] = new Image(); imgs[src].src = src; } return imgs[src]; }
+function draw(canvas, src, fx, fy) {
+  const im = load(src);
+  const paint = () => {
+    const ctx = canvas.getContext("2d"); ctx.imageSmoothingEnabled = false;
+    const side = Math.max(24, Math.round(im.naturalWidth / 12));
+    const x = Math.min(Math.max(fx * im.naturalWidth - side / 2, 0), im.naturalWidth - side);
+    const y = Math.min(Math.max(fy * im.naturalHeight - side / 2, 0), im.naturalHeight - side);
+    ctx.drawImage(im, x, y, side, side, 0, 0, canvas.width, canvas.height);
+  };
+  im.complete ? paint() : im.addEventListener("load", paint, { once: true });
+}
+function lensAt(fx, fy) { if (!results || current === "originale") return; draw($("#lensA"), results.originale, fx, fy); draw($("#lensB"), results[current], fx, fy); }
+
+const cmp = $("#compare");
+let drag = false;
+const move = e => {
+  const r = cmp.getBoundingClientRect();
+  const fx = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1), fy = Math.min(Math.max((e.clientY - r.top) / r.height, 0), 1);
+  if (drag) cmp.style.setProperty("--pos", (fx * 100) + "%");
+  lensAt(fx, fy);
+};
+cmp.addEventListener("pointerdown", e => { drag = !cmp.classList.contains("single"); cmp.setPointerCapture(e.pointerId); move(e); });
+cmp.addEventListener("pointermove", move);
+cmp.addEventListener("pointerup", () => drag = false);
+</script>
+</body>
+</html>
