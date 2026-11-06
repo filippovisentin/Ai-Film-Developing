@@ -37,19 +37,39 @@ def _to_rgb3(a: np.ndarray) -> np.ndarray:
 
 
 def _load_raw(path: Path) -> np.ndarray:
-    import rawpy
-
-    with rawpy.imread(str(path)) as raw:
-        out = raw.postprocess(
-            gamma=(1, 1),
-            no_auto_bright=True,
-            output_bps=16,
-            use_camera_wb=False,
-            use_auto_wb=False,
-            user_wb=[1.0, 1.0, 1.0, 1.0],
-            output_color=rawpy.ColorSpace.sRGB,
-        )
+    try:
+        import rawpy
+    except ImportError as e:  # pragma: no cover - dipende dall'installazione
+        raise ValueError("DNG non leggibile: il modulo rawpy non è installato") from e
+    try:
+        with rawpy.imread(str(path)) as raw:
+            # bilanciamento della camera PRIMA della matrice colore: senza, sotto la maschera
+            # arancione il blu diventa negativo e LibRaw lo taglia a 0 (dettaglio perso).
+            # I guadagni per canale si annullano poi dividendo per la base.
+            out = raw.postprocess(
+                gamma=(1, 1),
+                no_auto_bright=True,
+                output_bps=16,
+                use_camera_wb=True,
+                use_auto_wb=False,
+                output_color=rawpy.ColorSpace.sRGB,
+            )
+    except (rawpy.LibRawError, OSError) as e:
+        raise ValueError(f"DNG non leggibile: {path.name} ({e})") from e
     return out.astype(np.float32) / 65535.0
+
+
+def _read_oriented(path: Path) -> np.ndarray:
+    """Legge un'immagine applicando la rotazione EXIF, come fa la galleria del telefono."""
+    from PIL import Image, ImageOps
+
+    with Image.open(path) as im:
+        im = ImageOps.exif_transpose(im)
+        if im.mode in ("I;16", "I;16B", "I;16L", "I"):
+            return np.asarray(im).astype(np.uint16)
+        if im.mode not in ("RGB", "RGBA", "L"):
+            im = im.convert("RGB")
+        return np.asarray(im)
 
 
 def load_image(path: str | Path) -> LoadedImage:
@@ -65,7 +85,10 @@ def load_image(path: str | Path) -> LoadedImage:
     if ext in RAW_EXT:
         return LoadedImage(_load_raw(path), is_raw=True)
 
-    a = _to_rgb3(iio.imread(path))
+    if ext in {".jpg", ".jpeg"}:
+        a = _to_rgb3(_read_oriented(path))
+    else:
+        a = _to_rgb3(iio.imread(path))
     if a.dtype == np.uint8:
         v = a.astype(np.float32) / 255.0
     elif a.dtype == np.uint16:

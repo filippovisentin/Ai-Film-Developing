@@ -75,3 +75,28 @@ def test_cli_unknown_profile_returns_error(tmp_path, capsys):
     frames, _ = _roll(tmp_path, names=("x",))
     assert main(["develop", str(frames[0]), "--profile", "nope", "--out", str(tmp_path)]) == 2
     assert "Profilo sconosciuto" in capsys.readouterr().err
+
+
+def test_frames_brighter_than_base_photo_keep_shadows(tmp_path):
+    # la foto della base è stata esposta meno dei fotogrammi (esposizione automatica del telefono)
+    scene = make_scene(seed=4)
+    scene[150:190, 20:280] = np.linspace(0.01, 0.04, 260, dtype=np.float32)[None, :, None]
+    neg = make_negative(scene, MASK, GAMMA, border_px=30) * 1.5
+    f, _ = save_outputs(np.clip(neg, 0, 1), tmp_path / "in" / "f")
+    res = develop_roll([f], load_profile("generic_color"),
+                       Calibration(base_rgb=np.array(MASK, np.float32)), tmp_path / "out")
+    out = load_image(res[0].outputs[0]).rgb
+    ramp = out[160:180, 30:270, 1].mean(axis=0)
+    assert len(np.unique(np.round(ramp, 4))) > 100  # la rampa delle ombre non è appiattita
+    assert any("più chiar" in w for w in res[0].warnings)
+
+
+def test_black_holder_does_not_blank_the_frame(tmp_path):
+    neg = make_negative(make_scene(), MASK, GAMMA, border_px=30)
+    framed = np.full((neg.shape[0] + 80, neg.shape[1] + 80, 3), 0.005, np.float32)
+    framed[40:-40, 40:-40] = neg
+    f, _ = save_outputs(framed, tmp_path / "in" / "holder")
+    res = develop_roll([f], load_profile("generic_color"), Calibration(), tmp_path / "out")
+    out = load_image(res[0].outputs[0]).rgb
+    assert out.std() > 0.1  # non un'immagine uniforme
+    assert abs(out.shape[1] / out.shape[0] - 1.5) < 0.02  # ritagliato sul fotogramma

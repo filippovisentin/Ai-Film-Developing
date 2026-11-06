@@ -56,3 +56,9 @@ def test_estimate_base_ignores_bare_light_around_film():
     framed[10:-10, 10:-10] = neg  # anello di luce nuda (1.0) intorno alla pellicola
     est = estimate_base_from_border(framed)
     assert np.allclose(est, MASK, rtol=0.03)
+
+
+def test_light_with_different_size_raises_clear_error():
+    import pytest
+    with pytest.raises(ValueError, match="dimensioni"):
+        correct_light(np.ones((40, 60, 3), np.float32), np.ones((60, 40, 3), np.float32))

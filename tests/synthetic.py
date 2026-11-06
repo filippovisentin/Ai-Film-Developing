@@ -7,7 +7,7 @@ SCENE_MIN = 0.01
 # patch grigia neutra: righe/colonne nella scena (prima di aggiungere il bordo)
 GRAY = (slice(20, 50), slice(20, 60))
 GRAY_VALUE = 0.18
-# patch bianca neutra: è il punto più chiaro della scena su ogni canale
+# patch bianca neutra: Ã¨ il punto piÃ¹ chiaro della scena su ogni canale
 WHITE = (slice(20, 50), slice(70, 110))
 WHITE_VALUE = 0.9
 

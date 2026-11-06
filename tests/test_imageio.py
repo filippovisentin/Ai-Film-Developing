@@ -60,3 +60,43 @@ def test_16bit_tiff_input_keeps_precision(tmp_path):
     tif, _ = save_outputs(img, tmp_path / "fine")
     back = load_image(tif).rgb
     assert len(np.unique(back[0, :, 0])) > 20  # ~39 livelli a 16 bit; 8 bit ne darebbe 1-2
+
+
+def test_jpeg_exif_orientation_is_applied(tmp_path):
+    from PIL import Image
+    f = tmp_path / "verticale.jpg"
+    im = Image.fromarray(np.full((20, 40, 3), 120, np.uint8))
+    exif = im.getexif()
+    exif[0x0112] = 6  # ruota di 90°
+    im.save(f, exif=exif)
+    assert load_image(f).rgb.shape == (40, 20, 3)
+
+
+def test_corrupt_dng_raises_clear_error(tmp_path):
+    f = tmp_path / "rotto.dng"
+    f.write_bytes(b"non un dng" * 100)
+    with pytest.raises(ValueError, match="DNG non leggibile"):
+        load_image(f)
+
+
+def test_dng_uses_camera_white_balance(tmp_path, monkeypatch):
+    import sys
+    import types
+    seen = {}
+
+    class FakeRaw:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def postprocess(self, **kw):
+            seen.update(kw)
+            return np.zeros((4, 4, 3), np.uint16)
+
+    fake = types.SimpleNamespace(imread=lambda p: FakeRaw(),
+                                 ColorSpace=types.SimpleNamespace(sRGB="srgb", raw="raw"),
+                                 LibRawError=Exception)
+    monkeypatch.setitem(sys.modules, "rawpy", fake)
+    f = tmp_path / "x.dng"
+    f.write_bytes(b"x")
+    load_image(f)
+    # bilanciamento della camera prima della matrice: senza, il blu sotto la maschera viene tagliato a 0
+    assert seen["use_camera_wb"] is True and seen.get("user_wb") is None

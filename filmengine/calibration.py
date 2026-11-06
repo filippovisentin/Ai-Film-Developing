@@ -12,6 +12,12 @@ BARE_LIGHT = 0.97
 def correct_light(img: np.ndarray, light: np.ndarray | None) -> np.ndarray:
     if light is None:
         return img
+    if light.shape != img.shape:
+        raise ValueError(
+            f"La foto della luce ha dimensioni {light.shape[1]}x{light.shape[0]}, "
+            f"il fotogramma {img.shape[1]}x{img.shape[0]}: scattale con lo stesso "
+            "orientamento e la stessa risoluzione"
+        )
     sigma = max(1.0, 0.02 * min(light.shape[:2]))
     blurred = cv2.GaussianBlur(light.astype(np.float32), (0, 0), sigma)
     norm = np.percentile(blurred, 99, axis=(0, 1))

@@ -31,6 +31,22 @@ def _warn(msg: str) -> None:
     print(f"Attenzione: {msg}", file=sys.stderr)
 
 
+BRIGHTER_TOLERANCE = 1.02
+FRAME_BASE_PCT = 99.9
+
+
+def _frame_base(f: Path, img: np.ndarray, base: np.ndarray, w: list[str]) -> np.ndarray:
+    """Le zone più chiare di un negativo sono la base stessa: se il fotogramma ne ha di più
+    chiare della base misurata (esposizione diversa, porta-negativi scuro ai bordi), la base
+    di quel fotogramma viene alzata, altrimenti le ombre verrebbero appiattite."""
+    brightest = np.percentile(img.reshape(-1, 3), FRAME_BASE_PCT, axis=0).astype(np.float32)
+    if np.any(brightest > base * BRIGHTER_TOLERANCE):
+        w.append(f"{f.name}: fotogramma più chiaro della base misurata "
+                 "(esposizione diversa?), base corretta per questo fotogramma")
+        return np.maximum(base, brightest)
+    return base
+
+
 def develop_roll(frames: list[Path], profile: FilmProfile, calib: Calibration,
                  out_dir: Path, crop: bool = True) -> list[FrameResult]:
     frames = sorted((Path(f) for f in frames), key=lambda p: (p.name, str(p)))
@@ -67,7 +83,9 @@ def develop_roll(frames: list[Path], profile: FilmProfile, calib: Calibration,
             _warn(msg)
             for w in warnings:
                 w.append(msg)
-        data = [to_density(img, base) for img in prepared]
+        data = []
+        for f, img, w in zip(frames, prepared, warnings):
+            data.append(to_density(img, _frame_base(f, img, base, w)))
 
     levels = compute_roll_levels(data, profile)
     results = []
