@@ -60,6 +60,32 @@ def compute_roll_levels(densities: list[np.ndarray], profile: FilmProfile) -> Ro
     return RollLevels(low=low, high=high)
 
 
+LUMA = np.array([0.2126, 0.7152, 0.0722], np.float32)
+
+
+def gamut_map(rgb: np.ndarray) -> np.ndarray:
+    """Porta i colori dentro [0, 1] mantenendo tinta e luminanza.
+
+    Un taglio canale per canale cambia la tinta (un arancio troppo saturo diventa giallo).
+    Qui un colore fuori gamma viene invece desaturato verso il grigio della sua stessa
+    luminanza, quanto basta per rientrare; i colori già nel gamut non cambiano.
+    """
+    rgb = np.asarray(rgb, np.float32)
+    lum = rgb @ LUMA
+    d = rgb - lum[..., None]
+    mx, mn = rgb.max(axis=-1), rgb.min(axis=-1)
+    t = np.ones_like(lum)
+    over = mx > 1.0
+    t[over] = np.minimum(t[over], (1.0 - lum[over]) / np.maximum(mx[over] - lum[over], 1e-6))
+    under = mn < 0.0
+    t[under] = np.minimum(t[under], lum[under] / np.maximum(lum[under] - mn[under], 1e-6))
+    t = np.clip(t, 0.0, 1.0)
+    out = np.clip(lum, 0.0, 1.0)[..., None] + t[..., None] * d
+    inside = (mx <= 1.0) & (mn >= 0.0)
+    out[inside] = rgb[inside]
+    return np.clip(out, 0.0, 1.0).astype(np.float32)
+
+
 def tone_curve(n: np.ndarray, k: float) -> np.ndarray:
     """Curva a S della carta su [0,1]: estremi fissi, monotona; k=0 è l'identità."""
     if k <= 0:
@@ -86,4 +112,4 @@ def render_positive(density_or_slide: np.ndarray, profile: FilmProfile, levels: 
     scene = np.power(10.0, (g - 1.0) * rng)
     printed = scene ** profile.print_contrast
     out = printed @ np.asarray(profile.color_matrix, np.float32).T
-    return np.clip(out, 0.0, 1.0).astype(np.float32)
+    return gamut_map(out)

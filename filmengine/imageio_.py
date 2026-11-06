@@ -102,12 +102,23 @@ def load_image(path: str | Path) -> LoadedImage:
     return LoadedImage(srgb_to_linear(v), is_raw=False, warnings=warn)
 
 
+def _srgb_icc() -> bytes:
+    """Profilo colore sRGB da incorporare: senza, altre app possono interpretare male i colori."""
+    from PIL import ImageCms
+
+    return ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB")).tobytes()
+
+
 def save_outputs(rgb_linear: np.ndarray, out_stem: Path) -> tuple[Path, Path]:
+    from PIL import Image
+
     out_stem = Path(out_stem)
     out_stem.parent.mkdir(parents=True, exist_ok=True)
     enc = linear_to_srgb(rgb_linear)
     tif = out_stem.with_suffix(".tif")
     jpg = out_stem.with_suffix(".jpg")
-    tifffile.imwrite(tif, np.round(enc * 65535).astype(np.uint16), photometric="rgb")
-    iio.imwrite(jpg, np.round(enc * 255).astype(np.uint8), quality=95)
+    icc = _srgb_icc()
+    tifffile.imwrite(tif, np.round(enc * 65535).astype(np.uint16), photometric="rgb",
+                     extratags=[(34675, "B", len(icc), icc, True)])
+    Image.fromarray(np.round(enc * 255).astype(np.uint8)).save(jpg, quality=95, icc_profile=icc)
     return tif, jpg

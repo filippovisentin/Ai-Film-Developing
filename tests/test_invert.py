@@ -165,3 +165,32 @@ def test_thin_edge_line_does_not_change_levels():
     a = render_positive(dc, p, compute_roll_levels([dc], p))
     b = render_positive(dl, p, compute_roll_levels([dl], p))
     assert float(np.abs(a - b)[10:-10].mean()) < 0.005
+
+
+def test_gamut_map_keeps_hue_and_luminance():
+    from filmengine.invert import gamut_map
+    W = np.array([0.2126, 0.7152, 0.0722], np.float32)
+    x = np.array([[[1.4, 0.6, 0.2], [0.5, 0.4, -0.08], [0.3, 0.5, 0.7]]], np.float32)
+    y = gamut_map(x)
+    assert y.min() >= 0 and y.max() <= 1
+    assert np.allclose(y[0, :2] @ W, x[0, :2] @ W, rtol=0.01)       # luminanza conservata
+    assert y[0, 0, 0] > y[0, 0, 1] > y[0, 0, 2]                      # arancio resta arancio
+    assert np.array_equal(y[0, 2], x[0, 2])                          # colori nel gamut: invariati
+
+
+def test_gamut_map_too_bright_becomes_white():
+    from filmengine.invert import gamut_map
+    y = gamut_map(np.array([[[2.0, 1.8, 1.5]]], np.float32))
+    assert np.allclose(y, 1.0)
+
+
+def test_render_uses_gamut_mapping_not_hard_clip():
+    swap = ((1.6, -0.3, -0.3), (-0.3, 1.6, -0.3), (-0.3, -0.3, 1.6))   # matrice che satura molto
+    p = dataclasses.replace(COLOR, color_matrix=swap)
+    out = _develop(make_scene(), p)
+    hard = np.clip(_develop(make_scene(), dataclasses.replace(COLOR)) @ np.array(swap, np.float32).T, 0, 1)
+    W = np.array([0.2126, 0.7152, 0.0722], np.float32)
+    clipped = np.any((hard <= 0) | (hard >= 1), -1)
+    # dove il taglio duro cambierebbe la luminanza, la mappatura la conserva meglio
+    ideal = np.clip(_develop(make_scene(), dataclasses.replace(COLOR)) @ np.array(swap, np.float32).T @ W, 0, 1)
+    assert np.abs(out @ W - ideal)[clipped].mean() < np.abs(hard @ W - ideal)[clipped].mean()

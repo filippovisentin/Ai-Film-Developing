@@ -100,3 +100,17 @@ def test_dng_uses_camera_white_balance(tmp_path, monkeypatch):
     load_image(f)
     # bilanciamento della camera prima della matrice: senza, il blu sotto la maschera viene tagliato a 0
     assert seen["use_camera_wb"] is True and seen.get("user_wb") is None
+
+
+def test_outputs_embed_srgb_profile(tmp_path):
+    import tifffile
+    from PIL import Image, ImageCms
+    grad = np.linspace(0, 1, 32 * 32 * 3, dtype=np.float32).reshape(32, 32, 3)
+    tif, jpg = save_outputs(grad, tmp_path / "out")
+    with tifffile.TiffFile(tif) as t:
+        icc = t.pages[0].tags.get(34675)
+        assert icc is not None and len(icc.value) > 100
+    with Image.open(jpg) as im:
+        prof = ImageCms.ImageCmsProfile(__import__("io").BytesIO(im.info["icc_profile"]))
+        assert "srgb" in ImageCms.getProfileDescription(prof).lower()
+    assert np.max(np.abs(load_image(tif).rgb - grad)) < 1e-3   # i valori non cambiano
