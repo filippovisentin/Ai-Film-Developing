@@ -13,7 +13,7 @@ dependencies = ["numpy", "opencv-python", "rawpy", "imageio", "tifffile"]
 dev = ["pytest"]
 
 [tool.setuptools]
-packages = ["filmengine"]
+packages = ["filmengine", "devguide"]
 
 [tool.setuptools.package-data]
 filmengine = []

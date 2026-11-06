@@ -1,0 +1,35 @@
+{
+  "id": "c41_cinestill_cs41_liquid",
+  "process": "c41",
+  "name": "CineStill Cs41 (liquido, 2 bagni)",
+  "temps_c": [22, 24, 27, 29.5, 32, 35, 39],
+  "times": {
+    "normal": [50, 35, 21, 13, 8.5, 5.75, 3.5],
+    "push1":  [null, 50, 28, 17, 11, 7.5, 4.55],
+    "push2":  [null, null, 37, 25, 14.75, 10, 6.13],
+    "push3":  [null, null, null, 35, 21, 14.33, 8.75],
+    "pull1":  [null, 27, 16.25, 10, 6.5, 4.5, 2.75]
+  },
+  "agitation_by_temp": [
+    [22, {"initial_s": 60, "every_s": 120, "inversions": 4, "window_s": 10}],
+    [29.5, {"initial_s": 30, "every_s": 60, "inversions": 4, "window_s": 10}],
+    [35, {"initial_s": 10, "every_s": 30, "inversions": 4, "window_s": 10}]
+  ],
+  "presoak": {"name": "Pre-bagno (facoltativo)", "minutes": 1, "note": "acqua alla temperatura del rivelatore, senza agitazione"},
+  "blix": {"name": "Sbianca-fissaggio (Blix)", "minutes": 8, "note": "24-40 °C, stessa agitazione del rivelatore; il tempo non aumenta con il riuso"},
+  "wash": {"name": "Lavaggio", "minutes": 3, "note": "acqua corrente 24-40 °C, oppure riempi e svuota la tank 7 volte"},
+  "stabilizer": {"name": "Stabilizzatore / risciacquo finale (facoltativo)", "minutes": 1, "note": "da 30 s a 1 min a temperatura ambiente; agitare i primi 15 s"},
+  "reuse_pct_per_roll": {"pint": 4.0, "quart": 2.0, "gallon": 0.5},
+  "capacity_rolls": {"pint": 4, "quart": 8},
+  "notes": [
+    "Senza bagno termostatico aggiungere 1 °C (2 °F) al rivelatore.",
+    "Il riuso dei chimici non è consigliato per il push e funziona peggio alle basse temperature.",
+    "Temperature più basse riducono contrasto e separazione dei colori; il push aumenta contrasto e saturazione.",
+    "Agitazione insufficiente sposta verso il rosso, eccessiva verso il ciano."
+  ],
+  "source": {
+    "title": "CineStill Cs41 Liquid Instructions (V9-26)",
+    "url": "https://cdn.shopify.com/s/files/1/0339/5113/files/2026_Cs41_Liquid_Instruction_V9-26_Web.pdf",
+    "date": "2026"
+  }
+}
