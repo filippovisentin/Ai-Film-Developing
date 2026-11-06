@@ -19,6 +19,8 @@ from .imageio_ import linear_to_srgb, srgb_to_linear
 
 MODELS_DIR = Path(__file__).resolve().parent.parent / "models"
 DEFAULT_MODEL = MODELS_DIR / "real_esrgan_general_x4v3.onnx"
+RESTORE_MODEL = MODELS_DIR / "restore_v1.onnx"
+RESTORE_TILE, RESTORE_PAD = 512, 24
 SR_TILE, SR_SCALE, SR_OVERLAP = 128, 4, 16
 DUST_CONTRAST, DUST_RING_STD, DUST_CHROMA, DUST_MIN_BG = 0.25, 0.03, 0.25, 0.25
 
@@ -153,6 +155,32 @@ def enhance(rgb: np.ndarray, dust: bool = True, noise: bool = True, sharp: bool 
 
 
 _SESSIONS: dict[str, object] = {}
+
+
+def restore(rgb: np.ndarray, model_path: Path | None = None) -> np.ndarray:
+    """Rete addestrata a togliere rumore, blocchi JPEG e morbidezza dello scatto da telefono.
+
+    Non ingrandisce: ricostruisce ciò che lo scatto ha degradato (addestrata su coppie
+    scatto simulato → sviluppo pulito, vedi tools/train_restore.py).
+    """
+    model_path = Path(model_path or RESTORE_MODEL)
+    if not model_path.exists():
+        raise FileNotFoundError(f"Rete di restauro assente ({model_path}): addestrala con "
+                                "'python -m tools.restore_data' e 'python -m tools.train_restore'")
+    sess = _session(model_path)
+    name = sess.get_inputs()[0].name
+    enc = linear_to_srgb(np.clip(rgb.astype(np.float32), 0, 1))
+    h, w = enc.shape[:2]
+    P, T = RESTORE_PAD, RESTORE_TILE
+    pad = cv2.copyMakeBorder(enc, P, P, P, P, cv2.BORDER_REFLECT)
+    out = np.empty_like(enc)
+    for y in range(0, h, T):
+        for x in range(0, w, T):
+            th, tw = min(T, h - y), min(T, w - x)
+            tile = pad[y:y + th + 2 * P, x:x + tw + 2 * P].transpose(2, 0, 1)[None]
+            res = sess.run(None, {name: np.ascontiguousarray(tile, np.float32)})[0][0].transpose(1, 2, 0)
+            out[y:y + th, x:x + tw] = res[P:P + th, P:P + tw]
+    return srgb_to_linear(np.clip(out, 0, 1)).astype(np.float32)
 
 
 def _session(model_path: Path):

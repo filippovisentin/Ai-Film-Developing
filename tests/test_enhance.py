@@ -121,3 +121,29 @@ def test_remove_dust_keeps_small_lights_in_dark_sky():
         cv2.circle(sky, (xx, yy), 1, (0.9, 0.9, 0.85), -1)
     out, n = enhance.remove_dust(sky, return_count=True)
     assert n == 0 and np.array_equal(out, sky)
+
+
+def test_restore_missing_model_explains_how_to_get_it(tmp_path):
+    with pytest.raises(FileNotFoundError, match="train_restore"):
+        enhance.restore(_scene(), model_path=tmp_path / "nessuno.onnx")
+
+
+needs_restore = pytest.mark.skipif(not enhance.RESTORE_MODEL.exists(), reason="rete di restauro non addestrata")
+
+
+@needs_restore
+def test_restore_keeps_size_and_leaves_clean_image_nearly_untouched():
+    pytest.importorskip("onnxruntime")
+    clean = _scene(300, 420)
+    out = enhance.restore(clean)
+    assert out.shape == clean.shape and out.dtype == np.float32
+    # misurato 0.014 con restore_v1: lieve ritocco di tono, coerente con ΔE 3.25 -> 3.43 sui negativi veri
+    assert np.abs(out - clean)[10:-10, 10:-10].mean() < 0.02
+
+
+@needs_restore
+def test_restore_tiles_have_no_seams():
+    pytest.importorskip("onnxruntime")
+    flat = np.full((700, 900, 3), [0.3, 0.2, 0.1], np.float32)
+    out = enhance.restore(flat)
+    assert out[20:-20, 20:-20].std(axis=(0, 1)).max() < 0.003

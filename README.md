@@ -56,6 +56,17 @@ Versione migliorata (polvere, rumore, nitidezza: nessun pixel inventato) e ingra
 .venv/Scripts/python -m filmengine develop foto.jpg --profile portra_400 --migliora --super-ris 4
 ```
 
+Rete di restauro addestrata (sperimentale, non attiva di default): 52 anteprime BlueNeg da 20 rullini
+diventano negativi artificiali, "fotografati" col simulatore; la rete impara scatto → sviluppo pulito.
+Verifica su 13 negativi veri di 4 rullini mai visti: dettaglio migliore di tutte le alternative
+(errore 0.0290 → 0.0269), ma colori non migliori della versione Migliorata (ΔE 7.32 contro 6.68).
+I pesi non sono pubblicati (dati BlueNeg); si rigenerano così (servono `torch` e `onnx`):
+
+```bash
+.venv/Scripts/python -m tools.restore_data testdata/train_prev testdata/restore_pairs.npz 4
+.venv/Scripts/python -m tools.train_restore testdata/restore_pairs.npz models/restore_v1.onnx 12
+```
+
 Strumento nel browser (solo in locale, le foto non lasciano il computer):
 
 ```bash
