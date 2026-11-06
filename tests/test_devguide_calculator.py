@@ -25,9 +25,11 @@ def test_bw_colder_inside_range():
     assert abs(t.seconds - 6.5 * 60 * 0.906 ** -2) <= 2
 
 
-def test_bw_outside_range_is_refused():
-    with pytest.raises(ValueError, match="18"):
-        bw_dev_time(HP5, "ilfosol3", "1+9", 400, 16.0)
+def test_bw_range_is_what_the_sheet_examples_cover():
+    # la scheda dà esempi a 16 e 23 °C: dentro si calcola, fuori si rifiuta
+    assert abs(bw_dev_time(HP5, "ilfosol3", "1+9", 400, 16.0).seconds - 6.5 * 60 * 1.5) <= 6
+    with pytest.raises(ValueError, match="16-23"):
+        bw_dev_time(HP5, "ilfosol3", "1+9", 400, 24.0)
 
 
 def test_bw_ei_not_in_sheet_is_refused():
@@ -82,9 +84,27 @@ def test_c41_empty_cell_is_refused():
         c41_dev_time(CS41, 27.0, push=3)
 
 
-def test_c41_push_with_reuse_warns():
-    t = c41_dev_time(CS41, 39.0, push=1, rolls_done=2)
-    assert any("riuso" in w for w in t.warnings)
+def test_c41_push_with_reuse_is_refused():
+    with pytest.raises(ValueError, match="riuso"):
+        c41_dev_time(CS41, 39.0, push=1, rolls_done=2)
+
+
+def test_c41_negative_rolls_is_refused():
+    with pytest.raises(ValueError, match="rullini"):
+        c41_dev_time(CS41, 39.0, rolls_done=-10)
+
+
+def test_c41_no_interpolation_across_agitation_bands():
+    with pytest.raises(ValueError, match="agitazione"):
+        c41_dev_time(CS41, 28.0)            # 27 °C e 29,5 °C hanno agitazioni diverse
+    with pytest.raises(ValueError, match="agitazione"):
+        c41_dev_time(CS41, 34.0)            # 32 °C e 35 °C idem
+    assert c41_dev_time(CS41, 25.5).derived is True   # 24 e 27 °C: stessa agitazione
+
+
+def test_c41_reuse_explains_top_up():
+    t = c41_dev_time(CS41, 39.0, rolls_done=3)
+    assert any("rabbocc" in w for w in t.warnings)
 
 
 def test_c41_agitation_by_temperature_band():

@@ -38,8 +38,16 @@ def test_next_agitation_countdown():
     assert s.state().next_agitation_in_s == 20
 
 
-def test_pause_does_not_consume_bath_time():
+def test_pause_is_refused_during_chemical_bath():
     s, clock = _session()
+    with pytest.raises(ValueError, match="continua"):
+        s.pause()
+
+
+def test_pause_does_not_consume_bath_time():
+    clock = Clock()
+    s = Session([Step("Lavaggio", 390, None, chemical=False)], clock=clock)
+    s.start()
     clock.t += 100
     s.pause()
     clock.t += 30
@@ -91,3 +99,8 @@ def test_c41_sequence_with_derived_temperature_warning():
 def test_c41_without_presoak():
     steps, _ = build_c41_session(CS41, 39.0, presoak=False)
     assert steps[0].name == "Rivelatore" and steps[0].seconds == 210
+
+
+def test_blix_outside_its_range_warns():
+    _, warnings = build_c41_session(CS41, 22.0)
+    assert any("24" in w and "blix" in w.lower() for w in warnings)

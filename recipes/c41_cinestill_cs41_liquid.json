@@ -16,6 +16,7 @@
     [35, {"initial_s": 10, "every_s": 30, "inversions": 4, "window_s": 10}]
   ],
   "presoak": {"name": "Pre-bagno (facoltativo)", "minutes": 1, "note": "acqua alla temperatura del rivelatore, senza agitazione"},
+  "blix_range_c": [24, 40],
   "blix": {"name": "Sbianca-fissaggio (Blix)", "minutes": 8, "note": "24-40 °C, stessa agitazione del rivelatore; il tempo non aumenta con il riuso"},
   "wash": {"name": "Lavaggio", "minutes": 3, "note": "acqua corrente 24-40 °C, oppure riempi e svuota la tank 7 volte"},
   "stabilizer": {"name": "Stabilizzatore / risciacquo finale (facoltativo)", "minutes": 1, "note": "da 30 s a 1 min a temperatura ambiente; agitare i primi 15 s"},

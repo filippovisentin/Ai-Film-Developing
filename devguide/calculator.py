@@ -38,7 +38,8 @@ def bw_dev_time(r: BWRecipe, developer: str, dilution: str, ei: int, temp_c: flo
                          "L'app non stima tempi che il produttore non fornisce.")
     lo, hi = r.temp_range_c
     if not lo <= temp_c <= hi:
-        raise ValueError(f"Temperatura {temp_c:g} °C fuori dall'intervallo della scheda ({lo:g}-{hi:g} °C)")
+        raise ValueError(f"Temperatura {temp_c:g} °C fuori dall'intervallo coperto dagli esempi della scheda "
+                         f"({lo:g}-{hi:g} °C): l'app non estrapola i tempi")
     minutes = eis[ei]
     derived = abs(temp_c - r.temp_ref_c) > 1e-9
     if derived:
@@ -56,6 +57,11 @@ def _c41_agitation(k: C41Kit, temp_c: float) -> Agitation:
 
 def c41_dev_time(k: C41Kit, temp_c: float, push: int = 0, rolls_done: int = 0,
                  volume: str = "quart") -> Timing:
+    if rolls_done < 0:
+        raise ValueError("Il numero di rullini già sviluppati non può essere negativo")
+    if push > 0 and rolls_done > 0:
+        raise ValueError("Il produttore sconsiglia il riuso dei chimici per il push: "
+                         "usa chimici freschi oppure sviluppa senza push")
     if push not in PUSH_ROWS:
         raise ValueError("Push/pull supportati dalla scheda: -1, 0, +1, +2, +3 stop")
     row_name = PUSH_ROWS[push]
@@ -74,6 +80,10 @@ def c41_dev_time(k: C41Kit, temp_c: float, push: int = 0, rolls_done: int = 0,
             raise ValueError(f"Sviluppo {label} non previsto dalla scheda a {temps[exact[0]]:g} °C")
     else:
         hi_i = next(i for i, t in enumerate(temps) if t > temp_c)
+        t_lo, t_hi = temps[hi_i - 1], temps[hi_i]
+        if _c41_agitation(k, t_lo) != _c41_agitation(k, t_hi):
+            raise ValueError(f"Tra {t_lo:g} e {t_hi:g} °C la scheda cambia agitazione: nessun tempo "
+                             f"è indicato a {temp_c:g} °C. Porta il rivelatore a {t_lo:g} o {t_hi:g} °C")
         a, b = row[hi_i - 1], row[hi_i]
         if a is None or b is None:
             raise ValueError(f"Sviluppo {label} non previsto dalla scheda tra "
@@ -87,8 +97,8 @@ def c41_dev_time(k: C41Kit, temp_c: float, push: int = 0, rolls_done: int = 0,
         if volume not in k.reuse_pct_per_roll:
             raise ValueError(f"Volume '{volume}' non previsto. Disponibili: {', '.join(k.reuse_pct_per_roll)}")
         minutes *= 1 + k.reuse_pct_per_roll[volume] / 100 * rolls_done
-        if push > 0:
-            warnings.append("Il produttore sconsiglia il riuso dei chimici per il push.")
+        warnings.append(f"Riuso: unisci il rivelatore già usato a quello nuovo e rabbocca fino al volume "
+                        f"pieno ({volume}); il +{k.reuse_pct_per_roll[volume]:g}% per rullino vale solo così.")
         cap = k.capacity_rolls.get(volume)
         if cap is not None and rolls_done >= cap:
             warnings.append(f"Superata la capacità consigliata ({cap} rullini per {volume}): "

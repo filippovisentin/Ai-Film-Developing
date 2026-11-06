@@ -22,7 +22,7 @@
                    "1+1":   {"320": 18}}
   },
   "temp_ref_c": 20,
-  "temp_range_c": [18, 24],
+  "temp_range_c": [16, 23],
   "temp_examples": [[6, 23, 4.5], [6, 16, 9]],
   "agitation": {"initial_s": 10, "every_s": 60, "inversions": 4, "window_s": 10},
   "stop": {"name": "Arresto (ILFOSTOP 1+19)", "minutes": 0.17,

@@ -20,6 +20,7 @@ class Step:
     seconds: int                    # 0 = passo manuale senza conto alla rovescia
     agitation: Agitation | None
     note: str = ""
+    chemical: bool = True           # nei bagni chimici la pellicola continua a reagire: niente pausa
 
 
 @dataclass
@@ -69,6 +70,9 @@ class Session:
         self._paused_at, self._paused_total = None, 0.0
 
     def pause(self) -> None:
+        if self._index < len(self.steps) and self.steps[self._index].chemical:
+            raise ValueError("Durante un bagno chimico la pellicola continua a svilupparsi: "
+                             "la pausa non è possibile, il tempo va rispettato")
         if self._paused_at is None:
             self._paused_at = self._clock()
 
@@ -122,7 +126,7 @@ def build_bw_session(r: BWRecipe, developer: str, dilution: str, ei: int,
              f"EI {ei}, {temp_c:g} °C"),
         Step(r.stop.name, int(round(r.stop.minutes * 60)), None, r.stop.note),
         Step(r.fix.name, int(round(r.fix.minutes * 60)), None, r.fix.note),
-        Step("Lavaggio", 0, None, r.wash),
+        Step("Lavaggio", 0, None, r.wash, chemical=False),
     ]
     return steps, warnings
 
@@ -134,14 +138,20 @@ def build_c41_session(k: C41Kit, temp_c: float, push: int = 0, rolls_done: int =
     if t.derived:
         warnings.append(f"{temp_c:g} °C non è una colonna della tabella: tempo interpolato tra le "
                         "temperature vicine della scheda.")
+    lo, hi = k.blix_range_c
+    if not lo <= temp_c <= hi:
+        warnings.append(f"Il blix va usato tra {lo:g} e {hi:g} °C: scaldalo prima di versarlo "
+                        f"(il rivelatore è a {temp_c:g} °C).")
     steps = []
     if presoak:
-        steps.append(Step(k.presoak.name, int(round(k.presoak.minutes * 60)), None, k.presoak.note))
+        steps.append(Step(k.presoak.name, int(round(k.presoak.minutes * 60)), None, k.presoak.note,
+                          chemical=False))
     steps += [
         Step("Rivelatore", t.seconds, t.agitation, f"{temp_c:g} °C"),
         Step(k.blix.name, int(round(k.blix.minutes * 60)), t.agitation, k.blix.note),
-        Step(k.wash.name, int(round(k.wash.minutes * 60)), None, k.wash.note),
+        Step(k.wash.name, int(round(k.wash.minutes * 60)), None, k.wash.note, chemical=False),
         Step(k.stabilizer.name, int(round(k.stabilizer.minutes * 60)),
-             Agitation(initial_s=15, every_s=0, inversions=0, window_s=0), k.stabilizer.note),
+             Agitation(initial_s=15, every_s=0, inversions=0, window_s=0), k.stabilizer.note,
+             chemical=False),
     ]
     return steps, warnings

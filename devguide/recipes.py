@@ -57,6 +57,7 @@ class C41Kit:
     agitation_by_temp: list[tuple[float, Agitation]]
     presoak: Bath
     blix: Bath
+    blix_range_c: tuple[float, float]
     wash: Bath
     stabilizer: Bath
     reuse_pct_per_roll: dict[str, float]
@@ -116,7 +117,8 @@ def _c41(d: dict) -> C41Kit:
     return C41Kit(
         id=d["id"], name=d["name"], temps_c=temps, times=times,
         agitation_by_temp=[(float(t), _agitation(a)) for t, a in d["agitation_by_temp"]],
-        presoak=_bath(d["presoak"]), blix=_bath(d["blix"]), wash=_bath(d["wash"]),
+        presoak=_bath(d["presoak"]), blix=_bath(d["blix"]),
+        blix_range_c=tuple(float(x) for x in d["blix_range_c"]), wash=_bath(d["wash"]),
         stabilizer=_bath(d["stabilizer"]),
         reuse_pct_per_roll={k: float(v) for k, v in d["reuse_pct_per_roll"].items()},
         capacity_rolls={k: int(v) for k, v in d["capacity_rolls"].items()},

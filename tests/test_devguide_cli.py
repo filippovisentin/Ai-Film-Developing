@@ -17,13 +17,15 @@ def test_plan_bw(capsys):
     assert "smalt" in out.lower() and "guanti" in out.lower()
 
 
-def test_plan_c41_with_push_and_reuse(capsys):
+def test_plan_c41_with_push(capsys):
+    rc = main(["plan", "c41", "--recipe", "c41_cinestill_cs41_liquid", "--temp", "39", "--push", "1"])
+    assert rc == 0 and "04:33" in capsys.readouterr().out    # 4,55 min
+
+
+def test_plan_c41_push_with_reuse_exits_2(capsys):
     rc = main(["plan", "c41", "--recipe", "c41_cinestill_cs41_liquid", "--temp", "39",
                "--push", "1", "--rolls-done", "3"])
-    out = capsys.readouterr().out
-    assert rc == 0
-    assert "04:49" in out            # 4,55 min x 1,06
-    assert "riuso" in out
+    assert rc == 2 and "riuso" in capsys.readouterr().err
 
 
 def test_plan_not_covered_exits_2(capsys):

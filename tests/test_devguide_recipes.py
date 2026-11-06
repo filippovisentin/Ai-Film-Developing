@@ -11,7 +11,7 @@ def test_hp5_times_match_ilford_sheet():
     assert r.developers["ilfosol3"]["1+9"][400] == 6.5
     assert r.developers["ddx"]["1+4"][3200] == 20
     assert r.developers["id11"]["1+1"][800] == 16.5
-    assert r.temp_range_c == (18.0, 24.0)
+    assert r.temp_range_c == (16.0, 23.0)  # intervallo coperto dagli esempi della scheda
 
 
 def test_cs41_table_matches_cinestill_sheet():
