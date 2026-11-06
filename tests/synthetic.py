@@ -7,6 +7,9 @@ SCENE_MIN = 0.01
 # patch grigia neutra: righe/colonne nella scena (prima di aggiungere il bordo)
 GRAY = (slice(20, 50), slice(20, 60))
 GRAY_VALUE = 0.18
+# patch bianca neutra: è il punto più chiaro della scena su ogni canale
+WHITE = (slice(20, 50), slice(70, 110))
+WHITE_VALUE = 0.9
 
 
 def make_scene(h: int = 200, w: int = 300, seed: int = 0) -> np.ndarray:
@@ -19,8 +22,9 @@ def make_scene(h: int = 200, w: int = 300, seed: int = 0) -> np.ndarray:
     ], axis=-1)
     for _ in range(6):
         cy, cx = rng.integers(60, h - 30), rng.integers(80, w - 30)
-        base[cy - 20:cy + 20, cx - 25:cx + 25] = rng.uniform(0.02, 0.95, 3)
+        base[cy - 20:cy + 20, cx - 25:cx + 25] = rng.uniform(0.02, 0.85, 3)
     base[GRAY] = GRAY_VALUE
+    base[WHITE] = WHITE_VALUE
     return np.clip(base, SCENE_MIN, 1.0).astype(np.float32)
 
 
