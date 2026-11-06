@@ -10,6 +10,9 @@ GRAY_VALUE = 0.18
 # patch bianca neutra: è il punto più chiaro della scena su ogni canale
 WHITE = (slice(20, 50), slice(70, 110))
 WHITE_VALUE = 0.9
+# patch nera neutra interna (le foto vere hanno ombre profonde anche lontano dai bordi)
+BLACK = (slice(100, 130), slice(240, 280))
+BLACK_VALUE = 0.012
 
 
 def make_scene(h: int = 200, w: int = 300, seed: int = 0) -> np.ndarray:
@@ -25,6 +28,8 @@ def make_scene(h: int = 200, w: int = 300, seed: int = 0) -> np.ndarray:
         base[cy - 20:cy + 20, cx - 25:cx + 25] = rng.uniform(0.02, 0.85, 3)
     base[GRAY] = GRAY_VALUE
     base[WHITE] = WHITE_VALUE
+    if h > 130 and w > 280:
+        base[BLACK] = BLACK_VALUE
     return np.clip(base, SCENE_MIN, 1.0).astype(np.float32)
 
 

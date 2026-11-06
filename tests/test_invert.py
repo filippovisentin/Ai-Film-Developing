@@ -151,3 +151,17 @@ def test_without_frame_balance_cast_remains():
     a = render_positive(cast, COLOR, lv)
     b = render_positive(frames[0], COLOR, compute_roll_levels(frames, COLOR))
     assert float(np.abs(a - b).mean()) > 0.03
+
+
+def test_thin_edge_line_does_not_change_levels():
+    # riga sottile al bordo, densissima solo nel blu (transizione dello scanner): non deve decidere il bianco
+    base = np.array(MASK, np.float32)
+    neg = make_negative(make_scene(seed=4), MASK, GAMMA, border_px=0)
+    lined = neg.copy()
+    lined[:3, :, 2] = 1e-4
+    lined[-3:, :, 2] = 1e-4
+    dc, dl = to_density(neg, base), to_density(lined, base)
+    p = dataclasses.replace(COLOR, frame_balance=0.75)
+    a = render_positive(dc, p, compute_roll_levels([dc], p))
+    b = render_positive(dl, p, compute_roll_levels([dl], p))
+    assert float(np.abs(a - b)[10:-10].mean()) < 0.005

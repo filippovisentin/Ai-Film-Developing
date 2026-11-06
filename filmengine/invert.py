@@ -35,7 +35,16 @@ def _log_exposure(x: np.ndarray, profile: FilmProfile) -> np.ndarray:
     return lexp.astype(np.float32)
 
 
+# i bordi del fotogramma sono inaffidabili (transizioni dello scanner o del ritaglio, luce che
+# filtra, velo): i livelli si misurano senza una cornice esterna
+EDGE_IGNORE_FRAC = 0.02
+
+
 def _frame_percentiles(lexp: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    h, w = lexp.shape[:2]
+    my, mx = int(EDGE_IGNORE_FRAC * h), int(EDGE_IGNORE_FRAC * w)
+    if h - 2 * my > 10 and w - 2 * mx > 10:
+        lexp = lexp[my:h - my, mx:w - mx]
     flat = lexp.reshape(-1, 3)
     step = max(1, len(flat) // MAX_SAMPLES)
     sample = flat[::step]
