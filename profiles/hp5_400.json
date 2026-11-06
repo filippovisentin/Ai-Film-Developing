@@ -1,0 +1,9 @@
+{
+  "id": "hp5_400",
+  "name": "Ilford HP5 Plus 400",
+  "type": "bw_negative",
+  "mask_rgb": [0.85, 0.85, 0.85],
+  "gamma_rgb": [0.65, 0.65, 0.65],
+  "print_contrast": 1.25,
+  "color_matrix": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+}

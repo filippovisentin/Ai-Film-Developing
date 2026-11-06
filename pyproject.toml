@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "filmengine"
+version = "0.1.0"
+description = "Prototipo del motore di conversione di negativi fotografati con lo smartphone"
+requires-python = ">=3.11"
+dependencies = ["numpy", "opencv-python", "rawpy", "imageio", "tifffile"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools]
+packages = ["filmengine"]
+
+[tool.setuptools.package-data]
+filmengine = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

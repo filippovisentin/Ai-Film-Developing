@@ -1,0 +1,9 @@
+{
+  "id": "portra_400",
+  "name": "Kodak Portra 400",
+  "type": "color_negative",
+  "mask_rgb": [0.80, 0.50, 0.32],
+  "gamma_rgb": [0.60, 0.60, 0.60],
+  "print_contrast": 1.1,
+  "color_matrix": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+}
