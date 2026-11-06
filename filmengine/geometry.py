@@ -53,5 +53,6 @@ def warp_frame(img: np.ndarray, corners: np.ndarray, aspect: float = 1.5) -> np.
         out_w = int(round(height / aspect))
     dst = np.array([[0, 0], [out_w - 1, 0], [out_w - 1, out_h - 1], [0, out_h - 1]], np.float32)
     m = cv2.getPerspectiveTransform(corners.astype(np.float32), dst)
-    return cv2.warpPerspective(img, m, (out_w, out_h), flags=cv2.INTER_CUBIC,
+    # bilineare: la cubica oscilla sotto zero ai bordi netti e falsa le densità
+    return cv2.warpPerspective(img, m, (out_w, out_h), flags=cv2.INTER_LINEAR,
                                borderMode=cv2.BORDER_REPLICATE)

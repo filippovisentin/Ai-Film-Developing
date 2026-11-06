@@ -53,3 +53,11 @@ def test_portrait_frame_keeps_orientation():
     out = warp_frame(img, find_frame_corners(img))
     h, w = out.shape[:2]
     assert h > w and abs(h / w - 1.5) < 0.015
+
+
+def test_warp_has_no_overshoot_at_sharp_edges():
+    img = np.full((400, 600, 3), 0.9, np.float32)
+    img[:, 300:] = 0.5  # bordo netto tra due zone chiare
+    img[0, 0] = 0.001   # un pixel scuro lontano: il minimo globale non deve mascherare il difetto
+    out = warp_frame(img, _rect(300, 200, 450, 300, 5))
+    assert out.min() >= 0.5 - 1e-6 and out.max() <= 0.9 + 1e-6
