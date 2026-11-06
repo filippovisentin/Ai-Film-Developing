@@ -100,3 +100,27 @@ def test_quad_touching_image_border_is_rejected():
     img = np.full((300, 400, 3), 0.8, np.float32)
     img[:, :200] = 0.1  # zona scura che tocca il bordo: non è un fotogramma
     assert find_frame_corners(img) is None
+
+
+def test_trim_dark_edges_removes_scanner_borders():
+    from filmengine.geometry import trim_dark_edges
+    img = _texture(300, 400)[..., None].repeat(3, 2) + 0.3
+    img[:, :8] = 0.01       # striscia nera a sinistra
+    img[-5:, :] = 0.02      # e in basso
+    out = trim_dark_edges(img)
+    assert out.shape == (295, 392, 3)
+    assert np.allclose(out, img[:295, 8:])
+
+
+def test_trim_dark_edges_leaves_clean_image_alone():
+    from filmengine.geometry import trim_dark_edges
+    img = _texture(200, 300)[..., None].repeat(3, 2) + 0.3
+    assert trim_dark_edges(img).shape == img.shape
+
+
+def test_trim_dark_edges_never_cuts_more_than_limit():
+    from filmengine.geometry import trim_dark_edges
+    img = np.full((200, 300, 3), 0.5, np.float32)
+    img[:, :150] = 0.01  # metà immagine scura: è contenuto, non un bordo
+    out = trim_dark_edges(img)
+    assert out.shape[1] >= int(300 * 0.95)

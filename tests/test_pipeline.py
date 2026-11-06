@@ -100,3 +100,17 @@ def test_black_holder_does_not_blank_the_frame(tmp_path):
     out = load_image(res[0].outputs[0]).rgb
     assert out.std() > 0.1  # non un'immagine uniforme
     assert abs(out.shape[1] / out.shape[0] - 1.5) < 0.02  # ritagliato sul fotogramma
+
+
+def test_scanner_border_does_not_darken_frame(tmp_path):
+    neg = make_negative(make_scene(seed=6), MASK, GAMMA, border_px=0)
+    with_border = neg.copy()
+    with_border[:, :4] = 0.004  # bordo nero dello scanner: 1,3% dell'immagine
+    a, _ = save_outputs(neg, tmp_path / "in" / "pulito")
+    b, _ = save_outputs(with_border, tmp_path / "in2" / "bordo")
+    prof = load_profile("generic_color")
+    ra = develop_roll([a], prof, Calibration(base_rgb=np.array(MASK, np.float32)), tmp_path / "o1")
+    rb = develop_roll([b], prof, Calibration(base_rgb=np.array(MASK, np.float32)), tmp_path / "o2")
+    ma = load_image(ra[0].outputs[0]).rgb.mean()
+    mb = load_image(rb[0].outputs[0]).rgb.mean()
+    assert abs(ma - mb) / ma < 0.05

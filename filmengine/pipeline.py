@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 
 from .calibration import correct_light, estimate_base_from_border
-from .geometry import find_frame_corners, warp_frame
+from .geometry import find_frame_corners, trim_dark_edges, warp_frame
 from .imageio_ import load_image, save_outputs
 from .invert import compute_roll_levels, render_positive, to_density
 from .profile import FilmProfile
@@ -69,7 +69,7 @@ def develop_roll(frames: list[Path], profile: FilmProfile, calib: Calibration,
                 w.append(f"{f.name}: fotogramma non trovato, uso l'immagine intera")
             else:
                 img = warp_frame(img, corners)
-        prepared.append(img)
+        prepared.append(trim_dark_edges(img))
         warnings.append(w)
 
     if profile.type == "slide":

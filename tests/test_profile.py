@@ -17,6 +17,14 @@ def test_list_profiles_contains_generics():
     assert {"generic_color", "generic_bw", "portra_400", "hp5_400"} <= set(list_profiles())
 
 
+def test_kodak_gold_profile_is_warmer_than_generic():
+    gold, gen = load_profile("kodak_gold_100"), load_profile("generic_color")
+    assert gold.type == "color_negative"
+    assert gold.color_matrix[0][0] > gen.color_matrix[0][0] > gold.color_matrix[2][2]
+    lum = 0.2126 * gold.color_matrix[0][0] + 0.7152 * gold.color_matrix[1][1] + 0.0722 * gold.color_matrix[2][2]
+    assert abs(lum - 1.0) < 0.02  # cambia il colore, non l'esposizione
+
+
 def test_unknown_profile_raises_clear_error():
     with pytest.raises(ValueError, match="Profilo sconosciuto"):
         load_profile("nope")

@@ -116,14 +116,30 @@ def run(data: Path, profile_id: str, out_dir: Path | None = None) -> dict:
     return report
 
 
+def run_all(root: Path, profile_id: str, out_root: Path | None = None) -> dict:
+    """Valuta ogni rullino (sottocartella con negativi/ e stampe/) e la media tra rullini."""
+    report = {}
+    for roll in sorted(d for d in root.iterdir() if (d / "negativi").is_dir()):
+        r = run(roll, profile_id, (out_root / roll.name) if out_root else None)
+        if "MEDIA" in r:
+            report[roll.name] = {**r["MEDIA"], "fotogrammi": len(r) - 1}
+    if report:
+        report["MEDIA"] = {k: round(float(np.mean([v[k] for v in report.values()])), 2)
+                           for k in ("dE_medio", "dE_dopo_dominante")}
+    return report
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="cmd", required=True)
     a = sub.add_parser("prepare"); a.add_argument("src", type=Path); a.add_argument("out", type=Path)
     b = sub.add_parser("run"); b.add_argument("data", type=Path); b.add_argument("--profile", default="generic_color")
+    c = sub.add_parser("run-all"); c.add_argument("root", type=Path); c.add_argument("--profile", default="generic_color")
     args = p.parse_args(argv)
     if args.cmd == "prepare":
         prepare(args.src, args.out)
+    elif args.cmd == "run-all":
+        print(json.dumps(run_all(args.root, args.profile), indent=1, ensure_ascii=False))
     else:
         print(json.dumps(run(args.data, args.profile), indent=1, ensure_ascii=False))
     return 0

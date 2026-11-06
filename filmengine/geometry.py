@@ -88,3 +88,29 @@ def warp_frame(img: np.ndarray, corners: np.ndarray, aspect: float = 1.5) -> np.
     # bilineare: la cubica oscilla sotto zero ai bordi netti e falsa le densità
     return cv2.warpPerspective(img, m, (out_w, out_h), flags=cv2.INTER_LINEAR,
                                borderMode=cv2.BORDER_REPLICATE)
+
+
+DARK_EDGE_RATIO = 0.25
+DARK_EDGE_MAX_FRAC = 0.05
+
+
+def trim_dark_edges(img: np.ndarray, ratio: float = DARK_EDGE_RATIO,
+                    max_frac: float = DARK_EDGE_MAX_FRAC) -> np.ndarray:
+    """Rifila le strisce quasi nere sui bordi (porta-negativi, bordo dello scanner).
+
+    Sul negativo il nero è la densità massima: se restassero, verrebbero prese per le luci
+    più forti della foto. Una zona scura più larga di `max_frac` è contenuto e non si tocca.
+    """
+    lum = img.mean(axis=-1)
+    limit = ratio * float(np.median(lum))
+
+    def count(lines: np.ndarray) -> int:
+        n = int(max_frac * lines.shape[0])
+        dark = np.median(lines[:n + 1], axis=1) < limit
+        k = int(np.argmin(dark)) if not dark.all() else n + 1
+        return 0 if k > n else k
+
+    top, bottom = count(lum), count(lum[::-1])
+    left, right = count(lum.T), count(lum.T[::-1])
+    h, w = lum.shape
+    return img[top:h - bottom, left:w - right]
