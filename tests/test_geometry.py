@@ -124,3 +124,49 @@ def test_trim_dark_edges_never_cuts_more_than_limit():
     img[:, :150] = 0.01  # metà immagine scura: è contenuto, non un bordo
     out = trim_dark_edges(img)
     assert out.shape[1] >= int(300 * 0.95)
+
+
+def test_frame_inside_film_rebate_on_bare_light():
+    h, w = 700, 900
+    img = np.ones((h, w, 3), np.float32)                  # luce nuda
+    img[90:610, 60:840] = (0.64, 0.4, 0.26)               # pellicola: bordo non esposto (base)
+    tex = _texture(h, w)
+    true = np.array([[150, 160], [749, 160], [749, 559], [150, 559]], np.float32)
+    img[160:560, 150:750] = (tex[160:560, 150:750, None] * np.array([0.9, 0.6, 0.4], np.float32))
+    found = find_frame_corners(img)
+    assert found is not None
+    assert np.max(np.linalg.norm(found - true, axis=1)) < 3.0
+
+
+def _holder_strip(h=700, w=900):
+    img = np.full((h, w, 3), 0.005, np.float32)          # porta-negativi nero
+    img[90:610, 60:840] = (0.64, 0.4, 0.26)              # finestra: pellicola con bordo chiaro
+    tex = _texture(h, w)
+    fr = tex[160:560, 150:750, None] * np.array([0.9, 0.6, 0.4], np.float32)
+    fr[:40, :200] = (0.64, 0.4, 0.26)                    # zona sottile che tocca il bordo del fotogramma
+    img[160:560, 150:750] = fr
+    return img
+
+
+def test_holder_window_is_used_when_frame_outline_is_irregular():
+    found = find_frame_corners(_holder_strip())
+    assert found is not None
+    area = cv2.contourArea(found.reshape(-1, 1, 2))
+    assert 600 * 400 * 0.95 <= area <= 780 * 520 * 1.02
+
+
+def test_trim_rebate_edges_removes_uniform_bright_bands():
+    from filmengine.geometry import trim_rebate_edges
+    img = _texture(300, 450)[..., None].repeat(3, 2) * np.array([0.9, 0.6, 0.4], np.float32)
+    img[:20] = (0.64, 0.4, 0.26)
+    img[:, -25:] = (0.64, 0.4, 0.26)
+    out = trim_rebate_edges(img)
+    assert out.shape == (280, 425, 3)
+
+
+def test_trim_rebate_edges_keeps_bright_sky():
+    from filmengine.geometry import trim_rebate_edges
+    img = _texture(300, 450)[..., None].repeat(3, 2) * 0.5
+    sky = 0.6 + 0.2 * _texture(300, 450)[:60, :, None]   # cielo chiaro ma non uniforme
+    img[:60] = sky
+    assert trim_rebate_edges(img).shape[0] >= 295

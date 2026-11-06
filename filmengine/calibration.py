@@ -42,3 +42,12 @@ def estimate_base_from_border(img: np.ndarray) -> np.ndarray:
     if len(film) == 0:
         film = band
     return np.maximum(np.percentile(film, 99.5, axis=0), EPS).astype(np.float32)
+
+
+LIGHT_CLIP_LEVEL = 0.99
+LIGHT_CLIP_FRACTION = 0.005
+
+
+def light_is_clipped(light: np.ndarray) -> bool:
+    """Una foto della luce con zone bruciate non descrive più la luce: va rifatta più scura."""
+    return float(np.mean(np.any(light >= LIGHT_CLIP_LEVEL, axis=-1))) > LIGHT_CLIP_FRACTION

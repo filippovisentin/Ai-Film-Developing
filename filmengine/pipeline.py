@@ -7,8 +7,8 @@ from pathlib import Path
 
 import numpy as np
 
-from .calibration import correct_light, estimate_base_from_border
-from .geometry import find_frame_corners, trim_dark_edges, warp_frame
+from .calibration import correct_light, estimate_base_from_border, light_is_clipped
+from .geometry import find_frame_corners, trim_dark_edges, trim_rebate_edges, warp_frame
 from .imageio_ import load_image, save_outputs
 from .invert import compute_roll_levels, render_positive, to_density
 from .profile import FilmProfile
@@ -54,13 +54,22 @@ def develop_roll(frames: list[Path], profile: FilmProfile, calib: Calibration,
         raise ValueError("Nessun fotogramma da sviluppare")
     out_dir = Path(out_dir)
 
+    light = calib.light
+    roll_warnings: list[str] = []
+    if light is not None and light_is_clipped(light):
+        light = None
+        msg = ("foto della luce saturata (zone bruciate): ignorata. Rifalla con meno "
+               "esposizione per correggere la luce non uniforme")
+        _warn(msg)
+        roll_warnings.append(msg)
+
     prepared: list[np.ndarray] = []
     warnings: list[list[str]] = []
     base_candidates: list[np.ndarray] = []
     for f in frames:
         loaded = load_image(f)
-        w = list(loaded.warnings)
-        img = correct_light(loaded.rgb, calib.light)
+        w = list(loaded.warnings) + roll_warnings
+        img = correct_light(loaded.rgb, light)
         if calib.base_rgb is None and profile.type != "slide":
             base_candidates.append(estimate_base_from_border(img))
         if crop:
@@ -68,7 +77,7 @@ def develop_roll(frames: list[Path], profile: FilmProfile, calib: Calibration,
             if corners is None:
                 w.append(f"{f.name}: fotogramma non trovato, uso l'immagine intera")
             else:
-                img = warp_frame(img, corners)
+                img = trim_rebate_edges(warp_frame(img, corners))
         prepared.append(trim_dark_edges(img))
         warnings.append(w)
 
@@ -91,7 +100,7 @@ def develop_roll(frames: list[Path], profile: FilmProfile, calib: Calibration,
     results = []
     for f, d, w in zip(frames, data, warnings):
         for msg in w:
-            if "base stimata" not in msg:
+            if "base stimata" not in msg and msg not in roll_warnings:
                 _warn(msg)
         outputs = save_outputs(render_positive(d, profile, levels), out_dir / f"{f.stem}_originale")
         results.append(FrameResult(source=f, outputs=outputs, warnings=w))

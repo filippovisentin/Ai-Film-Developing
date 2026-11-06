@@ -6,6 +6,32 @@ import numpy as np
 
 MIN_AREA_FRACTION = 0.20
 MIN_RECT_FILL = 0.90
+# un quadrilatero interno conta come fotogramma se ha almeno questa frazione dell'area esterna
+INNER_MIN_FRACTION = 0.5
+INNER_MAX_FRACTION = 0.85
+
+
+RECT_SIDE_TOL = 0.10    # lati opposti: differenza massima (prospettiva leggera)
+RECT_ANGLE_TOL = 8.0    # angoli: scarto massimo da 90° (gradi)
+
+
+def _is_rectangular(q: np.ndarray) -> bool:
+    """Un fotogramma è un rettangolo, al più un po' deformato dalla prospettiva."""
+    sides = [np.linalg.norm(q[(i + 1) % 4] - q[i]) for i in range(4)]
+    for a, b in ((sides[0], sides[2]), (sides[1], sides[3])):
+        if abs(a - b) > RECT_SIDE_TOL * max(a, b):
+            return False
+    for i in range(4):
+        u, v = q[i - 1] - q[i], q[(i + 1) % 4] - q[i]
+        cos = float(np.dot(u, v) / max(np.linalg.norm(u) * np.linalg.norm(v), 1e-6))
+        if abs(np.degrees(np.arccos(np.clip(cos, -1, 1))) - 90) > RECT_ANGLE_TOL:
+            return False
+    return True
+
+
+def _inside(inner: np.ndarray, outer: np.ndarray, tol: float = 3.0) -> bool:
+    poly = outer.reshape(-1, 1, 2).astype(np.float32)
+    return all(cv2.pointPolygonTest(poly, (float(x), float(y)), True) >= -tol for x, y in inner)
 
 
 def _order(pts: np.ndarray) -> np.ndarray:
@@ -27,13 +53,14 @@ def _touches_border(c: np.ndarray, shape: tuple[int, ...], margin: int = 2) -> b
     return x <= margin or y <= margin or x + w >= shape[1] - margin or y + h >= shape[0] - margin
 
 
-def _quad(c: np.ndarray) -> np.ndarray | None:
+def _quad(c: np.ndarray) -> tuple[np.ndarray, bool] | None:
+    """Quadrilatero del contorno e se è netto (True) o approssimato da un rettangolo (False)."""
     approx = cv2.approxPolyDP(c, 0.02 * cv2.arcLength(c, True), True)
     if len(approx) == 4 and cv2.isContourConvex(approx):
-        return _order(approx.reshape(4, 2).astype(np.float32))
+        return _order(approx.reshape(4, 2).astype(np.float32)), True
     rect = cv2.minAreaRect(c)
     if cv2.contourArea(c) / max(rect[1][0] * rect[1][1], 1.0) >= MIN_RECT_FILL:
-        return _order(cv2.boxPoints(rect).astype(np.float32))
+        return _order(cv2.boxPoints(rect).astype(np.float32)), False
     return None
 
 
@@ -55,7 +82,7 @@ def find_frame_corners(img: np.ndarray, aspect: float = 1.5) -> np.ndarray | Non
         if part.size and part.min() != part.max():
             thresholds.add(_otsu(part))
     min_area = MIN_AREA_FRACTION * img.shape[0] * img.shape[1]
-    best, best_area = None, 0.0
+    candidates: list[tuple[float, np.ndarray, bool]] = []
     kernel = np.ones((5, 5), np.uint8)
     for t in sorted(thresholds):
         mask = cv2.morphologyEx((lum8 <= t).astype(np.uint8) * 255, cv2.MORPH_CLOSE, kernel)
@@ -63,13 +90,35 @@ def find_frame_corners(img: np.ndarray, aspect: float = 1.5) -> np.ndarray | Non
         # dentro un buco di un'altra (il fotogramma dentro la finestra del porta-negativi)
         contours, hier = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
         outer = [c for c, hh in zip(contours, hier[0]) if hh[3] == -1] if contours else []
-        for c in outer:
+        # la finestra del porta-negativi (buco di una zona scura che tocca il bordo) è un
+        # candidato anche quando il contorno del fotogramma è irregolare
+        windows = []
+        for c, hh in zip(contours, hier[0]) if contours else []:
+            if hh[3] == -1 and _touches_border(c, img.shape):
+                child = hh[2]
+                while child != -1:
+                    windows.append(contours[child])
+                    child = hier[0][child][0]
+        for c in outer + windows:
             area = cv2.contourArea(c)
-            if area < min_area or area <= best_area or _touches_border(c, img.shape):
+            if area < min_area or _touches_border(c, img.shape):
                 continue
             q = _quad(c)
             if q is not None:
-                best, best_area = q, area
+                candidates.append((area, *q))
+    if not candidates:
+        return None
+    # si parte dal più grande e si scende verso quello interno: sulla luce nuda il più grande
+    # è la striscia di pellicola (fotogramma + bordo chiaro), il fotogramma sta dentro
+    candidates.sort(key=lambda a: -a[0])
+    best_area, best, _ = candidates[0]
+    for area, q, clean in candidates[1:]:
+        # lo stesso fotogramma a soglie diverse cambia area di pochi %: serve un oggetto distinto,
+        # con un contorno netto (un fotogramma "mangiato" da zone chiare darebbe un ritaglio sbagliato:
+        # meglio tenere la finestra e rifilare poi il bordo della pellicola)
+        if (clean and _is_rectangular(q) and INNER_MIN_FRACTION * best_area <= area <= INNER_MAX_FRACTION * best_area
+                and _inside(q, best)):
+            best_area, best = area, q
     return best
 
 
@@ -108,6 +157,34 @@ def trim_dark_edges(img: np.ndarray, ratio: float = DARK_EDGE_RATIO,
         n = int(max_frac * lines.shape[0])
         dark = np.median(lines[:n + 1], axis=1) < limit
         k = int(np.argmin(dark)) if not dark.all() else n + 1
+        return 0 if k > n else k
+
+    top, bottom = count(lum), count(lum[::-1])
+    left, right = count(lum.T), count(lum.T[::-1])
+    h, w = lum.shape
+    return img[top:h - bottom, left:w - right]
+
+
+REBATE_MAX_FRAC = 0.15
+REBATE_UNIFORMITY = 0.02
+REBATE_BRIGHTNESS = 0.9
+
+
+def trim_rebate_edges(img: np.ndarray, max_frac: float = REBATE_MAX_FRAC) -> np.ndarray:
+    """Rifila il bordo non esposto della pellicola rimasto nel ritaglio.
+
+    Il bordo è la zona più chiara del negativo ed è uniforme: righe o colonne ai lati
+    chiare quanto la base e senza dettagli vengono tolte. Un cielo chiaro ha dettagli e resta.
+    """
+    lum = img.mean(axis=-1)
+    bright = REBATE_BRIGHTNESS * float(np.percentile(lum, 99.5))
+
+    def count(lines: np.ndarray) -> int:
+        n = int(max_frac * lines.shape[0])
+        part = lines[:n + 1]
+        med = np.median(part, axis=1)
+        rebate = (med >= bright) & (part.std(axis=1) <= REBATE_UNIFORMITY * np.maximum(med, 1e-6))
+        k = int(np.argmin(rebate)) if not rebate.all() else n + 1
         return 0 if k > n else k
 
     top, bottom = count(lum), count(lum[::-1])

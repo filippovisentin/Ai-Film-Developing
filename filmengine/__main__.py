@@ -5,7 +5,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from .calibration import correct_light, measure_base
+from .calibration import correct_light, light_is_clipped, measure_base
 from .imageio_ import load_image
 from .pipeline import Calibration, develop_roll
 from .profile import list_profiles, load_profile
@@ -34,7 +34,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         profile = load_profile(args.profile)
         light = load_image(args.light).rgb if args.light else None
-        base = measure_base(correct_light(load_image(args.base).rgb, light)) if args.base else None
+        usable = None if light is None or light_is_clipped(light) else light
+        base = measure_base(correct_light(load_image(args.base).rgb, usable)) if args.base else None
         results = develop_roll(args.frames, profile, Calibration(base, light), args.out,
                                crop=not args.no_crop)
     except (ValueError, FileNotFoundError) as e:

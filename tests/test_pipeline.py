@@ -114,3 +114,15 @@ def test_scanner_border_does_not_darken_frame(tmp_path):
     ma = load_image(ra[0].outputs[0]).rgb.mean()
     mb = load_image(rb[0].outputs[0]).rgb.mean()
     assert abs(ma - mb) / ma < 0.05
+
+
+def test_clipped_light_photo_is_ignored_with_warning(tmp_path):
+    neg = make_negative(make_scene(seed=2), MASK, GAMMA, border_px=30, vignette=0.3)
+    f, _ = save_outputs(neg, tmp_path / "in" / "f")
+    light = np.clip(make_light(*neg.shape[:2], vignette=0.3) * 1.3, 0, 1)  # luce bruciata al centro
+    good = develop_roll([f], load_profile("generic_color"), Calibration(light=None), tmp_path / "a")
+    res = develop_roll([f], load_profile("generic_color"), Calibration(light=light), tmp_path / "b")
+    assert any("luce" in w and "satur" in w for w in res[0].warnings)
+    a = load_image(good[0].outputs[0]).rgb
+    b = load_image(res[0].outputs[0]).rgb
+    assert np.array_equal(a, b)  # ignorata: stesso risultato che senza
