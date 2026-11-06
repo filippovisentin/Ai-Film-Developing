@@ -92,3 +92,16 @@ def test_http_server_end_to_end_on_localhost(tmp_path):
     finally:
         httpd.shutdown()
         httpd.server_close()
+
+
+def test_capabilities_report_which_models_are_installed(monkeypatch, tmp_path):
+    monkeypatch.setattr(server.enhance, "RESTORE_MODEL", tmp_path / "manca.onnx")
+    caps = server.capabilities()
+    assert caps["restauro"] is False and isinstance(caps["ingrandimento"], bool)
+
+
+def test_process_restore_returns_restored_version(monkeypatch):
+    import filmengine.pipeline as pl
+    monkeypatch.setattr(pl, "restore_image", lambda rgb: rgb)
+    out = server.process(_payload(restauro=True))
+    assert set(out["immagini"]) == {"originale", "restaurata"}

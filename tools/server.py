@@ -22,6 +22,7 @@ from pathlib import Path
 
 import numpy as np
 
+from filmengine import enhance
 from filmengine.calibration import correct_light, light_is_clipped, measure_base
 from filmengine.imageio_ import linear_to_srgb, load_image
 from filmengine.pipeline import Calibration, develop_roll
@@ -70,6 +71,11 @@ def profiles() -> list[dict]:
     return out
 
 
+def capabilities() -> dict:
+    """Quali reti sono installate: la pagina disattiva le opzioni non disponibili."""
+    return {"restauro": enhance.RESTORE_MODEL.exists(), "ingrandimento": enhance.DEFAULT_MODEL.exists()}
+
+
 def process(payload: dict) -> dict:
     pid = payload.get("profilo")
     if pid not in list_profiles():  # solo id noti: mai percorsi scelti dal client
@@ -87,10 +93,13 @@ def process(payload: dict) -> dict:
             base = measure_base(correct_light(load_image(_decode_image(payload["base"], tmp / "base")).rgb, usable))
         with contextlib.redirect_stderr(io.StringIO()):
             r = develop_roll([neg], load_profile(pid), Calibration(base, light), tmp / "out",
-                             enhance=bool(payload.get("migliora")), super_res=sr)[0]
+                             enhance=bool(payload.get("migliora")), super_res=sr,
+                             restore=bool(payload.get("restauro")))[0]
         images = {"originale": _to_jpeg_url(r.outputs[0])}
         if r.enhanced:
             images["migliorata"] = _to_jpeg_url(r.enhanced[0])
+        if r.restored:
+            images["restaurata"] = _to_jpeg_url(r.restored[0])
         if r.ai:
             images["ai"] = _to_jpeg_url(r.ai[0])
         avvisi = [w for w in r.warnings if "non RAW" not in w]
@@ -112,6 +121,8 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/api/profili":
             return self._json(200, profiles())
+        if self.path == "/api/capacita":
+            return self._json(200, capabilities())
         return super().do_GET()
 
     def do_POST(self):

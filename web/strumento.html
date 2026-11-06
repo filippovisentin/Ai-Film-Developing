@@ -6,7 +6,7 @@
 <title>Sviluppa il tuo negativo</title>
 <style>
   :root { --bg:#111110; --panel:#1a1a18; --line:#2c2b28; --text:#ecebe6; --muted:#9a988f;
-          --accent:#e8a33d; --ai:#b48cf2; --warn:#e0b04f; --bad:#e46c5c; --radius:10px; }
+          --accent:#e8a33d; --ai:#b48cf2; --rest:#6cc3b5; --warn:#e0b04f; --bad:#e46c5c; --radius:10px; }
   * { box-sizing: border-box; }
   [hidden] { display:none !important; }
   body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
@@ -32,6 +32,10 @@
   .opt input { margin-top:4px; accent-color:var(--accent); }
   .opt small { display:block; color:var(--muted); font-size:12.5px; }
   .opt.ai input { accent-color:var(--ai); }
+  .opt.rest input { accent-color:var(--rest); }
+  .opt.off { opacity:.45; cursor:not-allowed; }
+  .tag-exp { display:inline !important; font-size:11px !important; color:var(--rest) !important; border:1px solid var(--rest); border-radius:999px; padding:0 6px; margin-left:4px; }
+  .tabs button.rest[aria-pressed="true"] { background:var(--rest); border-color:var(--rest); }
   .seg { display:inline-flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; margin:6px 0 0 26px; }
   .seg button { background:none; color:var(--muted); border:0; padding:4px 12px; font:inherit; font-size:13px; cursor:pointer; }
   .seg button[aria-pressed="true"] { background:var(--ai); color:#111; }
@@ -94,6 +98,8 @@
 
     <label class="opt"><input type="checkbox" id="migliora" checked>
       <span>Versione migliorata<small>Toglie polvere e rumore, aumenta un po' la nitidezza. Non inventa nulla.</small></span></label>
+    <label class="opt rest" id="optRest"><input type="checkbox" id="restauro">
+      <span>Restauro AI <small class="tag-exp">sperimentale</small><small>Una rete addestrata su 52 foto toglie i difetti dello scatto col telefono. Più dettaglio, colori come l'Originale.</small></span></label>
     <label class="opt ai"><input type="checkbox" id="ai">
       <span>Ingrandimento AI<small>Una rete neurale aggiunge pixel e dettagli <b>inventati</b>: più nitida, meno fedele.</small></span></label>
     <div class="seg" role="group" aria-label="Fattore di ingrandimento">
@@ -106,7 +112,7 @@
   </form>
 
   <section aria-label="Risultato">
-    <div class="empty" id="empty">Carica la foto del negativo e premi <b>Sviluppa</b>.<br>Qui vedrai la versione Originale e quelle migliorate.</div>
+    <div class="empty" id="empty"><div>Carica la foto del negativo e premi <b>Sviluppa</b>.<br>Qui vedrai la versione Originale e quelle migliorate.</div></div>
     <div id="out" hidden>
       <div class="tabs" id="tabs"></div>
       <div class="compare" id="compare" style="--pos:50%">
@@ -127,10 +133,11 @@
 const $ = s => document.querySelector(s);
 const files = {};
 let sr = 2, results = null, current = "originale";
-const LABELS = { originale: "Originale", migliorata: "Migliorata", ai: "AI" };
+const LABELS = { originale: "Originale", migliorata: "Migliorata", restaurata: "Restauro AI", ai: "AI" };
 const NOTES = {
   originale: "Lo sviluppo fedele: solo ciò che c'è sul negativo.",
   migliorata: "Pulita: polvere e rumore ridotti, nitidezza moderata. Nessun dettaglio inventato. Trascina la barra per confrontare.",
+  restaurata: "Restauro AI (sperimentale): rete addestrata su scatti da telefono simulati. Nei test su negativi veri dà il dettaglio più fedele, ma non corregge i colori come la Migliorata.",
   ai: "Attenzione: i dettagli fini di questa versione sono stati inventati dalla rete neurale (Real-ESRGAN). Belli da vedere, ma non sono sulla pellicola."
 };
 
@@ -160,6 +167,15 @@ document.querySelectorAll(".drop").forEach(drop => {
   drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); take(e.dataTransfer.files[0]); });
 });
 
+fetch("/api/capacita").then(r => r.json()).then(c => {
+  for (const [id, ok, why] of [["restauro", c.restauro, "rete non addestrata su questo computer (vedi README)"],
+                               ["ai", c.ingrandimento, "modello non scaricato: python -m tools.get_model"]]) {
+    if (ok) continue;
+    const box = $("#" + id); box.disabled = true; box.checked = false;
+    box.closest("label").classList.add("off"); box.closest("label").title = why;
+  }
+}).catch(() => {});
+
 $("#ai").addEventListener("change", e => document.querySelectorAll(".seg button").forEach(b => b.disabled = !e.target.checked));
 document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
   sr = +b.dataset.sr;
@@ -175,12 +191,12 @@ $("#form").addEventListener("submit", async e => {
   try {
     const res = await fetch("/api/sviluppa", { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ negativo: files.negativo, luce: files.luce || null, base: files.base || null,
-        profilo: $("#profilo").value, migliora: $("#migliora").checked, super_ris: $("#ai").checked ? sr : 0 }) });
+        profilo: $("#profilo").value, migliora: $("#migliora").checked, restauro: $("#restauro").checked, super_ris: $("#ai").checked ? sr : 0 }) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.errore || "errore");
     results = data.immagini; msg.textContent = "Fatto.";
     for (const a of data.avvisi) { const li = document.createElement("li"); li.textContent = a; $("#avvisi").append(li); }
-    show(results.ai ? "ai" : results.migliorata ? "migliorata" : "originale");
+    show(results.ai ? "ai" : results.restaurata ? "restaurata" : results.migliorata ? "migliorata" : "originale");
   } catch (err) { msg.textContent = "Non riuscito: " + err.message; msg.className = "msg err"; }
   finally { $("#go").disabled = !files.negativo; }
 });
@@ -192,6 +208,7 @@ function show(key) {
   for (const k of Object.keys(LABELS)) if (results[k]) {
     const b = document.createElement("button"); b.type = "button"; b.textContent = LABELS[k];
     if (k === "ai") b.className = "ai";
+    if (k === "restaurata") b.className = "rest";
     b.setAttribute("aria-pressed", String(k === key)); b.onclick = () => show(k); tabs.append(b);
   }
   $("#imgBase").src = results[key]; $("#imgTop").src = results.originale;

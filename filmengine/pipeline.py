@@ -9,7 +9,7 @@ import numpy as np
 
 from .calibration import correct_light, estimate_base_from_border, light_is_clipped
 from .geometry import find_frame_corners, snap_aspect, trim_dark_edges, trim_rebate_edges, warp_frame
-from .enhance import enhance as enhance_image, super_resolve
+from .enhance import enhance as enhance_image, restore as restore_image, super_resolve
 from .imageio_ import load_image, save_outputs
 from .invert import compute_roll_levels, render_positive, to_density
 from .profile import FilmProfile
@@ -29,6 +29,7 @@ class FrameResult:
     warnings: list[str] = field(default_factory=list)
     enhanced: tuple[Path, Path] | None = None  # versione migliorata (nessun pixel inventato)
     ai: tuple[Path, Path] | None = None  # super-risoluzione: dettagli inventati dalla rete
+    restored: tuple[Path, Path] | None = None  # rete di restauro addestrata (sperimentale)
 
 
 def _warn(msg: str) -> None:
@@ -67,7 +68,7 @@ def _load_frame(group: list[Path]) -> tuple[np.ndarray, list[str]]:
 
 def develop_roll(frames: list[Path | list[Path]], profile: FilmProfile, calib: Calibration,
                  out_dir: Path, crop: bool = True, enhance: bool = False,
-                 super_res: int = 0) -> list[FrameResult]:
+                 super_res: int = 0, restore: bool = False) -> list[FrameResult]:
     """Sviluppa un rullino. Ogni elemento di `frames` è un file o un gruppo di scatti dello
     stesso fotogramma (multi-scatto); il risultato prende il nome dal primo file."""
     groups = [[Path(x) for x in f] if isinstance(f, (list, tuple)) else [Path(f)] for f in frames]
@@ -135,5 +136,7 @@ def develop_roll(frames: list[Path | list[Path]], profile: FilmProfile, calib: C
             if super_res:
                 res.ai = save_outputs(super_resolve(better, scale=super_res),
                                       out_dir / f"{f.stem}_ai_x{super_res}")
+        if restore:
+            res.restored = save_outputs(restore_image(positive), out_dir / f"{f.stem}_restaurata")
         results.append(res)
     return results

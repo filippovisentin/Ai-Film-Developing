@@ -26,6 +26,8 @@ def _parser() -> argparse.ArgumentParser:
                    help="multi-scatto: unisce ogni N file consecutivi (in ordine di nome) in un fotogramma")
     d.add_argument("--migliora", action="store_true",
                    help="salva anche la versione migliorata (polvere, rumore, nitidezza)")
+    d.add_argument("--restauro", action="store_true",
+                   help="salva anche la versione restaurata dalla rete addestrata (sperimentale)")
     d.add_argument("--super-ris", type=int, choices=(2, 4), default=0,
                    help="salva anche una versione ingrandita dall'AI (pixel inventati)")
     return p
@@ -49,13 +51,13 @@ def main(argv: list[str] | None = None) -> int:
         groups = [frames[i:i + args.stack] for i in range(0, len(frames), args.stack)]
         results = develop_roll(groups, profile, Calibration(base, light), args.out,
                                crop=not args.no_crop, enhance=args.migliora,
-                               super_res=args.super_ris)
+                               super_res=args.super_ris, restore=args.restauro)
     except (ValueError, FileNotFoundError) as e:
         print(f"Errore: {e}", file=sys.stderr)
         return 2
     for r in results:
         print(f"{r.source.name} -> {r.outputs[0]}")
-        for extra in (r.enhanced, r.ai):
+        for extra in (r.enhanced, r.restored, r.ai):
             if extra:
                 print(f"{'':{len(r.source.name)}}    {extra[0]}")
     return 0

@@ -217,3 +217,14 @@ def test_cli_enhance_flag(tmp_path):
                "--out", str(tmp_path / "out"), "--migliora"])
     assert rc == 0
     assert (tmp_path / "out" / "x_migliorata.jpg").exists()
+
+
+def test_develop_roll_restored_version_when_requested(tmp_path, monkeypatch):
+    import filmengine.pipeline as pl
+    monkeypatch.setattr(pl, "restore_image", lambda rgb: rgb * 0.5)  # rete sostituita: si prova il cablaggio
+    frames, light_path = _roll(tmp_path, names=("x",))
+    calib = Calibration(base_rgb=np.array(MASK, np.float32), light=load_image(light_path).rgb)
+    r = develop_roll(frames, load_profile("generic_color"), calib, tmp_path / "out", restore=True)[0]
+    assert r.restored is not None and r.restored[0].name == "x_restaurata.tif"
+    orig, rest = load_image(r.outputs[0]).rgb, load_image(r.restored[0]).rgb
+    assert abs(rest.mean() - 0.5 * orig.mean()) < 0.01
