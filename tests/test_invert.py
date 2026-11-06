@@ -82,3 +82,72 @@ def test_print_contrast_and_matrix_are_applied():
     p = dataclasses.replace(COLOR, print_contrast=1.5, color_matrix=swap)
     out = _develop(scene, p)
     assert np.allclose(out[..., 0], np.clip(plain[..., 1] ** 1.5, 0, 1), atol=1e-4)
+
+
+def test_black_point_is_neutral_per_channel():
+    scene = make_scene()
+    scene[150:190, 20:120] = scene.reshape(-1, 3).min(0)  # l'ombra più scura, con la dominante della scena
+    p = dataclasses.replace(COLOR, paper_range=2.0)
+    out = _develop(scene, p)
+    darkest = out.reshape(-1, 3)[np.argsort(out.reshape(-1, 3).sum(1))[:200]].mean(0)
+    assert darkest.max() - darkest.min() < 0.005
+
+
+def test_paper_range_sets_print_black():
+    p = dataclasses.replace(COLOR, paper_range=2.0)
+    out = _develop(make_scene(), p)
+    lo = np.percentile(out, 0.1)
+    assert 0.007 < lo < 0.015 and out.max() > 0.97
+
+
+def test_s_curve_keeps_endpoints_and_order():
+    from filmengine.invert import tone_curve
+    n = np.linspace(0, 1, 101, dtype=np.float32)
+    for k in (0.0, 2.0, 6.0):
+        g = tone_curve(n, k)
+        assert abs(g[0]) < 1e-6 and abs(g[-1] - 1) < 1e-6 and np.all(np.diff(g) > 0)
+    assert np.allclose(tone_curve(n, 0.0), n)
+    assert tone_curve(n, 6.0)[25] < 0.25 < 0.75 < tone_curve(n, 6.0)[75]  # S: più contrasto al centro
+
+
+def test_profile_defaults_keep_scene_linear_output():
+    assert COLOR.paper_range is None and COLOR.s_curve == 0.0
+
+
+def test_dust_does_not_shift_highlights():
+    base = np.array(MASK, np.float32)
+    neg = make_negative(make_scene(seed=5), MASK, GAMMA, border_px=0)
+    dusty = neg.copy()
+    rng = np.random.default_rng(1)
+    specks = rng.random(neg.shape[:2]) < 0.004  # 0,4% di pixel opachi (polvere)
+    dusty[specks] = 1e-4
+    dc, dd = to_density(neg, base), to_density(dusty, base)
+    clean = render_positive(dc, COLOR, compute_roll_levels([dc], COLOR))
+    dirty = render_positive(dd, COLOR, compute_roll_levels([dd], COLOR))
+    assert float(np.abs(clean - dirty)[~specks].mean()) < 0.01
+
+
+def _cast_roll():
+    base = np.array(MASK, np.float32)
+    frames = [to_density(make_negative(make_scene(seed=s), MASK, GAMMA, border_px=0), base)
+              for s in range(3)]
+    cast = frames[0] + np.array([0.0, 0.08, 0.2], np.float32)  # luce diversa su un fotogramma
+    return frames, cast
+
+
+def test_frame_balance_absorbs_single_frame_cast():
+    frames, cast = _cast_roll()
+    p = dataclasses.replace(COLOR, frame_balance=1.0)
+    lv = compute_roll_levels(frames[1:] + [cast], p)
+    lv_ref = compute_roll_levels(frames, p)
+    a = render_positive(cast, p, lv)
+    b = render_positive(frames[0], p, lv_ref)
+    assert float(np.abs(a - b).mean()) < 0.01
+
+
+def test_without_frame_balance_cast_remains():
+    frames, cast = _cast_roll()
+    lv = compute_roll_levels(frames[1:] + [cast], COLOR)
+    a = render_positive(cast, COLOR, lv)
+    b = render_positive(frames[0], COLOR, compute_roll_levels(frames, COLOR))
+    assert float(np.abs(a - b).mean()) > 0.03

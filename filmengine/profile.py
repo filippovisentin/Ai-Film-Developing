@@ -20,6 +20,12 @@ class FilmProfile:
     gamma_rgb: tuple[float, float, float]
     print_contrast: float
     color_matrix: tuple[tuple[float, ...], ...]
+    # gamma della carta da stampa (unità di densità): None = uscita lineare di scena
+    paper_range: float | None = None
+    # forza della curva a S della carta (0 = nessuna)
+    s_curve: float = 0.0
+    # peso dei livelli del singolo fotogramma rispetto a quelli del rullino (0 = solo rullino)
+    frame_balance: float = 0.0
 
 
 def _triple(data: dict, key: str) -> tuple[float, float, float]:
@@ -27,6 +33,22 @@ def _triple(data: dict, key: str) -> tuple[float, float, float]:
     if len(v) != 3 or any(float(x) <= 0 for x in v):
         raise ValueError(f"'{key}' deve contenere 3 valori positivi")
     return tuple(float(x) for x in v)  # type: ignore[return-value]
+
+
+def _optional_positive(data: dict, key: str) -> float | None:
+    v = data.get(key)
+    if v is None:
+        return None
+    if float(v) <= 0:
+        raise ValueError(f"'{key}' deve essere positivo")
+    return float(v)
+
+
+def _unit(data: dict, key: str) -> float:
+    v = float(data.get(key, 0.0))
+    if not 0.0 <= v <= 1.0:
+        raise ValueError(f"'{key}' deve essere tra 0 e 1")
+    return v
 
 
 def _parse(data: dict) -> FilmProfile:
@@ -47,6 +69,9 @@ def _parse(data: dict) -> FilmProfile:
             gamma_rgb=_triple(data, "gamma_rgb"),
             print_contrast=contrast,
             color_matrix=tuple(tuple(float(x) for x in r) for r in matrix),
+            paper_range=_optional_positive(data, "paper_range"),
+            s_curve=float(data.get("s_curve", 0.0)),
+            frame_balance=_unit(data, "frame_balance"),
         )
     except KeyError as e:
         raise ValueError(f"Campo mancante nel profilo: {e.args[0]}") from None

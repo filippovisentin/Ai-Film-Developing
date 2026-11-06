@@ -10,7 +10,8 @@ from .profile import FilmProfile
 RATIO_MIN = 1e-5
 MIN_SPAN = 1e-3
 MAX_SAMPLES = 200_000
-LOW_PCT, HIGH_PCT = 0.1, 99.9
+# 0,5/99,5: la polvere (opaca sul negativo) e i riflessi non decidono nero e bianco
+LOW_PCT, HIGH_PCT = 0.5, 99.5
 
 
 def to_density(img: np.ndarray, base: np.ndarray) -> np.ndarray:
@@ -50,11 +51,30 @@ def compute_roll_levels(densities: list[np.ndarray], profile: FilmProfile) -> Ro
     return RollLevels(low=low, high=high)
 
 
+def tone_curve(n: np.ndarray, k: float) -> np.ndarray:
+    """Curva a S della carta su [0,1]: estremi fissi, monotona; k=0 è l'identità."""
+    if k <= 0:
+        return n
+    lo, hi = 1 / (1 + np.exp(k / 2)), 1 / (1 + np.exp(-k / 2))
+    return ((1 / (1 + np.exp(-k * (n - 0.5))) - lo) / (hi - lo)).astype(np.float32)
+
+
 def render_positive(density_or_slide: np.ndarray, profile: FilmProfile, levels: RollLevels) -> np.ndarray:
     lexp = _log_exposure(density_or_slide, profile)
-    span = np.maximum(levels.high - levels.low, MIN_SPAN)
-    n = np.clip((lexp - levels.low) / span, 0.0, 1.0)
-    scene = np.power(10.0, (n - 1.0) * span)
+    low, high = levels.low, levels.high
+    if profile.frame_balance > 0:
+        # come le stampatrici di laboratorio: ogni fotogramma ha anche il suo bilanciamento
+        f_low, f_high = _frame_percentiles(lexp)
+        w = profile.frame_balance
+        low, high = (1 - w) * low + w * f_low, (1 - w) * high + w * f_high
+    span = np.maximum(high - low, MIN_SPAN)
+    # nero e bianco del rullino portati allo stesso valore su ogni canale: niente dominanti
+    n = np.clip((lexp - low) / span, 0.0, 1.0)
+    g = tone_curve(n, profile.s_curve)
+    # carta da stampa: distende la gamma della scena sulla gamma di densità della carta
+    # senza carta: gamma per canale, cioè la scena lineare ricostruita fedelmente
+    rng = profile.paper_range if profile.paper_range is not None else span
+    scene = np.power(10.0, (g - 1.0) * rng)
     printed = scene ** profile.print_contrast
     out = printed @ np.asarray(profile.color_matrix, np.float32).T
     return np.clip(out, 0.0, 1.0).astype(np.float32)

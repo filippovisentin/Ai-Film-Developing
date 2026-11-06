@@ -2,8 +2,35 @@
   "id": "generic_bw",
   "name": "Negativo bianco e nero generico",
   "type": "bw_negative",
-  "mask_rgb": [0.85, 0.85, 0.85],
-  "gamma_rgb": [0.65, 0.65, 0.65],
+  "mask_rgb": [
+    0.85,
+    0.85,
+    0.85
+  ],
+  "gamma_rgb": [
+    0.65,
+    0.65,
+    0.65
+  ],
   "print_contrast": 1.0,
-  "color_matrix": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+  "color_matrix": [
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      1
+    ]
+  ],
+  "paper_range": 2.0,
+  "s_curve": 1.5,
+  "frame_balance": 0.75
 }
