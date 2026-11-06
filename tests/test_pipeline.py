@@ -126,3 +126,25 @@ def test_clipped_light_photo_is_ignored_with_warning(tmp_path):
     a = load_image(good[0].outputs[0]).rgb
     b = load_image(res[0].outputs[0]).rgb
     assert np.array_equal(a, b)  # ignorata: stesso risultato che senza
+
+
+def test_phone_capture_crop_has_no_film_border(tmp_path):
+    from tools.phone_sim import PhoneSetup, simulate
+    from filmengine.calibration import correct_light, measure_base
+    neg = make_negative(make_scene(300, 450, seed=8), MASK, GAMMA, border_px=0)
+    setup = PhoneSetup(tilt_deg=3, perspective=0.03, vignette=0.3, wb=(0.85, 1.0, 1.25),
+                       veil=0.01, noise=0.008, jpeg_quality=85, blur=0.8)
+    cap = simulate(neg, setup, seed=1)
+    f, _ = save_outputs(cap.image, tmp_path / "in" / "tel")
+    calib = Calibration(base_rgb=measure_base(correct_light(cap.base_patch, cap.light)), light=cap.light)
+    out = load_image(develop_roll([f], load_profile("generic_color"), calib, tmp_path / "o")[0].outputs[0]).rgb
+    assert abs(out.shape[1] / out.shape[0] - 1.5) < 0.03
+    # il bordo non esposto diventerebbe una striscia nera sui lati: confronto con lo stesso
+    # negativo sviluppato senza telefono (la scena sintetica è scura per contenuto in alto a sinistra)
+    g, _ = save_outputs(neg, tmp_path / "in2" / "pulito")
+    ref = load_image(develop_roll([g], load_profile("generic_color"), Calibration(base_rgb=np.array(MASK, np.float32)),
+                                  tmp_path / "r")[0].outputs[0]).rgb
+    def edges(x):
+        lum = x.mean(-1)
+        return np.array([lum[:4].mean(), lum[-4:].mean(), lum[:, :4].mean(), lum[:, -4:].mean()])
+    assert np.all(edges(out) > 0.6 * edges(ref))

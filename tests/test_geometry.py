@@ -161,7 +161,7 @@ def test_trim_rebate_edges_removes_uniform_bright_bands():
     img[:20] = (0.64, 0.4, 0.26)
     img[:, -25:] = (0.64, 0.4, 0.26)
     out = trim_rebate_edges(img)
-    assert out.shape == (280, 425, 3)
+    assert 274 <= out.shape[0] <= 280 and 419 <= out.shape[1] <= 425   # bordo + margine
 
 
 def test_trim_rebate_edges_keeps_bright_sky():
@@ -170,3 +170,47 @@ def test_trim_rebate_edges_keeps_bright_sky():
     sky = 0.6 + 0.2 * _texture(300, 450)[:60, :, None]   # cielo chiaro ma non uniforme
     img[:60] = sky
     assert trim_rebate_edges(img).shape[0] >= 295
+
+
+def test_trim_rebate_skips_mixed_outer_lines():
+    from filmengine.geometry import trim_rebate_edges
+    rng = np.random.default_rng(0)
+    img = _texture(300, 450)[..., None].repeat(3, 2) * np.array([0.9, 0.6, 0.4], np.float32)
+    img[:33] = (0.64, 0.4, 0.26)                                   # bordo della pellicola
+    img[:3] = (0.64, 0.4, 0.26) + 0.3 * rng.random((3, 450, 1))   # righe esterne miste con la luce
+    out = trim_rebate_edges(img)
+    assert 300 - 33 - 6 <= out.shape[0] <= 300 - 33                # 33 righe + un piccolo margine
+
+
+def test_warp_keeps_measured_aspect_when_not_a_frame():
+    corners = np.float32([[100, 100], [620, 100], [620, 500], [100, 500]])  # 520x400 = 1,3
+    out = warp_frame(np.zeros((600, 800, 3), np.float32), corners)
+    assert abs(out.shape[1] / out.shape[0] - 1.3) < 0.02
+
+
+def test_warp_snaps_near_3_2_to_3_2():
+    corners = np.float32([[100, 100], [580, 100], [580, 427], [100, 427]])  # 480x327 = 1,468
+    out = warp_frame(np.zeros((600, 800, 3), np.float32), corners)
+    assert abs(out.shape[1] / out.shape[0] - 1.5) < 0.01
+
+
+def test_snap_aspect_after_trim():
+    from filmengine.geometry import snap_aspect
+    assert snap_aspect(np.zeros((819, 1194, 3), np.float32)).shape[:2] == (796, 1194)
+    assert snap_aspect(np.zeros((1194, 819, 3), np.float32)).shape[:2] == (1194, 796)
+    assert snap_aspect(np.zeros((600, 780, 3), np.float32)).shape[:2] == (600, 780)  # 1,3: non è un 3:2
+
+
+def test_film_strip_with_rebate_is_not_squeezed_to_3_2():
+    corners = np.float32([[0, 0], [1680, 0], [1680, 1180], [0, 1180]])  # striscia 1,42: non è un 3:2
+    out = warp_frame(np.zeros((1200, 1700, 3), np.float32), corners)
+    assert abs(out.shape[1] / out.shape[0] - 1680 / 1180) < 0.01
+
+
+def test_trim_rebate_stops_at_uniform_shadow_content():
+    from filmengine.geometry import trim_rebate_edges
+    img = _texture(300, 450)[..., None].repeat(3, 2) * np.array([0.9, 0.6, 0.4], np.float32)
+    img[-40:] = (0.59, 0.37, 0.24)     # ombra profonda: uniforme, quasi chiara come la base
+    img[-30:] = (0.64, 0.4, 0.26)      # bordo della pellicola
+    out = trim_rebate_edges(img)
+    assert out.shape[0] >= 300 - 30 - 6   # toglie il bordo, non l'ombra

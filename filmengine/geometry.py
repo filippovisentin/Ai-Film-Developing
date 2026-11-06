@@ -122,16 +122,23 @@ def find_frame_corners(img: np.ndarray, aspect: float = 1.5) -> np.ndarray | Non
     return best
 
 
+ASPECT_SNAP = 0.035  # entro il 3,5% dal formato nominale si aggancia (prospettiva); una striscia con bordo (~1,42) no
+
+
 def warp_frame(img: np.ndarray, corners: np.ndarray, aspect: float = 1.5) -> np.ndarray:
+    """Raddrizza il quadrilatero. Il formato nominale (3:2) si impone solo se quello misurato
+    è vicino: una striscia di pellicola con il bordo non va deformata."""
     tl, tr, br, bl = corners
     width = max(np.linalg.norm(tr - tl), np.linalg.norm(br - bl))
     height = max(np.linalg.norm(bl - tl), np.linalg.norm(br - tr))
+    measured = max(width, height) / max(min(width, height), 1.0)
+    ratio = aspect if abs(measured / aspect - 1) <= ASPECT_SNAP else measured
     if width >= height:
         out_w = int(round(width))
-        out_h = int(round(width / aspect))
+        out_h = int(round(width / ratio))
     else:
         out_h = int(round(height))
-        out_w = int(round(height / aspect))
+        out_w = int(round(height / ratio))
     dst = np.array([[0, 0], [out_w - 1, 0], [out_w - 1, out_h - 1], [0, out_h - 1]], np.float32)
     m = cv2.getPerspectiveTransform(corners.astype(np.float32), dst)
     # bilineare: la cubica oscilla sotto zero ai bordi netti e falsa le densità
@@ -170,24 +177,63 @@ REBATE_UNIFORMITY = 0.02
 REBATE_BRIGHTNESS = 0.9
 
 
+REBATE_LEVEL_TOL = 0.03   # variazione massima di luminosità lungo la fascia di bordo
+REBATE_OUTER_FRAC = 0.02   # righe esterne miste (bordo + luce nuda) tollerate prima del bordo
+REBATE_SAFETY_FRAC = 0.005  # margine per la transizione sfocata tra bordo e immagine
+REBATE_SAFETY_MIN_PX = 4
+
+
 def trim_rebate_edges(img: np.ndarray, max_frac: float = REBATE_MAX_FRAC) -> np.ndarray:
     """Rifila il bordo non esposto della pellicola rimasto nel ritaglio.
 
-    Il bordo è la zona più chiara del negativo ed è uniforme: righe o colonne ai lati
-    chiare quanto la base e senza dettagli vengono tolte. Un cielo chiaro ha dettagli e resta.
+    Il bordo è la zona più chiara del negativo ed è uniforme: righe o colonne ai lati chiare
+    quanto la base e senza dettagli vengono tolte. Le primissime righe possono essere miste con
+    la luce nuda (non uniformi): si saltano, ma solo se dopo c'è davvero un bordo uniforme.
+    Un cielo chiaro ha dettagli e resta.
     """
-    lum = img.mean(axis=-1)
-    bright = REBATE_BRIGHTNESS * float(np.percentile(lum, 99.5))
+    lum = cv2.GaussianBlur(img.mean(axis=-1).astype(np.float32), (0, 0), 1.5)
+    h, w = lum.shape
+    o_h, o_w = max(2, int(REBATE_OUTER_FRAC * h)), max(2, int(REBATE_OUTER_FRAC * w))
+    # riferimento di luminosità senza le righe esterne miste con la luce nuda (più chiare del bordo)
+    bright = REBATE_BRIGHTNESS * float(np.percentile(lum[o_h:h - o_h, o_w:w - o_w], 99.5))
 
     def count(lines: np.ndarray) -> int:
         n = int(max_frac * lines.shape[0])
+        outer = max(2, int(REBATE_OUTER_FRAC * lines.shape[0]))
         part = lines[:n + 1]
         med = np.median(part, axis=1)
-        rebate = (med >= bright) & (part.std(axis=1) <= REBATE_UNIFORMITY * np.maximum(med, 1e-6))
-        k = int(np.argmin(rebate)) if not rebate.all() else n + 1
-        return 0 if k > n else k
+        uniform = (med >= bright) & (part.std(axis=1) <= REBATE_UNIFORMITY * np.maximum(med, 1e-6))
+        k, seen = 0, False
+        for i in range(len(med)):
+            if uniform[i]:
+                seen = True
+            elif not (med[i] >= bright and i < outer and not seen):
+                break
+            k = i + 1
+        if not seen or k > n:
+            return 0
+        # la base della pellicola ha una sola luminosità: la si misura vicino al lato, dopo la
+        # transizione sfocata, e la fascia finisce dove la luminosità cambia (ombre uniformi
+        # dell'immagine possono essere chiare quasi come la base)
+        if k > outer + 2:
+            ref = float(np.median(med[outer:outer + max(3, (k - outer) // 3)]))
+            for i in range(outer, k):
+                if abs(med[i] / ref - 1) > REBATE_LEVEL_TOL:
+                    k = i
+                    break
+        return min(k + max(REBATE_SAFETY_MIN_PX, round(REBATE_SAFETY_FRAC * lines.shape[0])), n)
 
     top, bottom = count(lum), count(lum[::-1])
     left, right = count(lum.T), count(lum.T[::-1])
-    h, w = lum.shape
     return img[top:h - bottom, left:w - right]
+
+
+def snap_aspect(img: np.ndarray, aspect: float = 1.5) -> np.ndarray:
+    """Riporta al formato nominale un fotogramma che ne differisce di poco (prospettiva residua)."""
+    h, w = img.shape[:2]
+    long_, short = max(h, w), min(h, w)
+    if abs((long_ / short) / aspect - 1) > ASPECT_SNAP:
+        return img
+    new_short = int(round(long_ / aspect))
+    size = (long_, new_short) if w >= h else (new_short, long_)
+    return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
