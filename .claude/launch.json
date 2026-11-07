@@ -12,6 +12,12 @@
       "runtimeExecutable": ".venv/Scripts/python.exe",
       "runtimeArgs": ["-m", "http.server", "8765", "--directory", "web"],
       "port": 8765
+    },
+    {
+      "name": "sito",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--prefix", "site", "wrangler", "pages", "dev", "site/dist", "--port", "8788", "--compatibility-date", "2025-01-01"],
+      "port": 8788
     }
   ]
 }

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="it" data-lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galleria — Ai-Film-Developing</title>
+<meta name="description" content="Negativi reali di quattro pellicole, fotografati con un telefono simulato e sviluppati dal motore, a confronto con le stampe di laboratorio.">
+<meta name="theme-color" content="#0f0e0c">
+<link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;550;600;650&display=swap">
+<link rel="stylesheet" href="/css/site.css">
+<link rel="stylesheet" href="/css/gallery.css">
+<script src="/js/lang-boot.js"></script>
+</head>
+<body>
+<span hidden data-title-it="Galleria — Ai-Film-Developing" data-title-en="Gallery — Ai-Film-Developing"></span>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="dot" aria-hidden="true"></span>Ai-Film-Developing <small>● 35MM</small></a>
+    <nav class="nav" aria-label="Sezioni">
+      <a href="/"><span lang="it">Progetto</span><span lang="en">Project</span></a>
+      <a href="/galleria" aria-current="page"><span lang="it">Galleria</span><span lang="en">Gallery</span></a>
+      <a href="/app"><span lang="it">Applicativo</span><span lang="en">App</span></a>
+    </nav>
+    <div class="langs" role="group" aria-label="Lingua / Language"><button data-lang="it" aria-pressed="true">IT</button><button data-lang="en" aria-pressed="false">EN</button></div>
+  </div>
+</header>
+
+<main>
+<section class="intro">
+  <div class="wrap">
+    <div class="edge"><span lang="it">Esempi e prove</span><span lang="en">Examples and tests</span></div>
+    <h1 lang="it">Il motore <em>alla prova</em></h1>
+    <h1 lang="en">The engine <em>put to the test</em></h1>
+    <p class="lead" lang="it">Negativi reali di quattro pellicole, fotografati con uno smartphone simulato (luce non uniforme, inclinazione, riflessi, rumore, JPEG) e sviluppati dal motore. Accanto, la stampa fatta dal laboratorio all'epoca.</p>
+    <p class="lead" lang="en">Real negatives from four film stocks, shot with a simulated smartphone (uneven light, tilt, reflections, noise, JPEG) and developed by the engine. Next to them, the print the lab made at the time.</p>
+    <div class="stats" id="stats"></div>
+    <nav class="jump" aria-label="In questa pagina">
+      <a href="#modalita"><span lang="it">Modalità a confronto</span><span lang="en">Modes compared</span></a>
+      <a href="#fotogrammi"><span lang="it">Tutti i fotogrammi</span><span lang="en">All frames</span></a>
+      <a href="#passi"><span lang="it">Passo per passo</span><span lang="en">Step by step</span></a>
+    </nav>
+  </div>
+</section>
+
+<section id="modalita">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="edge"><span lang="it">Modalità a confronto</span><span lang="en">Modes compared</span></div>
+      <h2 lang="it">Stesso scatto, <em>quattro versioni</em></h2>
+      <h2 lang="en">Same shot, <em>four versions</em></h2>
+      <p class="sub" lang="it">Scegli una modalità e trascina il cursore per confrontarla con l'Originale. Il riquadro sotto mostra un dettaglio ingrandito: è lì che si vede la differenza.</p>
+      <p class="sub" lang="en">Pick a mode and drag the handle to compare it with the Original. The panel below shows a zoomed detail: that's where the difference shows.</p>
+    </div>
+    <div class="seg" id="modeSeg" role="group" aria-label="Modalità"></div>
+    <div class="modes-view">
+      <div class="compare" id="modeCmp" aria-label="Confronto con l'Originale">
+        <img id="modeB" alt="">
+        <img id="modeA" class="over" alt="">
+        <div class="bar"></div><div class="knob" aria-hidden="true">⇆</div>
+        <span class="lbl l">Originale</span><span class="lbl r" id="modeLbl"></span>
+      </div>
+      <aside class="card mode-side">
+        <span class="tag" id="modeTag"></span>
+        <h3 id="modeTitle"></h3>
+        <p class="muted" id="modeText"></p>
+        <div class="detail">
+          <figure><img id="detA" alt="" data-zoom><figcaption>Originale</figcaption></figure>
+          <figure><img id="detB" alt="" data-zoom><figcaption id="detLbl"></figcaption></figure>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section id="fotogrammi">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="edge"><span lang="it">Tutti i fotogrammi</span><span lang="en">All frames</span></div>
+      <h2 lang="it">Tredici negativi, <em>quattro pellicole</em></h2>
+      <h2 lang="en">Thirteen negatives, <em>four film stocks</em></h2>
+      <p class="sub" lang="it">Scegli un fotogramma e con cosa confrontare il risultato. Clic sulle immagini piccole per ingrandirle.</p>
+      <p class="sub" lang="en">Pick a frame and what to compare the result with. Click the small images to enlarge them.</p>
+    </div>
+    <div class="strip filmstrip" id="strip" role="group" aria-label="Fotogrammi"></div>
+    <div class="viewer">
+      <div>
+        <div class="seg" id="vsSeg" role="group" aria-label="Confronta con"></div>
+        <div class="compare" id="frameCmp" aria-label="Confronto prima e dopo">
+          <img id="frB" alt="">
+          <img id="frA" class="over" alt="">
+          <div class="bar"></div><div class="knob" aria-hidden="true">⇆</div>
+          <span class="lbl l"><span lang="it">Nostro risultato</span><span lang="en">Our result</span></span><span class="lbl r" id="vsLbl"></span>
+        </div>
+      </div>
+      <aside class="card side" id="side"></aside>
+    </div>
+    <div class="four" id="four"></div>
+  </div>
+</section>
+
+<section id="passi">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="edge"><span lang="it">Passo per passo</span><span lang="en">Step by step</span></div>
+      <h2 lang="it">Dentro il motore, <em>su una foto vera</em></h2>
+      <h2 lang="en">Inside the engine, <em>on a real photo</em></h2>
+      <p class="sub" lang="it">Lo stesso fotogramma (Fuji 100, Tokyo 1994), un passaggio alla volta. Il punto 3 mostra perché non basta "invertire i colori".</p>
+      <p class="sub" lang="en">The same frame (Fuji 100, Tokyo 1994), one step at a time. Step 3 shows why "invert colours" isn't enough.</p>
+    </div>
+    <ol class="steps" id="steps"></ol>
+  </div>
+</section>
+
+<section class="legend-sec">
+  <div class="wrap">
+    <div class="card legend">
+      <h3>ΔE</h3>
+      <p class="muted" lang="it">È la differenza di colore percepita: sotto 2 quasi invisibile, sotto 10 simile, oltre 20 molto diversa. Il confronto con la <b>scansione</b> misura quanto pesa lo scatto col telefono; quello con la <b>stampa</b> include anche le scelte dello stampatore, che correggeva ogni foto a mano: è un riferimento, non la verità.</p>
+      <p class="muted" lang="en">It's the perceived colour difference: below 2 almost invisible, below 10 similar, above 20 very different. The comparison with the <b>scan</b> measures what the phone shot costs; the one with the <b>print</b> also includes the printer's choices, who corrected each photo by hand: it's a reference, not the truth.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span lang="it">Negativi e stampe: dataset <a href="https://huggingface.co/datasets/ttgroup/blueneg-release">BlueNeg</a>, Copyrighted by Tien-Tsin Wong. Scatti da telefono simulati con <code>tools/phone_sim.py</code>.</span>
+    <span lang="en">Negatives and prints: <a href="https://huggingface.co/datasets/ttgroup/blueneg-release">BlueNeg</a> dataset, Copyrighted by Tien-Tsin Wong. Phone shots simulated with <code>tools/phone_sim.py</code>.</span>
+    <span><a href="https://github.com/filippovisentin/Ai-Film-Developing">GitHub</a></span>
+  </div>
+</footer>
+<script type="module" src="/js/gallery.js"></script>
+</body>
+</html>

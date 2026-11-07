@@ -1,0 +1,16 @@
+{
+  "name": "ai-film-developing-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "serve": "npx wrangler pages dev dist",
+    "deploy": "npm run build && npx wrangler pages deploy dist --project-name ai-film-developing"
+  },
+  "devDependencies": {
+    "@techstark/opencv-js": "4.10.0-release.1",
+    "onnxruntime-web": "1.20.1",
+    "wrangler": "4.40.0"
+  }
+}

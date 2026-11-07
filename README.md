@@ -29,7 +29,8 @@ Guida illustrata: [`web/come-funziona.html`](web/come-funziona.html).
 | `devguide/` | Sviluppo a casa: ricettario, calcolo dei tempi, timer guidato |
 | `recipes/` | Ricette con fonte obbligatoria (Ilford HP5 Plus, CineStill Cs41) |
 | `tools/` | Valutazione su negativi reali, simulatore di scatto da telefono, pagina di confronto, server locale dello strumento, download del modello AI |
-| `web/` | `come-funziona.html` (spiegazione), `strumento.html` (solo lo strumento), `index.html` (galleria di prova) |
+| `web/` | Pagine locali: `come-funziona.html` (spiegazione), `strumento.html` (strumento col server Python), `index.html` (galleria di prova) |
+| `site/` | Sito pubblico per Cloudflare Pages: progetto, galleria e applicativo con il motore che gira nel browser (vedi [`site/README.md`](site/README.md)) |
 | `docs/` | Specifica di progetto e piani di implementazione |
 | `tests/` | Test automatici (pytest) |
 
@@ -67,7 +68,9 @@ I pesi non sono pubblicati (dati BlueNeg); si rigenerano così (servono `torch` 
 .venv/Scripts/python -m tools.train_restore testdata/restore_pairs.npz models/restore_v1.onnx 12
 ```
 
-Strumento nel browser (solo in locale, le foto non lasciano il computer):
+Sito pubblico con l'applicativo nel browser (Originale, Migliorata, AI): vedi [`site/README.md`](site/README.md).
+
+Strumento nel browser con il server Python (tutte le modalità, anche Restauro AI e DNG; le foto non lasciano il computer):
 
 ```bash
 .venv/Scripts/python -m tools.server      # poi apri http://127.0.0.1:8765/strumento.html
