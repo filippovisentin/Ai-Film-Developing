@@ -1,0 +1,250 @@
+{
+ "fotogrammi": [
+  {
+   "id": "19941217A-08-tokyo",
+   "rullino": "19941217A",
+   "pellicola": "Fuji 100",
+   "profilo": "generic_color",
+   "negativo": "19941217A-08-tokyo_neg.jpg",
+   "telefono": "19941217A-08-tokyo_tel.jpg",
+   "risultato": "19941217A-08-tokyo_ris.jpg",
+   "scansione": "19941217A-08-tokyo_scan.jpg",
+   "stampa": "19941217A-08-tokyo_stampa.jpg",
+   "dE_stampa": 17.56,
+   "dE_scansione": 15.07,
+   "avvisi": []
+  },
+  {
+   "id": "19941217A-10-tokyo",
+   "rullino": "19941217A",
+   "pellicola": "Fuji 100",
+   "profilo": "generic_color",
+   "negativo": "19941217A-10-tokyo_neg.jpg",
+   "telefono": "19941217A-10-tokyo_tel.jpg",
+   "risultato": "19941217A-10-tokyo_ris.jpg",
+   "scansione": "19941217A-10-tokyo_scan.jpg",
+   "stampa": "19941217A-10-tokyo_stampa.jpg",
+   "dE_stampa": 14.59,
+   "dE_scansione": 5.23,
+   "avvisi": [
+    "19941217A-10-tokyo.tif: fotogramma più chiaro della base misurata (esposizione diversa?), base corretta per questo fotogramma"
+   ]
+  },
+  {
+   "id": "19941217A-15-tokyo",
+   "rullino": "19941217A",
+   "pellicola": "Fuji 100",
+   "profilo": "generic_color",
+   "negativo": "19941217A-15-tokyo_neg.jpg",
+   "telefono": "19941217A-15-tokyo_tel.jpg",
+   "risultato": "19941217A-15-tokyo_ris.jpg",
+   "scansione": "19941217A-15-tokyo_scan.jpg",
+   "stampa": "19941217A-15-tokyo_stampa.jpg",
+   "dE_stampa": 12.23,
+   "dE_scansione": 5.61,
+   "avvisi": [
+    "19941217A-15-tokyo.tif: fotogramma più chiaro della base misurata (esposizione diversa?), base corretta per questo fotogramma"
+   ]
+  },
+  {
+   "id": "19941217A-16-tokyo",
+   "rullino": "19941217A",
+   "pellicola": "Fuji 100",
+   "profilo": "generic_color",
+   "negativo": "19941217A-16-tokyo_neg.jpg",
+   "telefono": "19941217A-16-tokyo_tel.jpg",
+   "risultato": "19941217A-16-tokyo_ris.jpg",
+   "scansione": "19941217A-16-tokyo_scan.jpg",
+   "stampa": "19941217A-16-tokyo_stampa.jpg",
+   "dE_stampa": 11.72,
+   "dE_scansione": 7.23,
+   "avvisi": [
+    "19941217A-16-tokyo.tif: fotogramma più chiaro della base misurata (esposizione diversa?), base corretta per questo fotogramma"
+   ]
+  },
+  {
+   "id": "19941218C-03-tokyo",
+   "rullino": "19941218C",
+   "pellicola": "Kodak Gold 100",
+   "profilo": "kodak_gold_100",
+   "negativo": "19941218C-03-tokyo_neg.jpg",
+   "telefono": "19941218C-03-tokyo_tel.jpg",
+   "risultato": "19941218C-03-tokyo_ris.jpg",
+   "scansione": "19941218C-03-tokyo_scan.jpg",
+   "stampa": "19941218C-03-tokyo_stampa.jpg",
+   "dE_stampa": 14.14,
+   "dE_scansione": 9.41,
+   "avvisi": [
+    "19941218C-03-tokyo.tif: fotogramma più chiaro della base misurata (esposizione diversa?), base corretta per questo fotogramma"
+   ]
+  },
+  {
+   "id": "19941218C-04-tokyo",
+   "rullino": "19941218C",
+   "pellicola": "Kodak Gold 100",
+   "profilo": "kodak_gold_100",
+   "negativo": "19941218C-04-tokyo_neg.jpg",
+   "telefono": "19941218C-04-tokyo_tel.jpg",
+   "risultato": "19941218C-04-tokyo_ris.jpg",
+   "scansione": "19941218C-04-tokyo_scan.jpg",
+   "stampa": "19941218C-04-tokyo_stampa.jpg",
+   "dE_stampa": 14.99,
+   "dE_scansione": 10.29,
+   "avvisi": [
+    "19941218C-04-tokyo.tif: fotogramma più chiaro della base misurata (esposizione diversa?), base corretta per questo fotogramma"
+   ]
+  },
+  {
+   "id": "19941218C-05-tokyo",
+   "rullino": "19941218C",
+   "pellicola": "Kodak Gold 100",
+   "profilo": "kodak_gold_100",
+   "negativo": "19941218C-05-tokyo_neg.jpg",
+   "telefono": "19941218C-05-tokyo_tel.jpg",
+   "risultato": "19941218C-05-tokyo_ris.jpg",
+   "scansione": "19941218C-05-tokyo_scan.jpg",
+   "stampa": "19941218C-05-tokyo_stampa.jpg",
+   "dE_stampa": 14.21,
+   "dE_scansione": 9.14,
+   "avvisi": [
+    "19941218C-05-tokyo.tif: fotogramma più chiaro della base misurata (esposizione diversa?), base corretta per questo fotogramma"
+   ]
+  },
+  {
+   "id": "19941222E-01-nara",
+   "rullino": "19941222E",
+   "pellicola": "Konica Super XG 100",
+   "profilo": "generic_color",
+   "negativo": "19941222E-01-nara_neg.jpg",
+   "telefono": "19941222E-01-nara_tel.jpg",
+   "risultato": "19941222E-01-nara_ris.jpg",
+   "scansione": "19941222E-01-nara_scan.jpg",
+   "stampa": "19941222E-01-nara_stampa.jpg",
+   "dE_stampa": 15.57,
+   "dE_scansione": 6.85,
+   "avvisi": [
+    "19941222E-01-nara.tif: fotogramma più chiaro della base misurata (esposizione diversa?), base corretta per questo fotogramma"
+   ]
+  },
+  {
+   "id": "19941222E-02-nara",
+   "rullino": "19941222E",
+   "pellicola": "Konica Super XG 100",
+   "profilo": "generic_color",
+   "negativo": "19941222E-02-nara_neg.jpg",
+   "telefono": "19941222E-02-nara_tel.jpg",
+   "risultato": "19941222E-02-nara_ris.jpg",
+   "scansione": "19941222E-02-nara_scan.jpg",
+   "stampa": "19941222E-02-nara_stampa.jpg",
+   "dE_stampa": 18.81,
+   "dE_scansione": 6.68,
+   "avvisi": [
+    "19941222E-02-nara.tif: fotogramma più chiaro della base misurata (esposizione diversa?), base corretta per questo fotogramma"
+   ]
+  },
+  {
+   "id": "19941222E-04-nara",
+   "rullino": "19941222E",
+   "pellicola": "Konica Super XG 100",
+   "profilo": "generic_color",
+   "negativo": "19941222E-04-nara_neg.jpg",
+   "telefono": "19941222E-04-nara_tel.jpg",
+   "risultato": "19941222E-04-nara_ris.jpg",
+   "scansione": "19941222E-04-nara_scan.jpg",
+   "stampa": "19941222E-04-nara_stampa.jpg",
+   "dE_stampa": 13.0,
+   "dE_scansione": 7.48,
+   "avvisi": [
+    "19941222E-04-nara.tif: fotogramma più chiaro della base misurata (esposizione diversa?), base corretta per questo fotogramma"
+   ]
+  },
+  {
+   "id": "199807A-06-hk",
+   "rullino": "199807A",
+   "pellicola": "Fuji 400",
+   "profilo": "generic_color",
+   "negativo": "199807A-06-hk_neg.jpg",
+   "telefono": "199807A-06-hk_tel.jpg",
+   "risultato": "199807A-06-hk_ris.jpg",
+   "scansione": "199807A-06-hk_scan.jpg",
+   "stampa": "199807A-06-hk_stampa.jpg",
+   "dE_stampa": 15.53,
+   "dE_scansione": 6.08,
+   "avvisi": []
+  },
+  {
+   "id": "199807A-10-orlando-siggraph",
+   "rullino": "199807A",
+   "pellicola": "Fuji 400",
+   "profilo": "generic_color",
+   "negativo": "199807A-10-orlando-siggraph_neg.jpg",
+   "telefono": "199807A-10-orlando-siggraph_tel.jpg",
+   "risultato": "199807A-10-orlando-siggraph_ris.jpg",
+   "scansione": "199807A-10-orlando-siggraph_scan.jpg",
+   "stampa": "199807A-10-orlando-siggraph_stampa.jpg",
+   "dE_stampa": 10.8,
+   "dE_scansione": 5.57,
+   "avvisi": []
+  },
+  {
+   "id": "199807A-12-orlando-universal-studio",
+   "rullino": "199807A",
+   "pellicola": "Fuji 400",
+   "profilo": "generic_color",
+   "negativo": "199807A-12-orlando-universal-studio_neg.jpg",
+   "telefono": "199807A-12-orlando-universal-studio_tel.jpg",
+   "risultato": "199807A-12-orlando-universal-studio_ris.jpg",
+   "scansione": "199807A-12-orlando-universal-studio_scan.jpg",
+   "stampa": "199807A-12-orlando-universal-studio_stampa.jpg",
+   "dE_stampa": 11.72,
+   "dE_scansione": 5.08,
+   "avvisi": []
+  }
+ ],
+ "passi": {
+  "id": "19941217A-10-tokyo",
+  "passi": [
+   {
+    "titolo": "1. Scatto col telefono",
+    "testo": "Pellicola sulla luce: inclinata, luce non uniforme, riflessi, rumore e JPEG.",
+    "img": "19941217A-10-tokyo_s1.jpg"
+   },
+   {
+    "titolo": "2. Luce corretta e ritaglio",
+    "testo": "La foto della sola luce corregge l'illuminazione; il fotogramma viene trovato, raddrizzato e rifilato.",
+    "img": "19941217A-10-tokyo_s2.jpg"
+   },
+   {
+    "titolo": "3. Inversione ingenua",
+    "testo": "Quello che fa un semplice 'inverti colori': la maschera arancione diventa una dominante blu.",
+    "img": "19941217A-10-tokyo_s3.jpg"
+   },
+   {
+    "titolo": "4. Inversione in densità",
+    "testo": "Si divide per la base della pellicola e si inverte in densità: colori corretti, ma immagine piatta.",
+    "img": "19941217A-10-tokyo_s4.jpg"
+   },
+   {
+    "titolo": "5. Carta da stampa",
+    "testo": "Neri e bianchi neutri, gamma della carta e curva a S: il risultato finale.",
+    "img": "19941217A-10-tokyo_s5.jpg"
+   }
+  ]
+ },
+ "credito": "Copyrighted by Tien-Tsin Wong",
+ "modalita": {
+  "stem": "19941217A-10-tokyo",
+  "full": {
+   "originale": "modo_originale.jpg",
+   "migliorata": "modo_migliorata.jpg",
+   "restaurata": "modo_restaurata.jpg",
+   "ai": "modo_ai.jpg"
+  },
+  "detail": {
+   "originale": "modo_originale_det.jpg",
+   "migliorata": "modo_migliorata_det.jpg",
+   "restaurata": "modo_restaurata_det.jpg",
+   "ai": "modo_ai_det.jpg"
+  }
+ }
+}

@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="it" data-lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ai-Film-Developing — dal rullino alla foto digitale</title>
+<meta name="description" content="Sviluppo della pellicola a casa e digitalizzazione del negativo con lo smartphone. Motore di conversione open source che gira nel browser.">
+<meta property="og:title" content="Ai-Film-Developing — dal rullino alla foto digitale">
+<meta property="og:description" content="Fotografa il negativo col telefono: il motore toglie la maschera arancione e inverte in densità, direttamente nel browser.">
+<meta property="og:image" content="https://filippovisentin.github.io/Ai-Film-Developing/img/g/19941217A-10-tokyo_scan.jpg">
+<meta name="theme-color" content="#0f0e0c">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;550;600;650&display=swap">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/home.css">
+<script src="js/lang-boot.js"></script>
+</head>
+<body>
+<span hidden data-title-it="Ai-Film-Developing — dal rullino alla foto digitale" data-title-en="Ai-Film-Developing — from film roll to digital photo"></span>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><span class="dot" aria-hidden="true"></span>Ai-Film-Developing <small>● 35MM</small></a>
+    <nav class="nav" aria-label="Sezioni">
+      <a href="./" aria-current="page"><span lang="it">Progetto</span><span lang="en">Project</span></a>
+      <a href="galleria.html"><span lang="it">Galleria</span><span lang="en">Gallery</span></a>
+      <a href="app.html"><span lang="it">Applicativo</span><span lang="en">App</span></a>
+    </nav>
+    <div class="langs" role="group" aria-label="Lingua / Language"><button data-lang="it" aria-pressed="true">IT</button><button data-lang="en" aria-pressed="false">EN</button></div>
+  </div>
+</header>
+
+<main>
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="edge"><span lang="it">Pellicola · sviluppo · telefono</span><span lang="en">Film · developing · phone</span></div>
+      <h1 lang="it">Dal rullino alla foto digitale, <em>senza laboratorio</em>.</h1>
+      <h1 lang="en">From film roll to digital photo, <em>no lab needed</em>.</h1>
+      <p class="lead" lang="it">Sviluppi il rullino a casa con una guida passo passo, poi fotografi il negativo con il telefono appoggiato su una luce. Il motore toglie la maschera arancione e inverte in densità, come farebbe un buon laboratorio.</p>
+      <p class="lead" lang="en">Develop the roll at home with step-by-step guidance, then photograph the negative with your phone over a light. The engine removes the orange mask and inverts in density, the way a good lab would.</p>
+      <div class="cta">
+        <a class="btn primary" href="app.html"><span lang="it">Sviluppa un negativo</span><span lang="en">Develop a negative</span> <span class="arr">→</span></a>
+        <a class="btn" href="galleria.html"><span lang="it">Guarda gli esempi</span><span lang="en">See the examples</span></a>
+      </div>
+      <ul class="facts">
+        <li><b>100%</b><span lang="it">nel browser: le foto non lasciano il dispositivo</span><span lang="en">in the browser: photos never leave your device</span></li>
+        <li><b>13</b><span lang="it">negativi reali di 4 pellicole usati per le prove</span><span lang="en">real negatives from 4 film stocks used for testing</span></li>
+        <li><b>4</b><span lang="it">modalità, dall'Originale fedele all'AI</span><span lang="en">modes, from the faithful Original to AI</span></li>
+      </ul>
+    </div>
+    <figure class="hero-fig">
+      <div class="filmstrip">
+        <span class="edge-print t">FUJI 100 ▸ 10 ▸ 19941217A</span>
+        <div class="compare" id="heroCmp" aria-label="Negativo e foto sviluppata: trascina per confrontare">
+          <img src="img/g/19941217A-10-tokyo_scan.jpg" alt="Foto sviluppata dal motore">
+          <img class="over" src="img/g/19941217A-10-tokyo_neg.jpg" alt="Negativo a colori con maschera arancione">
+          <div class="bar"></div><div class="knob" aria-hidden="true">⇆</div>
+          <span class="lbl l"><span lang="it">Negativo</span><span lang="en">Negative</span></span>
+          <span class="lbl r"><span lang="it">Sviluppata</span><span lang="en">Developed</span></span>
+        </div>
+        <span class="edge-print b">▸ 10A ▸ ▸ 11 ▸ ▸ 11A</span>
+      </div>
+      <figcaption class="muted"><span lang="it">Tokyo, 1994. Trascina il cursore: a sinistra il negativo, a destra il risultato del motore.</span><span lang="en">Tokyo, 1994. Drag the handle: the negative on the left, the engine's result on the right.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ PERCORSO ============ -->
+<section id="percorso">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="edge"><span lang="it">Il percorso</span><span lang="en">The journey</span></div>
+      <h2 lang="it">Quattro tappe, <em>dal buio alla luce</em></h2>
+      <h2 lang="en">Four steps, <em>from dark to light</em></h2>
+      <p class="sub" lang="it">Il progetto accompagna tutto ciò che viene dopo lo scatto. Lo sviluppo chimico resta indispensabile: un rullino non sviluppato non contiene ancora un'immagine visibile.</p>
+      <p class="sub" lang="en">The project covers everything after the shot. Chemical development is still essential: an undeveloped roll does not yet hold a visible image.</p>
+    </div>
+    <ol class="journey">
+      <li class="card">
+        <span class="n">01</span><span class="tag plain" lang="it">la tua macchina</span><span class="tag plain" lang="en">your camera</span>
+        <h3 lang="it">Scatti</h3><h3 lang="en">Shoot</h3>
+        <p lang="it">Usi la tua macchina a pellicola come sempre. Il rullino finito va tenuto al buio.</p>
+        <p lang="en">Use your film camera as usual. Keep the finished roll in the dark.</p>
+      </li>
+      <li class="card">
+        <span class="n">02</span><span class="tag ok" lang="it">prototipo pronto</span><span class="tag ok" lang="en">prototype ready</span>
+        <h3 lang="it">Sviluppi a casa</h3><h3 lang="en">Develop at home</h3>
+        <p lang="it">Tank, sacca a tenuta di luce e un kit. I tempi vengono dalle schede ufficiali dei produttori; il timer scandisce bagni e agitazione.</p>
+        <p lang="en">A tank, a changing bag and a kit. Times come from the manufacturers' official data sheets; the timer paces baths and agitation.</p>
+      </li>
+      <li class="card">
+        <span class="n">03</span><span class="tag ok" lang="it">simulato e testato</span><span class="tag ok" lang="en">simulated and tested</span>
+        <h3 lang="it">Fotografi il negativo</h3><h3 lang="en">Photograph the negative</h3>
+        <p lang="it">Appoggi la pellicola su una luce (tablet o pannello LED) e la inquadri col telefono. Il motore trova il fotogramma e lo raddrizza.</p>
+        <p lang="en">Lay the film on a light (tablet or LED panel) and frame it with your phone. The engine finds the frame and straightens it.</p>
+      </li>
+      <li class="card accent">
+        <span class="n">04</span><span class="tag ok" lang="it">motore pronto</span><span class="tag ok" lang="en">engine ready</span>
+        <h3 lang="it">Ottieni la foto</h3><h3 lang="en">Get the photo</h3>
+        <p lang="it">Maschera arancione tolta, inversione in densità, carta da stampa simulata. Poi, se vuoi, la pulizia o l'AI.</p>
+        <p lang="en">Orange mask removed, density inversion, simulated printing paper. Then, if you like, clean-up or AI.</p>
+        <a href="app.html" class="more"><span lang="it">Provalo ora →</span><span lang="en">Try it now →</span></a>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ PERCHÉ ============ -->
+<section id="perche">
+  <div class="wrap why">
+    <div>
+      <div class="edge"><span lang="it">Il problema</span><span lang="en">The problem</span></div>
+      <h2 lang="it">Perché non basta <em>"inverti colori"</em></h2>
+      <h2 lang="en">Why <em>"invert colours"</em> isn't enough</h2>
+      <div class="points">
+        <div>
+          <h3 lang="it">La maschera arancione</h3><h3 lang="en">The orange mask</h3>
+          <p class="muted" lang="it">Tutta la pellicola a colori ha una tinta arancione, anche dove non c'è immagine. Invertita, diventa una forte dominante blu. Il motore misura il colore esatto del bordo non esposto e lo usa come riferimento.</p>
+          <p class="muted" lang="en">All colour film carries an orange tint, even where there is no image. Inverted, it turns into a strong blue cast. The engine measures the exact colour of the unexposed edge and uses it as the reference.</p>
+        </div>
+        <div>
+          <h3 lang="it">La scala della pellicola</h3><h3 lang="en">The film's scale</h3>
+          <p class="muted" lang="it">La pellicola registra la luce in densità, una scala logaritmica. Il motore inverte in quella scala e poi simula la carta da stampa: neri profondi, bianchi puliti.</p>
+          <p class="muted" lang="en">Film records light as density, a logarithmic scale. The engine inverts on that scale, then simulates printing paper: deep blacks, clean whites.</p>
+        </div>
+      </div>
+    </div>
+    <div class="trio">
+      <figure><img src="img/g/19941217A-10-tokyo_s1.jpg" alt="" loading="lazy" data-zoom><figcaption><span lang="it">Scatto col telefono</span><span lang="en">Phone shot</span></figcaption></figure>
+      <figure class="bad"><img src="img/g/19941217A-10-tokyo_s3.jpg" alt="" loading="lazy" data-zoom><figcaption>✗ <span lang="it">Inverti e basta</span><span lang="en">Plain invert</span></figcaption></figure>
+      <figure class="good"><img src="img/g/19941217A-10-tokyo_s5.jpg" alt="" loading="lazy" data-zoom><figcaption>✓ <span lang="it">Il motore</span><span lang="en">The engine</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MODALITÀ ============ -->
+<section id="modalita">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="edge"><span lang="it">Le modalità</span><span lang="en">The modes</span></div>
+      <h2 lang="it">Quanto vuoi <em>aiutare</em> la foto?</h2>
+      <h2 lang="en">How much do you want to <em>help</em> the photo?</h2>
+      <p class="sub" lang="it">Ogni passo in più rende la foto più bella ma un po' meno fedele alla pellicola. Per questo le versioni restano separate e l'Originale non viene mai toccato.</p>
+      <p class="sub" lang="en">Each extra step makes the photo nicer but a little less faithful to the film. That is why the versions stay separate and the Original is never touched.</p>
+    </div>
+    <div class="modes grid g4">
+      <article class="card mode">
+        <img src="img/g/modo_originale_det.jpg" alt="" loading="lazy" data-zoom>
+        <span class="tag ok" lang="it">fedele</span><span class="tag ok" lang="en">faithful</span>
+        <h3 lang="it">Originale</h3><h3 lang="en">Original</h3>
+        <p class="muted" lang="it">Lo sviluppo fedele: i colori della pellicola, con la sua grana, la polvere e il rumore dello scatto.</p>
+        <p class="muted" lang="en">The faithful development: the film's colours, with its grain, dust and the shot's noise.</p>
+      </article>
+      <article class="card mode">
+        <img src="img/g/modo_migliorata_det.jpg" alt="" loading="lazy" data-zoom>
+        <span class="tag ok" lang="it">nessun pixel inventato</span><span class="tag ok" lang="en">no invented pixels</span>
+        <h3 lang="it">Migliorata</h3><h3 lang="en">Enhanced</h3>
+        <p class="muted" lang="it">Toglie i granelli di polvere isolati, il rumore colorato e rende un po' più nitida. Lavora solo sui pixel che ci sono.</p>
+        <p class="muted" lang="en">Removes isolated dust specks and colour noise and sharpens a little. Works only on the pixels that are there.</p>
+      </article>
+      <article class="card mode">
+        <img src="img/g/modo_ai_det.jpg" alt="" loading="lazy" data-zoom>
+        <span class="tag ai" lang="it">dettagli inventati</span><span class="tag ai" lang="en">invented detail</span>
+        <h3 lang="it">Ingrandimento AI</h3><h3 lang="en">AI upscale</h3>
+        <p class="muted" lang="it">Real-ESRGAN ingrandisce 2 o 4 volte e inventa dettagli plausibili. Più nitida, ma quei dettagli non erano sulla pellicola.</p>
+        <p class="muted" lang="en">Real-ESRGAN upscales 2× or 4× and invents plausible detail. Sharper, but that detail was not on the film.</p>
+      </article>
+      <article class="card mode">
+        <img src="img/g/modo_restaurata_det.jpg" alt="" loading="lazy" data-zoom>
+        <span class="tag exp" lang="it">sperimentale · solo locale</span><span class="tag exp" lang="en">experimental · local only</span>
+        <h3 lang="it">Restauro AI</h3><h3 lang="en">AI restore</h3>
+        <p class="muted" lang="it">Una rete addestrata a togliere rumore e blocchi JPEG dello scatto. Dà il dettaglio più fedele, ma i pesi non sono pubblicati: funziona nella versione locale.</p>
+        <p class="muted" lang="en">A network trained to remove the shot's noise and JPEG blocks. It gives the most faithful detail, but the weights aren't published: it runs in the local version.</p>
+      </article>
+    </div>
+    <p class="note muted"><span lang="it">Dettagli ingranditi dello stesso fotogramma. Confronto completo nella</span><span lang="en">Zoomed details of the same frame. Full comparison in the</span> <a href="galleria.html#modalita"><span lang="it">galleria</span><span lang="en">gallery</span></a>.</p>
+  </div>
+</section>
+
+<!-- ============ KIT ============ -->
+<section id="kit">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="edge"><span lang="it">Cosa serve</span><span lang="en">What you need</span></div>
+      <h2 lang="it">Un telefono, una luce, <em>un po' di buio</em></h2>
+      <h2 lang="en">A phone, a light, <em>a little darkness</em></h2>
+    </div>
+    <div class="grid g4 kit">
+      <div class="card"><span class="ico" aria-hidden="true">▢</span><h3 lang="it">Una luce uniforme</h3><h3 lang="en">An even light</h3><p class="muted" lang="it">Un tablet con lo schermo bianco o un pannello LED.</p><p class="muted" lang="en">A tablet with a white screen or an LED panel.</p></div>
+      <div class="card"><span class="ico" aria-hidden="true">▤</span><h3 lang="it">Un supporto</h3><h3 lang="en">A holder</h3><p class="muted" lang="it">Tiene la pellicola piatta: un porta-negativi o un cartoncino nero con una finestra.</p><p class="muted" lang="en">Keeps the film flat: a negative holder or black card with a window.</p></div>
+      <div class="card"><span class="ico" aria-hidden="true">◉</span><h3 lang="it">Telefono fermo</h3><h3 lang="en">A steady phone</h3><p class="muted" lang="it">Parallelo alla pellicola, meglio su un supporto. Se puoi, scatta anche la sola luce e il bordo della pellicola.</p><p class="muted" lang="en">Parallel to the film, ideally on a stand. If you can, also shoot the bare light and the film's edge.</p></div>
+      <div class="card"><span class="ico" aria-hidden="true">◐</span><h3 lang="it">Stanza in penombra</h3><h3 lang="en">A dim room</h3><p class="muted" lang="it">Evita i riflessi. La pellicola si tocca solo dai bordi.</p><p class="muted" lang="en">Avoids reflections. Touch the film by its edges only.</p></div>
+    </div>
+    <p class="note muted" lang="it">La pellicola già sviluppata non si rovina fotografandola. Un rullino non ancora sviluppato, invece, non va mai aperto alla luce. I chimici richiedono guanti, occhiali e un ambiente aerato; fissaggio e sbianca vanno smaltiti in un centro di raccolta.</p>
+    <p class="note muted" lang="en">Developed film is not harmed by photographing it. An undeveloped roll, however, must never be opened in the light. Chemicals need gloves, goggles and ventilation; fixer and blix go to a collection point, not down the drain.</p>
+  </div>
+</section>
+
+<!-- ============ STATO ============ -->
+<section id="stato">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="edge"><span lang="it">A che punto siamo</span><span lang="en">Where we are</span></div>
+      <h2 lang="it">Un prototipo <em>misurato</em>, non promesso</h2>
+      <h2 lang="en">A <em>measured</em> prototype, not a promise</h2>
+    </div>
+    <div class="grid g3 numbers">
+      <div class="card"><b>ΔE ≈ 8</b><p class="muted" lang="it">differenza di colore tra scatto da telefono realistico e scansione dello stesso negativo (sotto 10: simile).</p><p class="muted" lang="en">colour difference between a realistic phone shot and a scan of the same negative (below 10: similar).</p></div>
+      <div class="card"><b>23,4 → 14,2</b><p class="muted" lang="it">ΔE medio rispetto alle stampe di laboratorio degli anni '90, dalla prima versione a oggi (la stampa include le correzioni a mano dello stampatore).</p><p class="muted" lang="en">mean ΔE against 1990s lab prints, from the first version to now (the print includes the printer's hand corrections).</p></div>
+      <div class="card"><b>&lt; 0,1 / 255</b><p class="muted" lang="it">scarto medio tra il motore nel browser e quello Python di riferimento, verificato su tre pellicole.</p><p class="muted" lang="en">mean gap between the in-browser engine and the reference Python engine, checked on three film stocks.</p></div>
+    </div>
+    <div class="grid g2 status">
+      <div class="card">
+        <h3 lang="it">Pronto e testato</h3><h3 lang="en">Ready and tested</h3>
+        <ul class="muted" lang="it"><li>Motore di conversione, provato su 13 negativi reali di 4 pellicole.</li><li>Scatto da telefono simulato: luce non uniforme, prospettiva, rumore, JPEG.</li><li>Sviluppo a casa: tempi dalle schede ufficiali (Ilford HP5 Plus, CineStill Cs41) e timer guidato.</li><li>Versioni Migliorata e AI, anche nel browser.</li></ul>
+        <ul class="muted" lang="en"><li>Conversion engine, tested on 13 real negatives from 4 film stocks.</li><li>Simulated phone capture: uneven light, perspective, noise, JPEG.</li><li>Home developing: times from official data sheets (Ilford HP5 Plus, CineStill Cs41) and a guided timer.</li><li>Enhanced and AI versions, in the browser too.</li></ul>
+      </div>
+      <div class="card">
+        <h3 lang="it">Prossimi passi</h3><h3 lang="en">Next steps</h3>
+        <ul class="muted" lang="it"><li>Ridurre l'effetto di rumore e compressione dello scatto, il difetto che pesa di più.</li><li>Prova con un rullino vero e un telefono vero.</li><li>AI per graffi e colori sbiaditi; polvere anche nelle zone scure.</li><li>Più pellicole nei profili; poi l'app per iPhone e Android.</li></ul>
+        <ul class="muted" lang="en"><li>Reduce the effect of the shot's noise and compression, the biggest remaining error.</li><li>Test with a real roll and a real phone.</li><li>AI for scratches and faded colours; dust in dark areas too.</li><li>More film profiles; then the iPhone and Android app.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <div class="final-card">
+      <h2 lang="it">Hai un negativo <em>sotto mano</em>?</h2>
+      <h2 lang="en">Got a negative <em>to hand</em>?</h2>
+      <p class="muted" lang="it">Fotografalo e sviluppalo qui. Se non ne hai uno, l'applicativo ha uno scatto di esempio pronto.</p>
+      <p class="muted" lang="en">Photograph it and develop it here. If you don't have one, the app has a sample shot ready.</p>
+      <a class="btn primary" href="app.html"><span lang="it">Apri l'applicativo</span><span lang="en">Open the app</span> <span class="arr">→</span></a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span lang="it">Esempi fotografici: dataset <a href="https://huggingface.co/datasets/ttgroup/blueneg-release">BlueNeg</a>, Copyrighted by Tien-Tsin Wong.</span>
+    <span lang="en">Sample photographs: <a href="https://huggingface.co/datasets/ttgroup/blueneg-release">BlueNeg</a> dataset, Copyrighted by Tien-Tsin Wong.</span>
+    <span><a href="https://github.com/filippovisentin/Ai-Film-Developing">GitHub</a> · <span lang="it">codice aperto</span><span lang="en">open source</span></span>
+  </div>
+</footer>
+<script type="module" src="js/home.js"></script>
+</body>
+</html>

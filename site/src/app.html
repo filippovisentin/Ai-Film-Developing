@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="it" data-lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Applicativo — Ai-Film-Developing</title>
+<meta name="description" content="Sviluppa nel browser il negativo fotografato col telefono: Originale, Migliorata e ingrandimento AI. Le foto non lasciano il dispositivo.">
+<meta name="theme-color" content="#0f0e0c">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;550;600;650&display=swap">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/app.css">
+<script src="js/lang-boot.js"></script>
+</head>
+<body>
+<span hidden data-title-it="Applicativo — Ai-Film-Developing" data-title-en="App — Ai-Film-Developing"></span>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><span class="dot" aria-hidden="true"></span>Ai-Film-Developing <small>● 35MM</small></a>
+    <nav class="nav" aria-label="Sezioni">
+      <a href="./"><span lang="it">Progetto</span><span lang="en">Project</span></a>
+      <a href="galleria.html"><span lang="it">Galleria</span><span lang="en">Gallery</span></a>
+      <a href="app.html" aria-current="page"><span lang="it">Applicativo</span><span lang="en">App</span></a>
+    </nav>
+    <div class="langs" role="group" aria-label="Lingua / Language"><button data-lang="it" aria-pressed="true">IT</button><button data-lang="en" aria-pressed="false">EN</button></div>
+  </div>
+</header>
+
+<main class="wrap app">
+  <div class="app-head">
+    <div>
+      <div class="edge"><span lang="it">Applicativo</span><span lang="en">App</span></div>
+      <h1 lang="it">Sviluppa il tuo <em>negativo</em></h1>
+      <h1 lang="en">Develop your <em>negative</em></h1>
+    </div>
+    <p class="privacy"><span class="lock" aria-hidden="true">●</span>
+      <span lang="it">Tutto avviene nel tuo browser: le foto non vengono caricate su nessun server.</span>
+      <span lang="en">Everything happens in your browser: your photos are not uploaded anywhere.</span>
+      <span class="engine-state" id="engineState"></span>
+    </p>
+  </div>
+
+  <div class="app-grid">
+    <form class="panel" id="form" novalidate>
+      <!-- 1 -->
+      <fieldset class="step">
+        <legend><span class="n">1</span><span lang="it">Il negativo</span><span lang="en">The negative</span></legend>
+        <label class="drop big" data-key="negativo">
+          <input type="file" accept="image/*" hidden>
+          <img alt="" hidden>
+          <span class="ph"><b lang="it">Trascina qui la foto del negativo</b><b lang="en">Drop the photo of the negative here</b>
+            <span lang="it">o tocca per sceglierla · JPEG, PNG, HEIC (Safari)</span><span lang="en">or tap to choose it · JPEG, PNG, HEIC (Safari)</span></span>
+          <span class="ok"></span>
+        </label>
+        <button type="button" class="link" id="sample"><span lang="it">Non hai un negativo? Usa lo scatto di esempio</span><span lang="en">No negative to hand? Use the sample shot</span></button>
+      </fieldset>
+
+      <!-- 2 -->
+      <fieldset class="step">
+        <legend><span class="n">2</span><span lang="it">Calibrazione</span><span lang="en">Calibration</span> <span class="tag plain" lang="it">consigliata</span><span class="tag plain" lang="en">recommended</span></legend>
+        <div class="two">
+          <label class="drop" data-key="luce">
+            <input type="file" accept="image/*" hidden><img alt="" hidden>
+            <span class="ph"><b lang="it">Foto della sola luce</b><b lang="en">Photo of the bare light</b>
+              <span lang="it">stessa inquadratura, senza pellicola</span><span lang="en">same framing, no film</span></span>
+            <span class="ok"></span>
+          </label>
+          <label class="drop" data-key="bordo">
+            <input type="file" accept="image/*" hidden><img alt="" hidden>
+            <span class="ph"><b lang="it">Foto del bordo</b><b lang="en">Photo of the edge</b>
+              <span lang="it">pellicola non esposta, da vicino</span><span lang="en">unexposed film, close up</span></span>
+            <span class="ok"></span>
+          </label>
+        </div>
+        <p class="hint" lang="it">La luce corregge l'illuminazione non uniforme; il bordo dà il colore esatto della maschera arancione. Senza, il motore li stima.</p>
+        <p class="hint" lang="en">The light corrects uneven lighting; the edge gives the exact colour of the orange mask. Without them, the engine estimates both.</p>
+      </fieldset>
+
+      <!-- 3 -->
+      <fieldset class="step">
+        <legend><span class="n">3</span><span lang="it">Pellicola</span><span lang="en">Film stock</span></legend>
+        <select id="profilo" aria-label="Pellicola"></select>
+      </fieldset>
+
+      <!-- 4 -->
+      <fieldset class="step">
+        <legend><span class="n">4</span><span lang="it">Modalità</span><span lang="en">Modes</span></legend>
+        <div class="modes">
+          <label class="mode on locked"><input type="checkbox" checked disabled>
+            <span class="mt"><b lang="it">Originale</b><b lang="en">Original</b><span class="tag ok" lang="it">sempre</span><span class="tag ok" lang="en">always</span></span>
+            <span class="md" lang="it">Lo sviluppo fedele: solo ciò che c'è sul negativo.</span><span class="md" lang="en">The faithful development: only what's on the negative.</span></label>
+          <label class="mode"><input type="checkbox" id="migliora" checked>
+            <span class="mt"><b lang="it">Migliorata</b><b lang="en">Enhanced</b><span class="tag ok" lang="it">nessun pixel inventato</span><span class="tag ok" lang="en">no invented pixels</span></span>
+            <span class="md" lang="it">Polvere, rumore colorato, nitidezza moderata.</span><span class="md" lang="en">Dust, colour noise, moderate sharpening.</span></label>
+          <label class="mode"><input type="checkbox" id="ai">
+            <span class="mt"><b lang="it">Ingrandimento AI</b><b lang="en">AI upscale</b><span class="tag ai" lang="it">dettagli inventati</span><span class="tag ai" lang="en">invented detail</span></span>
+            <span class="md" lang="it">Real-ESRGAN, scarica ~5 MB. Richiede da uno a qualche minuto.</span><span class="md" lang="en">Real-ESRGAN, ~5 MB download. Takes one to a few minutes.</span>
+            <span class="seg sr" id="sr" role="group" aria-label="Fattore"><button type="button" data-sr="2" aria-pressed="true" disabled>×2</button><button type="button" data-sr="4" aria-pressed="false" disabled>×4</button></span></label>
+          <label class="mode off" title="">
+            <input type="checkbox" disabled>
+            <span class="mt"><b lang="it">Restauro AI</b><b lang="en">AI restore</b><span class="tag exp" lang="it">solo versione locale</span><span class="tag exp" lang="en">local version only</span></span>
+            <span class="md" lang="it">I pesi della rete non sono pubblicati. <a href="https://github.com/filippovisentin/Ai-Film-Developing#uso-rapido">Come usarlo in locale</a></span>
+            <span class="md" lang="en">The network weights aren't published. <a href="https://github.com/filippovisentin/Ai-Film-Developing#uso-rapido">How to run it locally</a></span></label>
+        </div>
+      </fieldset>
+
+      <button class="btn primary go" id="go" type="submit" disabled><span lang="it">Sviluppa</span><span lang="en">Develop</span> <span class="arr">→</span></button>
+      <div class="progress" id="progress" hidden><div class="track"><div class="fill" id="fill"></div></div><span id="stage"></span></div>
+      <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    </form>
+
+    <section class="result" aria-label="Risultato">
+      <div class="empty" id="empty">
+        <div class="frame-ph" aria-hidden="true"><span></span></div>
+        <p lang="it">Il risultato apparirà qui.<br><span class="muted">Scegli la foto del negativo e premi Sviluppa.</span></p>
+        <p lang="en">The result will appear here.<br><span class="muted">Choose the photo of the negative and press Develop.</span></p>
+      </div>
+      <div id="out" hidden>
+        <div class="seg tabs" id="tabs" role="group" aria-label="Versione"></div>
+        <div class="compare" id="cmp" aria-label="Confronto con l'Originale">
+          <img id="imgB" alt="">
+          <img id="imgA" class="over" alt="">
+          <div class="bar"></div><div class="knob" aria-hidden="true">⇆</div>
+          <span class="lbl l" id="lblA"></span><span class="lbl r" id="lblB"></span>
+        </div>
+        <div class="lens" id="lens" hidden>
+          <figure><canvas id="lensA" width="320" height="320"></canvas><figcaption id="capA"></figcaption></figure>
+          <figure><canvas id="lensB" width="320" height="320"></canvas><figcaption id="capB"></figcaption></figure>
+        </div>
+        <p class="note" id="note"></p>
+        <ul class="warns" id="warns"></ul>
+        <div class="dl" id="dl"></div>
+        <p class="meta muted" id="meta"></p>
+      </div>
+    </section>
+  </div>
+
+  <section class="tips">
+    <div class="edge"><span lang="it">Per uno scatto migliore</span><span lang="en">For a better shot</span></div>
+    <div class="grid g4">
+      <div class="card"><b lang="it">Luce non bruciata</b><b lang="en">Don't blow out the light</b><p class="muted" lang="it">Per la foto della sola luce lascia l'esposizione automatica: se è bruciata viene ignorata.</p><p class="muted" lang="en">For the bare-light photo keep auto exposure: if it's blown out it's ignored.</p></div>
+      <div class="card"><b lang="it">Stessa inquadratura</b><b lang="en">Same framing</b><p class="muted" lang="it">Negativo e luce con lo stesso orientamento e la stessa risoluzione, senza muovere il telefono.</p><p class="muted" lang="en">Negative and light with the same orientation and resolution, without moving the phone.</p></div>
+      <div class="card"><b lang="it">Fotogramma intero</b><b lang="en">The whole frame</b><p class="muted" lang="it">Lascia un po' di bordo intorno: il motore trova il fotogramma, lo raddrizza e lo rifila.</p><p class="muted" lang="en">Leave some edge around it: the engine finds, straightens and trims the frame.</p></div>
+      <div class="card"><b lang="it">Telefono parallelo</b><b lang="en">Phone parallel</b><p class="muted" lang="it">Meglio su un supporto, in una stanza in penombra, senza riflessi sulla pellicola.</p><p class="muted" lang="en">Ideally on a stand, in a dim room, with no reflections on the film.</p></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span lang="it">Motore: port JavaScript di <code>filmengine</code>, verificato contro la versione Python. OpenCV.js (Apache 2.0), Real-ESRGAN General x4v3 di Qualcomm AI Hub (BSD-3-Clause), ONNX Runtime Web (MIT).</span>
+    <span lang="en">Engine: JavaScript port of <code>filmengine</code>, checked against the Python version. OpenCV.js (Apache 2.0), Real-ESRGAN General x4v3 by Qualcomm AI Hub (BSD-3-Clause), ONNX Runtime Web (MIT).</span>
+    <span><a href="https://github.com/filippovisentin/Ai-Film-Developing">GitHub</a></span>
+  </div>
+</footer>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,12 +1,18 @@
 # Ai-Film-Developing
 Los ultimos son los primeros
 
+### 🎞️ [Apri il sito → filippovisentin.github.io/Ai-Film-Developing](https://filippovisentin.github.io/Ai-Film-Developing/)
+
+[**Progetto**](https://filippovisentin.github.io/Ai-Film-Developing/) · [**Galleria**](https://filippovisentin.github.io/Ai-Film-Developing/galleria.html) · [**Applicativo: sviluppa il tuo negativo nel browser**](https://filippovisentin.github.io/Ai-Film-Developing/app.html)
+
+[![Negativo e foto sviluppata dal motore](site/src/img/g/19941217A-10-tokyo_scan.jpg)](https://filippovisentin.github.io/Ai-Film-Developing/app.html)
+
 Prototipo di un'app che accompagna la pellicola dal rullino scattato alla foto digitale:
 **sviluppo a casa guidato** e **digitalizzazione del negativo con lo smartphone**, con una
 versione "Originale" fedele e, in futuro, una versione migliorata dall'AI.
 
-> Stato: prototipi Python testati (motore di conversione e guida allo sviluppo). L'app per
-> iPhone/Android verrà dopo; per ora c'è una pagina web di prova.
+> Stato: prototipi Python testati (motore di conversione e guida allo sviluppo) e un
+> [applicativo nel browser](https://filippovisentin.github.io/Ai-Film-Developing/app.html) con lo stesso motore. L'app per iPhone/Android verrà dopo.
 
 ## Come funziona
 
@@ -29,7 +35,8 @@ Guida illustrata: [`web/come-funziona.html`](web/come-funziona.html).
 | `devguide/` | Sviluppo a casa: ricettario, calcolo dei tempi, timer guidato |
 | `recipes/` | Ricette con fonte obbligatoria (Ilford HP5 Plus, CineStill Cs41) |
 | `tools/` | Valutazione su negativi reali, simulatore di scatto da telefono, pagina di confronto, server locale dello strumento, download del modello AI |
-| `web/` | `come-funziona.html` (spiegazione), `strumento.html` (solo lo strumento), `index.html` (galleria di prova) |
+| `web/` | Pagine locali: `come-funziona.html` (spiegazione), `strumento.html` (strumento col server Python), `index.html` (galleria di prova) |
+| `site/` | Sito pubblico per Cloudflare Pages: progetto, galleria e applicativo con il motore che gira nel browser (vedi [`site/README.md`](site/README.md)) |
 | `docs/` | Specifica di progetto e piani di implementazione |
 | `tests/` | Test automatici (pytest) |
 
@@ -67,7 +74,9 @@ I pesi non sono pubblicati (dati BlueNeg); si rigenerano così (servono `torch` 
 .venv/Scripts/python -m tools.train_restore testdata/restore_pairs.npz models/restore_v1.onnx 12
 ```
 
-Strumento nel browser (solo in locale, le foto non lasciano il computer):
+Sito pubblico con l'applicativo nel browser (Originale, Migliorata, AI): vedi [`site/README.md`](site/README.md).
+
+Strumento nel browser con il server Python (tutte le modalità, anche Restauro AI e DNG; le foto non lasciano il computer):
 
 ```bash
 .venv/Scripts/python -m tools.server      # poi apri http://127.0.0.1:8765/strumento.html
