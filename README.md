@@ -1,12 +1,18 @@
 # Ai-Film-Developing
 Los ultimos son los primeros
 
+### 🎞️ [Apri il sito → filippovisentin.github.io/Ai-Film-Developing](https://filippovisentin.github.io/Ai-Film-Developing/)
+
+[**Progetto**](https://filippovisentin.github.io/Ai-Film-Developing/) · [**Galleria**](https://filippovisentin.github.io/Ai-Film-Developing/galleria.html) · [**Applicativo: sviluppa il tuo negativo nel browser**](https://filippovisentin.github.io/Ai-Film-Developing/app.html)
+
+[![Negativo e foto sviluppata dal motore](site/src/img/g/19941217A-10-tokyo_scan.jpg)](https://filippovisentin.github.io/Ai-Film-Developing/app.html)
+
 Prototipo di un'app che accompagna la pellicola dal rullino scattato alla foto digitale:
 **sviluppo a casa guidato** e **digitalizzazione del negativo con lo smartphone**, con una
 versione "Originale" fedele e, in futuro, una versione migliorata dall'AI.
 
-> Stato: prototipi Python testati (motore di conversione e guida allo sviluppo). L'app per
-> iPhone/Android verrà dopo; per ora c'è una pagina web di prova.
+> Stato: prototipi Python testati (motore di conversione e guida allo sviluppo) e un
+> [applicativo nel browser](https://filippovisentin.github.io/Ai-Film-Developing/app.html) con lo stesso motore. L'app per iPhone/Android verrà dopo.
 
 ## Come funziona
 

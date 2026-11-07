@@ -29,7 +29,7 @@ const ERR = {
 };
 
 // ---------- worker ----------
-const worker = new Worker("/js/worker.js");
+const worker = new Worker("js/worker.js");
 worker.onmessage = (e) => {
   const m = e.data;
   if (m.type === "ready") { ready = true; engineState(); }
@@ -51,7 +51,7 @@ function engineState() {
 
 // ---------- profili ----------
 async function loadProfiles() {
-  profiles = await (await fetch("/data/profiles.json")).json();
+  profiles = await (await fetch("data/profiles.json")).json();
   const sel = $("#profilo"), prev = sel.value || "generic_color";
   sel.innerHTML = "";
   const groups = { color_negative: { it: "Negativo colore", en: "Colour negative" }, bw_negative: { it: "Bianco e nero", en: "Black and white" }, slide: { it: "Diapositiva", en: "Slide" } };
@@ -94,7 +94,7 @@ document.querySelectorAll(".drop").forEach((drop) => {
 });
 $("#sample").addEventListener("click", async () => {
   const load = async (k, url) => setFile(document.querySelector(`.drop[data-key="${k}"]`), await (await fetch(url)).blob(), url.split("/").pop());
-  await Promise.all([load("negativo", "/img/esempio/negativo.jpg"), load("luce", "/img/esempio/luce.jpg"), load("bordo", "/img/esempio/bordo.jpg")]);
+  await Promise.all([load("negativo", "img/esempio/negativo.jpg"), load("luce", "img/esempio/luce.jpg"), load("bordo", "img/esempio/bordo.jpg")]);
   $("#profilo").value = "generic_color";
   $("#msg").className = "msg";
   $("#msg").textContent = tr({ it: "Scatto di esempio caricato (Fuji 100, Tokyo 1994 · BlueNeg, Copyrighted by Tien-Tsin Wong). Premi Sviluppa.",

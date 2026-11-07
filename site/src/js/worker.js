@@ -4,13 +4,15 @@ const MAX_SIDE = 3000;      // lato lungo massimo elaborato nel browser (memoria
 const AI_MAX_IN = 1024;     // l'AI lavora su una versione ridotta: risultato fino a 4096 px
 
 let engine = null, cvReady = null, ortSession = null;
+// percorsi relativi a questo file (js/): il sito può stare in una sottocartella (GitHub Pages)
+const at = (p) => new URL(p, self.location.href).href;
 const post = (m, transfer) => self.postMessage(m, transfer || []);
 const progress = (stage, frac) => post({ type: "progress", stage, frac });
 
 function loadCv() {
   if (cvReady) return cvReady;
   cvReady = new Promise((resolve, reject) => {
-    try { importScripts("/vendor/opencv.js"); } catch (e) { reject(e); return; }
+    try { importScripts(at("../vendor/opencv.js")); } catch (e) { reject(e); return; }
     const t0 = Date.now();
     // cv è un oggetto "thenable": non va passato a resolve(), si aspetta che sia pronto
     const wait = () => (self.cv && self.cv.Mat ? resolve(true)
@@ -24,20 +26,20 @@ async function loadEngine() {
   if (engine) return engine;
   await loadCv();
   const [core, pipeline, enhance] = await Promise.all([
-    import("/engine/core.js"), import("/engine/pipeline.js"), import("/engine/enhance.js")]);
+    import(at("../engine/core.js")), import(at("../engine/pipeline.js")), import(at("../engine/enhance.js"))]);
   engine = { core, pipeline, enhance };
   return engine;
 }
 
 async function loadAi() {
   if (ortSession) return ortSession;
-  if (!self.ort) importScripts("/vendor/ort.wasm.min.js");
-  ort.env.wasm.wasmPaths = "/vendor/";
+  if (!self.ort) importScripts(at("../vendor/ort.wasm.min.js"));
+  ort.env.wasm.wasmPaths = at("../vendor/");
   // un solo thread: con più thread ONNX Runtime si blocca quando gira dentro un worker
   ort.env.wasm.numThreads = 1;
-  ortSession = await ort.InferenceSession.create("/models/real_esrgan_general_x4v3.onnx", {
+  ortSession = await ort.InferenceSession.create(at("../models/real_esrgan_general_x4v3.onnx"), {
     executionProviders: ["wasm"],
-    externalData: [{ path: "real_esrgan_general_x4v3.data", data: "/models/real_esrgan_general_x4v3.data" }],
+    externalData: [{ path: "real_esrgan_general_x4v3.data", data: at("../models/real_esrgan_general_x4v3.data") }],
   });
   return ortSession;
 }

@@ -1,8 +1,8 @@
 import { makeCompare, enableZoom, tr, lang } from "./common.js";
 
 const $ = (id) => document.getElementById(id);
-const G = await (await fetch("/data/gallery.json")).json();
-const img = (n) => "/img/g/" + n;
+const G = await (await fetch("data/gallery.json")).json();
+const img = (n) => "img/g/" + n;
 const fmt = (v) => (v == null ? "—" : lang() === "it" ? v.toFixed(1).replace(".", ",") : v.toFixed(1));
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 

@@ -1,4 +1,7 @@
-# Sito pubblico (Cloudflare Pages)
+# Sito pubblico
+
+Pubblicato con GitHub Pages: **https://filippovisentin.github.io/Ai-Film-Developing/**
+(workflow `.github/workflows/pages.yml`, a ogni push su `main` che tocca `site/` o `profiles/`).
 
 Tre pagine statiche: **Progetto** (`/`), **Galleria** (`/galleria`) e **Applicativo** (`/app`).
 L'applicativo esegue nel browser un port JavaScript di `filmengine` (`src/engine/`): le foto non
@@ -16,7 +19,7 @@ npm run serve      # anteprima locale con le stesse regole di Cloudflare: http:/
 npm run deploy     # build + pubblicazione con wrangler (serve "npx wrangler login" una volta)
 ```
 
-## Pubblicare con Cloudflare Pages
+## In alternativa: Cloudflare Pages
 
 **Collegato a GitHub (si ripubblica a ogni push):** Cloudflare → Workers & Pages → Create →
 Pages → Connect to Git → `Ai-Film-Developing`, poi:
