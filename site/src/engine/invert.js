@@ -1,5 +1,5 @@
 // Port di filmengine/invert.py: inversione in densità, curve della carta e livelli.
-import { img, crop, channelPercentiles, median } from "./core.js";
+import { img, crop, channelPercentiles, median, percentile } from "./core.js";
 
 const RATIO_MIN = 1e-5, MIN_SPAN = 1e-3, MAX_SAMPLES = 200000;
 const LOW_PCT = 0.5, HIGH_PCT = 99.5, EDGE_IGNORE_FRAC = 0.02;
@@ -84,7 +84,9 @@ function autoExpose(n, strength, target) {
   return out;
 }
 
-export function renderPositive(dens, profile, levels) {
+export function renderPositive(dens, profile, levels, { colorMode = "legacy" } = {}) {
+  if (colorMode !== "legacy" && colorMode !== "natural") throw new Error("Unknown color mode");
+  if (colorMode === "natural" && profile.type === "color_negative") return renderNatural(dens, profile);
   const lexp = logExposure(dens, profile);
   let low = levels.low, high = levels.high;
   if (profile.frame_balance > 0) {
@@ -111,6 +113,47 @@ export function renderPositive(dens, profile, levels) {
       p[k] = (10 ** ((g - 1) * rng[k])) ** pc;
     }
     for (let r = 0; r < 3; r++) out.data[i + r] = M[r][0] * p[0] + M[r][1] * p[1] + M[r][2] * p[2];
+  }
+  return gamutMap(out);
+}
+
+/** Experimental scene rendering. One luminance curve, rather than three automatic
+ * channel stretches. Calibrated RGB ratios survive tone mapping until gamut mapping.
+ * No gray-world white balance: a warm scene is allowed to remain warm.
+ * It deliberately does not reuse roll/frame RGB endpoints from the legacy renderer.
+ */
+function renderNatural(dens, profile) {
+  const lexp = logExposure(dens, profile), scene = img(dens.w, dens.h, 3);
+  const logs = img(dens.w, dens.h, 1), M = profile.color_matrix;
+  // Common anchor limits exponent size without changing RGB ratios.
+  let anchor = -Infinity;
+  for (const v of lexp.data) anchor = Math.max(anchor, v);
+  const p = [0, 0, 0];
+  for (let i = 0, j = 0; i < scene.data.length; i += 3, j++) {
+    for (let k = 0; k < 3; k++) p[k] = 10 ** (lexp.data[i + k] - anchor);
+    for (let k = 0; k < 3; k++) scene.data[i + k] = Math.max(0, M[k][0] * p[0] + M[k][1] * p[1] + M[k][2] * p[2]);
+    const y = scene.data[i] * LUMA[0] + scene.data[i + 1] * LUMA[1] + scene.data[i + 2] * LUMA[2];
+    logs.data[j] = Math.log10(Math.max(y, 1e-20));
+  }
+  const core = frameCore(logs), step = Math.max(1, Math.floor(core.data.length / MAX_SAMPLES));
+  const samples = Float32Array.from({ length: Math.ceil(core.data.length / step) }, (_, i) => core.data[i * step]);
+  const low = percentile(samples, LOW_PCT), high = percentile(samples, HIGH_PCT);
+  // Do not amplify tiny density differences (noise) into full contrast on flat frames.
+  const span = Math.max(high - low, 0.25);
+  const clamp = (v) => Math.min(Math.max(v, 0), 1);
+  const mid = Math.min(Math.max((median(samples) - low) / span, 0.05), 0.95);
+  const strength = profile.auto_exposure || 0;
+  const goal = Math.exp((1 - strength) * Math.log(mid) + strength * Math.log(profile.exposure_target ?? 0.5));
+  const power = Math.min(Math.max(Math.log(goal) / Math.log(mid), AE_POWER_RANGE[0]), AE_POWER_RANGE[1]);
+  const kS = profile.s_curve || 0, lo = 1 / (1 + Math.exp(kS / 2)), hi = 1 / (1 + Math.exp(-kS / 2));
+  const range = profile.paper_range ?? span;
+  const out = img(dens.w, dens.h, 3);
+  for (let i = 0, j = 0; i < out.data.length; i += 3, j++) {
+    let n = clamp((logs.data[j] - low) / span) ** power;
+    if (kS > 0) n = (1 / (1 + Math.exp(-kS * (n - 0.5))) - lo) / (hi - lo);
+    const target = 10 ** ((n - 1) * range * profile.print_contrast);
+    const y = Math.max(scene.data[i] * LUMA[0] + scene.data[i + 1] * LUMA[1] + scene.data[i + 2] * LUMA[2], 1e-20);
+    for (let k = 0; k < 3; k++) out.data[i + k] = scene.data[i + k] * target / y;
   }
   return gamutMap(out);
 }

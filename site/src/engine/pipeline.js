@@ -17,7 +17,7 @@ function frameBase(img, base, warnings, t) {
 
 /**
  * Sviluppa un negativo (immagini lineari). Restituisce il positivo lineare e gli avvisi.
- * opts: { light, baseImg, profile, crop=true, t: (chiave) => testo }
+ * opts: { light, baseImg, baseFraming="closeup", profile, colorMode="legacy", crop=true, t }
  */
 export function developFrame(cv, negative, opts) {
   const { profile, crop = true } = opts;
@@ -29,7 +29,10 @@ export function developFrame(cv, negative, opts) {
     warnings.push(t("warnLightClipped"));
   }
   let base = null;
-  if (opts.baseImg) base = measureBase(correctLight(cv, opts.baseImg, light));
+  // Equal dimensions do not imply equal framing. A separate edge close-up cannot
+  // use the negative's spatial light field. Full-frame fixtures/captures may opt in.
+  if (opts.baseImg) base = measureBase(opts.baseFraming === "negative"
+    ? correctLight(cv, opts.baseImg, light) : opts.baseImg);
 
   let img = correctLight(cv, negative, light);
   let candidate = null;
@@ -50,5 +53,5 @@ export function developFrame(cv, negative, opts) {
     data = toDensity(img, frameBase(img, base.map(Math.fround), warnings, t));
   }
   const levels = computeRollLevels([data], profile);
-  return { positive: renderPositive(data, profile, levels), warnings };
+  return { positive: renderPositive(data, profile, levels, { colorMode: opts.colorMode }), warnings };
 }

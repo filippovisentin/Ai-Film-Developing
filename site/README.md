@@ -19,6 +19,46 @@ npm run serve      # anteprima locale con le stesse regole di Cloudflare: http:/
 npm run deploy     # build + pubblicazione con wrangler (serve "npx wrangler login" una volta)
 ```
 
+## Landing e confronto colore
+
+La home presenta un confronto negativo/positivo animato, rivelazioni allo scorrimento,
+una piccola parallasse della montatura e un comando per fermare il movimento. Rispetta
+`prefers-reduced-motion`; il contenuto resta leggibile anche senza JavaScript.
+
+In galleria, `#colore` confronta tredici JPEG già inclusi nel repository. Per rigenerarli:
+
+```bash
+cd site
+npm ci
+npm run compare:colors
+npm test
+npm run build
+```
+
+Ogni coppia usa lo stesso JPEG da telefono simulato, lo stesso ritaglio, la stessa
+calibrazione automatica e nessuna pulizia/AI. Il nuovo file `data/color-comparison.json`
+registra gli input e i profili. Non sono le fixture RAW private: le metriche storiche
+della galleria **non** misurano questi confronti.
+
+Il motore mantiene `colorMode: "legacy"` come default. L'opzione `"natural"` in
+`developFrame`/`renderPositive` ricostruisce RGB dalla densità, applica la matrice colore
+e usa una sola curva sulla luminanza; i rapporti RGB vengono conservati fino al gamut
+mapping. Il nome è interno: nell'interfaccia è indicata come **sperimentale**, perché
+può conservare anche dominanti di acquisizione e richiede una base attendibile.
+`frame_balance` e i livelli RGB del rullino appartengono al renderer legacy e non vengono
+riutilizzati dal renderer sperimentale, che lavora per fotogramma. Il bianco e nero e
+le diapositive continuano a usare il percorso legacy.
+
+La foto separata del bordo è trattata come primo piano: non viene corretta con il campo
+luce del negativo. Per una base ripresa con la stessa inquadratura del negativo, usare
+esplicitamente `baseFraming: "negative"` (anche nelle fixture del simulatore).
+La decodifica nel browser richiede la conversione colore predefinita e una canvas sRGB;
+la resa dei file con profili ICC va verificata anche sui browser/dispositivi di destinazione.
+
+I test colore sintetici e quello sulla calibrazione sono eseguibili senza dataset privato.
+I test fotografici di parità Python e quello AI sono indicati come saltati se mancano le
+fixture; un esito verde dei soli test pubblici non certifica la fedeltà sui negativi reali.
+
 ## In alternativa: Cloudflare Pages
 
 **Collegato a GitHub (si ripubblica a ogni push):** Cloudflare → Workers & Pages → Create →

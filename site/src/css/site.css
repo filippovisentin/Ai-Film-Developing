@@ -2,7 +2,7 @@
    etichette come la stampa sul bordo della pellicola. */
 :root {
   --bg: #0f0e0c; --bg2: #161411; --panel: #1b1915; --panel2: #221f1a; --line: #2e2a24; --line2: #3b362e;
-  --text: #efe9de; --muted: #a39b8c; --faint: #6f685d;
+  --text: #efe9de; --muted: #b5ada0; --faint: #a39b8c;
   --amber: #f0a43a; --amber-ink: #1a1206; --amber-soft: rgba(240,164,58,.12);
   --film: #c8733a; --safelight: #d9473a; --ok: #8cc084; --warn: #e6b35a;
   --radius: 14px; --max: 1180px;
@@ -19,6 +19,9 @@ img { max-width: 100%; display: block; }
 a { color: var(--amber); }
 button, input, select { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 6px; }
+.skip-link { position: fixed; top: 8px; left: 8px; z-index: 100; padding: 12px 16px; background: var(--amber); color: var(--amber-ink); transform: translateY(-160%); }
+.skip-link:focus { transform: none; }
+section[id], main[id] { scroll-margin-top: 140px; }
 .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
 @media (max-width: 640px) { .wrap { padding: 0 16px; } }
 
@@ -119,5 +122,7 @@ footer.site a { color: var(--muted); }
 dialog.zoom { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 94vh; }
 dialog.zoom::backdrop { background: rgba(0,0,0,.88); }
 dialog.zoom img { max-width: 96vw; max-height: 94vh; object-fit: contain; border-radius: 8px; }
+dialog.zoom .zoom-close { position: absolute; right: 12px; top: 12px; width: 44px; height: 44px; border: 1px solid #777; border-radius: 50%; background: #181818; color: #fff; cursor: pointer; font-size: 24px; }
+[data-zoom][role="button"]:focus-visible { outline-offset: 4px; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

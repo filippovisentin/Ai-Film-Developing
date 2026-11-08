@@ -1,4 +1,5 @@
 import { makeCompare, enableZoom, tr, lang } from "./common.js";
+import "./color-lab.js";
 
 const $ = (id) => document.getElementById(id);
 const G = await (await fetch("data/gallery.json")).json();
@@ -44,8 +45,8 @@ function renderStats() {
   const F = G.fotogrammi, avg = (k) => F.reduce((s, f) => s + (f[k] ?? 0), 0) / F.length;
   $("stats").innerHTML = [
     [F.length, { it: "fotogrammi reali, 4 pellicole", en: "real frames, 4 film stocks" }],
-    [fmt(avg("dE_scansione")), { it: "ΔE medio rispetto alla scansione dello stesso negativo", en: "mean ΔE against a scan of the same negative" }],
-    [fmt(avg("dE_stampa")), { it: "ΔE medio rispetto alla stampa di laboratorio degli anni '90", en: "mean ΔE against the 1990s lab print" }],
+    [fmt(avg("dE_scansione")), { it: "ΔE storico rispetto alla scansione · motore di riferimento", en: "historical ΔE against the scan · reference engine" }],
+    [fmt(avg("dE_stampa")), { it: "ΔE storico rispetto alla stampa · motore di riferimento", en: "historical ΔE against the print · reference engine" }],
   ].map(([n, l]) => `<div class="stat"><b>${n}</b><span>${tr(l)}</span></div>`).join("");
 }
 

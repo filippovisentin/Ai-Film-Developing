@@ -1,0 +1,176 @@
+{
+  "schema": 1,
+  "input": "Included simulated-phone JPEGs; automatic border calibration; no denoising or AI.",
+  "qualityClaim": "Visual experiment only. Historical gallery metrics do not apply to these renders.",
+  "frames": [
+    {
+      "id": "19941217A-08-tokyo",
+      "film": "Fuji 100",
+      "source": "19941217A-08-tokyo_tel.jpg",
+      "profile": "generic_color",
+      "legacy": "19941217A-08-tokyo_legacy.jpg",
+      "width": 799,
+      "height": 582,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "19941217A-08-tokyo_natural.jpg"
+    },
+    {
+      "id": "19941217A-10-tokyo",
+      "film": "Fuji 100",
+      "source": "19941217A-10-tokyo_tel.jpg",
+      "profile": "generic_color",
+      "legacy": "19941217A-10-tokyo_legacy.jpg",
+      "width": 799,
+      "height": 582,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "19941217A-10-tokyo_natural.jpg"
+    },
+    {
+      "id": "19941217A-15-tokyo",
+      "film": "Fuji 100",
+      "source": "19941217A-15-tokyo_tel.jpg",
+      "profile": "generic_color",
+      "legacy": "19941217A-15-tokyo_legacy.jpg",
+      "width": 798,
+      "height": 582,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "19941217A-15-tokyo_natural.jpg"
+    },
+    {
+      "id": "19941217A-16-tokyo",
+      "film": "Fuji 100",
+      "source": "19941217A-16-tokyo_tel.jpg",
+      "profile": "generic_color",
+      "legacy": "19941217A-16-tokyo_legacy.jpg",
+      "width": 798,
+      "height": 582,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "19941217A-16-tokyo_natural.jpg"
+    },
+    {
+      "id": "19941218C-03-tokyo",
+      "film": "Kodak Gold 100",
+      "source": "19941218C-03-tokyo_tel.jpg",
+      "profile": "kodak_gold_100",
+      "legacy": "19941218C-03-tokyo_legacy.jpg",
+      "width": 799,
+      "height": 581,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "19941218C-03-tokyo_natural.jpg"
+    },
+    {
+      "id": "19941218C-04-tokyo",
+      "film": "Kodak Gold 100",
+      "source": "19941218C-04-tokyo_tel.jpg",
+      "profile": "kodak_gold_100",
+      "legacy": "19941218C-04-tokyo_legacy.jpg",
+      "width": 797,
+      "height": 579,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "19941218C-04-tokyo_natural.jpg"
+    },
+    {
+      "id": "19941218C-05-tokyo",
+      "film": "Kodak Gold 100",
+      "source": "19941218C-05-tokyo_tel.jpg",
+      "profile": "kodak_gold_100",
+      "legacy": "19941218C-05-tokyo_legacy.jpg",
+      "width": 798,
+      "height": 579,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "19941218C-05-tokyo_natural.jpg"
+    },
+    {
+      "id": "19941222E-01-nara",
+      "film": "Konica Super XG 100",
+      "source": "19941222E-01-nara_tel.jpg",
+      "profile": "generic_color",
+      "legacy": "19941222E-01-nara_legacy.jpg",
+      "width": 716,
+      "height": 477,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "19941222E-01-nara_natural.jpg"
+    },
+    {
+      "id": "19941222E-02-nara",
+      "film": "Konica Super XG 100",
+      "source": "19941222E-02-nara_tel.jpg",
+      "profile": "generic_color",
+      "legacy": "19941222E-02-nara_legacy.jpg",
+      "width": 799,
+      "height": 581,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "19941222E-02-nara_natural.jpg"
+    },
+    {
+      "id": "19941222E-04-nara",
+      "film": "Konica Super XG 100",
+      "source": "19941222E-04-nara_tel.jpg",
+      "profile": "generic_color",
+      "legacy": "19941222E-04-nara_legacy.jpg",
+      "width": 799,
+      "height": 578,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "19941222E-04-nara_natural.jpg"
+    },
+    {
+      "id": "199807A-06-hk",
+      "film": "Fuji 400",
+      "source": "199807A-06-hk_tel.jpg",
+      "profile": "generic_color",
+      "legacy": "199807A-06-hk_legacy.jpg",
+      "width": 798,
+      "height": 579,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "199807A-06-hk_natural.jpg"
+    },
+    {
+      "id": "199807A-10-orlando-siggraph",
+      "film": "Fuji 400",
+      "source": "199807A-10-orlando-siggraph_tel.jpg",
+      "profile": "generic_color",
+      "legacy": "199807A-10-orlando-siggraph_legacy.jpg",
+      "width": 799,
+      "height": 582,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "199807A-10-orlando-siggraph_natural.jpg"
+    },
+    {
+      "id": "199807A-12-orlando-universal-studio",
+      "film": "Fuji 400",
+      "source": "199807A-12-orlando-universal-studio_tel.jpg",
+      "profile": "generic_color",
+      "legacy": "199807A-12-orlando-universal-studio_legacy.jpg",
+      "width": 799,
+      "height": 580,
+      "warnings": [
+        "warnBaseEstimated"
+      ],
+      "natural": "199807A-12-orlando-universal-studio_natural.jpg"
+    }
+  ]
+}

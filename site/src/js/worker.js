@@ -44,17 +44,17 @@ async function loadAi() {
   return ortSession;
 }
 
-/** Decodifica un file immagine in RGB lineare float (rotazione EXIF applicata, niente gestione colore). */
+/** Decode through the browser's color management into an explicit sRGB canvas. */
 async function decode(blob, maxSide, forceSize) {
   let bmp;
   try {
-    bmp = await createImageBitmap(blob, { imageOrientation: "from-image", colorSpaceConversion: "none", premultiplyAlpha: "none" });
+    bmp = await createImageBitmap(blob, { imageOrientation: "from-image", colorSpaceConversion: "default", premultiplyAlpha: "none" });
   } catch {
     throw new Error("decode");
   }
   const w0 = bmp.width, h0 = bmp.height;
   const canvas = new OffscreenCanvas(w0, h0);
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const ctx = canvas.getContext("2d", { willReadFrequently: true, colorSpace: "srgb" });
   ctx.drawImage(bmp, 0, 0);
   bmp.close();
   const px = ctx.getImageData(0, 0, w0, h0).data;
@@ -158,7 +158,7 @@ async function develop(msg) {
   const light = msg.files.luce ? (await decode(msg.files.luce, MAX_SIDE, size)).im : null;
   const baseImg = msg.files.bordo ? (await decode(msg.files.bordo, MAX_SIDE)).im : null;
   progress("develop", 0.15);
-  const { positive, warnings: w } = pipeline.developFrame(cv, neg.im, { light, baseImg, profile: msg.profile, t: (k) => L[k] || k });
+  const { positive, warnings: w } = pipeline.developFrame(cv, neg.im, { light, baseImg, profile: msg.profile, colorMode: msg.colorMode, t: (k) => L[k] || k });
   warnings.push(...w);
   const results = { originale: await pack(positive) };
   post({ type: "partial", key: "originale", result: results.originale, warnings });

@@ -14,10 +14,14 @@ const has = existsSync(new URL("meta.json", FIX));
 const meta = has ? JSON.parse(readFileSync(new URL("meta.json", FIX), "utf8")) : [];
 const profile = (id) => JSON.parse(readFileSync(new URL(`../../profiles/${id}.json`, import.meta.url), "utf8"));
 
-const cvReady = new Promise((resolve) => {
+const cvReady = has ? new Promise((resolve) => {
   const cv = require("@techstark/opencv-js");
   const wait = () => (cv.Mat ? resolve({ cv }) : setTimeout(wait, 20)); // cv è "thenable": va incartato
   wait();
+}) : null;
+
+test("fixture fotografiche Python disponibili", { skip: has ? false : "Fixture private assenti: eseguire scripts/export_fixtures.py" }, () => {
+  assert.ok(meta.length > 0);
 });
 
 const LUT = Float32Array.from({ length: 256 }, (_, i) => srgbToLinear(i / 255));
@@ -45,7 +49,8 @@ for (const m of meta) {
   test(`sviluppo ${m.stem} (${m.profile}) uguale a Python`, async () => {
     const { cv } = await cvReady;
     const neg = loadU8(`${m.stem}_neg.u8`, m.neg);
-    const opts = { profile: profile(m.profile) };
+    // The simulator's base patch shares the negative's spatial light field.
+    const opts = { profile: profile(m.profile), baseFraming: "negative" };
     if (m.calib) { opts.light = loadU8(`${m.stem}_light.u8`, m.light); opts.baseImg = loadU8(`${m.stem}_base.u8`, m.base); }
     const t0 = Date.now();
     const { positive, warnings } = developFrame(cv, neg, opts);

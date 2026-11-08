@@ -9,12 +9,13 @@
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;550;600;650&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="css/site.css">
 <link rel="stylesheet" href="css/gallery.css">
 <script src="js/lang-boot.js"></script>
 </head>
-<body>
+<body class="gallery-page">
+<a class="skip-link" href="#main"><span lang="it">Vai al contenuto</span><span lang="en">Skip to content</span></a>
 <span hidden data-title-it="Galleria — Ai-Film-Developing" data-title-en="Gallery — Ai-Film-Developing"></span>
 <header class="top">
   <div class="wrap">
@@ -28,20 +29,37 @@
   </div>
 </header>
 
-<main>
+<main id="main">
 <section class="intro">
   <div class="wrap">
     <div class="edge"><span lang="it">Esempi e prove</span><span lang="en">Examples and tests</span></div>
-    <h1 lang="it">Il motore <em>alla prova</em></h1>
-    <h1 lang="en">The engine <em>put to the test</em></h1>
-    <p class="lead" lang="it">Negativi reali di quattro pellicole, fotografati con uno smartphone simulato (luce non uniforme, inclinazione, riflessi, rumore, JPEG) e sviluppati dal motore. Accanto, la stampa fatta dal laboratorio all'epoca.</p>
-    <p class="lead" lang="en">Real negatives from four film stocks, shot with a simulated smartphone (uneven light, tilt, reflections, noise, JPEG) and developed by the engine. Next to them, the print the lab made at the time.</p>
+    <h1 lang="it">Guarda. Confronta.<br><em>Ritrova il colore.</em></h1>
+    <h1 lang="en">Look. Compare.<br><em>Rediscover colour.</em></h1>
+    <p class="lead" lang="it">Tredici fotogrammi reali, due rese da esplorare. Trascina il cursore e osserva come cambiano luci, ombre e colori.</p>
+    <p class="lead" lang="en">Thirteen real frames, two renderings to explore. Drag the handle and see how light, shadows and colours change.</p>
     <div class="stats" id="stats"></div>
     <nav class="jump" aria-label="In questa pagina">
+      <a href="#colore"><span lang="it">Nuovo confronto colore</span><span lang="en">New colour comparison</span></a>
       <a href="#modalita"><span lang="it">Modalità a confronto</span><span lang="en">Modes compared</span></a>
       <a href="#fotogrammi"><span lang="it">Tutti i fotogrammi</span><span lang="en">All frames</span></a>
       <a href="#passi"><span lang="it">Passo per passo</span><span lang="en">Step by step</span></a>
     </nav>
+  </div>
+</section>
+
+<section id="colore" class="color-lab">
+  <div class="wrap">
+    <div class="lab-heading"><div><span class="tag exp"><span lang="it">Esperimento aperto</span><span lang="en">Open experiment</span></span><h2 lang="it">Due modi di leggere la luce.</h2><h2 lang="en">Two ways to read the light.</h2></div><span class="lab-count">13 FRAMES / RGB → Y</span></div>
+    <div class="lab-controls"><label for="colorFrame"><span lang="it">Scegli un fotogramma</span><span lang="en">Choose a frame</span></label><select id="colorFrame" disabled></select></div>
+    <div class="compare color-compare" id="colorCmp" aria-label="Confronto motore di riferimento e curva sulla luminanza" aria-busy="true">
+      <img id="colorNatural" alt="Resa sperimentale sulla luminanza" width="799" height="582">
+      <img id="colorLegacy" class="over" alt="Resa del motore di riferimento" width="799" height="582">
+      <div class="bar"></div><div class="knob" aria-hidden="true">↔</div>
+      <span class="lbl l"><span lang="it">Riferimento · RGB</span><span lang="en">Reference · RGB</span></span><span class="lbl r"><span lang="it">Sperimentale · Y</span><span lang="en">Experimental · Y</span></span>
+    </div>
+    <p class="lab-status" id="colorStatus" role="status" aria-live="polite"><span lang="it">Caricamento dei confronti…</span><span lang="en">Loading comparisons…</span></p>
+    <button type="button" id="colorRetry" class="btn" hidden><span lang="it">Riprova</span><span lang="en">Retry</span></button>
+    <div class="lab-explanation"><p lang="it"><b>A sinistra:</b> livelli automatici separati per rosso, verde e blu. <b>A destra:</b> una curva sulla luminanza conserva i rapporti RGB prima del rientro nel gamut. Può conservare sia i colori della scena sia dominanti dovute alla calibrazione.</p><p lang="en"><b>Left:</b> separate automatic levels for red, green and blue. <b>Right:</b> one luminance curve preserves RGB ratios before gamut mapping. It can preserve both scene colours and casts caused by calibration.</p><p class="lab-caveat" lang="it">Stesso JPEG da telefono simulato, stesso ritaglio automatico, base stimata dai bordi. Nessuna pulizia o AI. È un confronto visivo, non una misura di fedeltà. I valori ΔE sotto appartengono esclusivamente alla galleria storica.</p><p class="lab-caveat" lang="en">Same simulated-phone JPEG, same automatic crop, base estimated from edges. No clean-up or AI. A visual comparison, not an accuracy measurement. The ΔE figures below belong exclusively to the historical gallery.</p></div>
   </div>
 </section>
 
@@ -79,8 +97,8 @@
   <div class="wrap">
     <div class="sec-head">
       <div class="edge"><span lang="it">Tutti i fotogrammi</span><span lang="en">All frames</span></div>
-      <h2 lang="it">Tredici negativi, <em>quattro pellicole</em></h2>
-      <h2 lang="en">Thirteen negatives, <em>four film stocks</em></h2>
+      <h2 lang="it">L'archivio di riferimento.</h2>
+      <h2 lang="en">The reference archive.</h2>
       <p class="sub" lang="it">Scegli un fotogramma e con cosa confrontare il risultato. Clic sulle immagini piccole per ingrandirle.</p>
       <p class="sub" lang="en">Pick a frame and what to compare the result with. Click the small images to enlarge them.</p>
     </div>
