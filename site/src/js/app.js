@@ -193,7 +193,7 @@ function show(key,resetCompare=true) {
  if(comparison){$("#capA").textContent=$("#lblA").textContent;$("#capB").textContent=$("#lblB").textContent;lensAt(.5,.5);}
  if(resetCompare)cmp.set(50);
  if(!comparison)for(const attr of ['aria-valuemin','aria-valuemax','aria-valuenow'])$("#cmp").removeAttribute(attr);
- else{$("#cmp").setAttribute('aria-valuenow',String(parseFloat($("#cmp").style.getPropertyValue('--pos'))||50));$("#cmp").setAttribute('aria-valuemin','0');$("#cmp").setAttribute('aria-valuemax','100');}
+ else{$("#cmp").setAttribute('aria-valuenow',String(parseFloat($("#cmp").style.getPropertyValue('--pos'))||0));$("#cmp").setAttribute('aria-valuemin','0');$("#cmp").setAttribute('aria-valuemax','100');}
  updateControls();if(changed&&!pendingEdit&&!picking&&edited[key]?.revision!==colorRevision)requestAdjustment();
 }
 function load(src){if(!imgs[src]){imgs[src]=new Image();imgs[src].src=src;}return imgs[src];}
