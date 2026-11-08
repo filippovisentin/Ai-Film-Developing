@@ -7,11 +7,11 @@ const img = (n) => "img/g/" + n;
 const fmt = (v) => (v == null ? "—" : lang() === "it" ? v.toFixed(1).replace(".", ",") : v.toFixed(1));
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
-const ORIG = { it: "Originale", en: "Original" };
+const ORIG = { it: "Sviluppo base", en: "Base development" };
 const MODES = {
   originale: { name: ORIG, tag: ["ok", { it: "fedele", en: "faithful" }],
-    text: { it: "Lo sviluppo fedele: solo ciò che c'è sul negativo, con grana, polvere e rumore dello scatto.",
-            en: "The faithful development: only what is on the negative, with grain, dust and the shot's noise." } },
+    text: { it: "La conversione del negativo, con grana, polvere e rumore dello scatto.",
+            en: "The converted negative, with grain, dust and capture noise." } },
   migliorata: { name: { it: "Migliorata", en: "Enhanced" }, tag: ["ok", { it: "nessun pixel inventato", en: "no invented pixels" }],
     text: { it: "Polvere e rumore colorato ridotti, nitidezza moderata. Nessun dettaglio inventato.",
             en: "Dust and colour noise reduced, moderate sharpening. No invented detail." } },
@@ -54,6 +54,8 @@ function renderModes() {
   const keys = Object.keys(MODES).filter((k) => G.modalita.full[k]);
   $("modeSeg").innerHTML = keys.map((k) => `<button data-k="${k}" aria-pressed="${k === mode}">${tr(MODES[k].name)}</button>`).join("");
   const m = MODES[mode], M = G.modalita;
+  $("modeA").alt = tr(ORIG); $("modeB").alt = tr(m.name);
+  $("detA").alt = tr(ORIG); $("detB").alt = tr(m.name);
   $("modeA").src = img(M.full.originale);
   $("modeB").src = img(M.full[mode]);
   $("modeCmp").classList.toggle("single", mode === "originale");
@@ -77,22 +79,24 @@ function renderFrames() {
   const F = G.fotogrammi;
   $("strip").innerHTML = F.map((f, i) =>
     `<button class="thumb" data-i="${i}" aria-pressed="${i === cur}"><img loading="lazy" src="${img(f.risultato)}" alt=""><span>${esc(f.pellicola)} · ${esc(f.id.split("-")[1])}</span></button>`).join("");
-  $("vsSeg").innerHTML = Object.keys(VS).map((k) => `<button data-k="${k}" aria-pressed="${k === vs}">${tr({ it: "vs ", en: "vs " })}${tr(VS[k]).toLowerCase()}</button>`).join("");
+  $("vsSeg").innerHTML = Object.keys(VS).map((k) => `<button data-k="${k}" aria-pressed="${k === vs}">${tr(VS[k])}</button>`).join("");
   const f = F[cur];
+  $("frA").alt = tr({ it: "Risultato dello sviluppo", en: "Developed result" });
+  $("frB").alt = tr(VS[vs]);
   $("frA").src = img(f.risultato);
   $("frB").src = img(f[vs]);
   $("vsLbl").textContent = tr(VS[vs]);
   const place = f.id.split("-").slice(2).join(" ");
   $("side").innerHTML = `
-    <h3>${esc(f.pellicola)} · ${esc(place)}</h3>
-    <div class="film">${tr({ it: "rullino", en: "roll" })} ${esc(f.rullino)} · ${tr({ it: "fotogramma", en: "frame" })} ${esc(f.id.split("-")[1])} · ${tr({ it: "profilo", en: "profile" })} <code>${esc(f.profilo)}</code></div>
-    <div class="metric"><div>${tr({ it: "Rispetto alla scansione", en: "Against the scan" })}<small>${tr({ it: "quanto pesa lo scatto col telefono", en: "what the phone shot costs" })}</small></div><b>${fmt(f.dE_scansione)}</b></div>
+    <h3>${esc(f.pellicola)}</h3>
+    <div class="film">${esc(place.charAt(0).toUpperCase()+place.slice(1))}<br>${tr({ it: "Fotogramma", en: "Frame" })} ${esc(f.id.split("-")[1])}</div>
+    <details class="gallery-details"><summary>${tr({ it: "Calibrazione e misure storiche", en: "Calibration and historical measurements" })}</summary><div class="metric"><div>${tr({ it: "Rispetto alla scansione", en: "Against the scan" })}<small>${tr({ it: "quanto pesa lo scatto col telefono", en: "what the phone shot costs" })}</small></div><b>${fmt(f.dE_scansione)}</b></div>
     <div class="metric"><div>${tr({ it: "Rispetto alla stampa", en: "Against the print" })}<small>${tr({ it: "include le scelte dello stampatore", en: "includes the printer's choices" })}</small></div><b>${fmt(f.dE_stampa)}</b></div>
-    ${f.avvisi.length ? `<ul class="warns">${f.avvisi.map((w) => `<li>⚠ ${esc(warnText(w))}</li>`).join("")}</ul>` : ""}`;
+    </details>${f.avvisi.length ? `<ul class="warns">${f.avvisi.map((w) => `<li>${esc(warnText(w))}</li>`).join("")}</ul>` : ""}`;
   $("four").innerHTML = [
     ["negativo", { it: "1 · Negativo", en: "1 · Negative" }, { it: "la pellicola sviluppata", en: "the developed film" }],
     ["telefono", { it: "2 · Scatto col telefono", en: "2 · Phone shot" }, { it: "ingresso del motore", en: "engine input" }],
-    ["risultato", { it: "3 · Nostro risultato", en: "3 · Our result" }, { it: "versione Originale", en: "Original version" }],
+    ["risultato", { it: "3 · Sviluppo base", en: "3 · Base development" }, { it: "motore di riferimento", en: "reference engine" }],
     ["stampa", { it: "4 · Stampa di laboratorio", en: "4 · Lab print" }, { it: "riferimento d'epoca", en: "period reference" }],
   ].map(([k, t, s]) => `<figure><img loading="lazy" src="${img(f[k])}" alt="${esc(tr(t))}" data-zoom><figcaption>${tr(t)}<span>${tr(s)}</span></figcaption></figure>`).join("");
 }
@@ -110,3 +114,35 @@ function renderAll() { renderStats(); renderModes(); renderFrames(); renderSteps
 document.addEventListener("langchange", renderAll);
 renderAll();
 enableZoom();
+
+const tabs = [...document.querySelectorAll('.gallery-tabs [role="tab"]')];
+function activateTab(id, updateHistory = false) {
+  const active = tabs.find(t => t.getAttribute('aria-controls') === id) || tabs[0];
+  for (const tab of tabs) {
+    const selected = tab === active;
+    tab.setAttribute('aria-selected', String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    $(tab.getAttribute('aria-controls')).hidden = !selected;
+  }
+  if (updateHistory) {
+    const url = new URL(location.href); url.hash = active.getAttribute('aria-controls');
+    history.pushState(null, '', url);
+  }
+}
+tabs.forEach((tab, i) => {
+  tab.addEventListener('click', () => activateTab(tab.getAttribute('aria-controls'), true));
+  tab.addEventListener('keydown', e => {
+    let next;
+    if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
+    if (e.key === 'ArrowLeft') next = (i + tabs.length - 1) % tabs.length;
+    if (e.key === 'Home') next = 0;
+    if (e.key === 'End') next = tabs.length - 1;
+    if (next === undefined) return;
+    e.preventDefault(); tabs[next].focus();
+    activateTab(tabs[next].getAttribute('aria-controls'), true);
+  });
+});
+const syncTab = () => activateTab(location.hash.slice(1));
+window.addEventListener('hashchange', syncTab);
+window.addEventListener('popstate', syncTab);
+syncTab();

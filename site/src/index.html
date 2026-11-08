@@ -1,83 +1,64 @@
 <!doctype html>
-<html lang="it" data-lang="it">
-<head>
+<html lang="it" data-lang="it"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ai-Film-Developing — una nuova luce ai tuoi negativi</title>
-<meta name="description" content="Dal negativo alla foto digitale, nel tuo browser. Scopri il motore open source, esplora fotografie reali e confronta due modi di ritrovare il colore.">
-<meta property="og:title" content="Ogni negativo. Una nuova luce."><meta property="og:description" content="Ritrova le fotografie sulla tua pellicola. Conversione locale, esempi reali e un nuovo esperimento sul colore.">
+<title>Sviluppa un negativo — Ai-Film-Developing</title>
+<meta name="description" content="Converti la foto di un negativo in una fotografia digitale. Carica un'immagine o prova l'esempio: l'elaborazione resta nel browser.">
+<meta property="og:title" content="Sviluppa un negativo nel browser"><meta property="og:description" content="Carica una foto del negativo, scegli la pellicola e confronta il risultato. Elaborazione locale.">
 <meta property="og:image" content="https://filippovisentin.github.io/Ai-Film-Developing/img/g/19941217A-10-tokyo_scan.jpg">
-<meta name="theme-color" content="#181818"><link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#f7f7f3"><link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="css/site.css"><link rel="stylesheet" href="css/home.css"><script src="js/lang-boot.js"></script>
-</head>
-<body class="landing">
-<span hidden data-title-it="Ai-Film-Developing — una nuova luce ai tuoi negativi" data-title-en="Ai-Film-Developing — a new light for your negatives"></span>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="css/site.css"><link rel="stylesheet" href="css/app.css"><script src="js/lang-boot.js"></script>
+</head><body class="workspace-page">
+<span hidden data-title-it="Sviluppa un negativo — Ai-Film-Developing" data-title-en="Develop a negative — Ai-Film-Developing"></span>
 <a class="skip-link" href="#main"><span lang="it">Vai al contenuto</span><span lang="en">Skip to content</span></a>
 <header class="top"><div class="wrap">
-  <a class="brand" href="./" aria-label="Ai-Film-Developing, home"><span class="brand-mark" aria-hidden="true">◒</span><span>Ai-Film<span class="brand-light">-Developing</span></span></a>
-  <nav class="nav" aria-label="Sezioni"><a href="./" aria-current="page"><span lang="it">Progetto</span><span lang="en">Project</span></a><a href="galleria.html"><span lang="it">Galleria</span><span lang="en">Gallery</span></a><a href="app.html"><span lang="it">Sviluppa ↗</span><span lang="en">Develop ↗</span></a></nav>
-  <div class="langs" role="group" aria-label="Lingua / Language"><button data-lang="it" aria-pressed="true">IT</button><button data-lang="en" aria-pressed="false">EN</button></div>
+ <a class="brand" href="./"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4" stroke="currentColor" stroke-width="1.5"/></svg>Ai-Film-Developing</a>
+ <nav class="nav" aria-label="Sezioni"><a href="./" aria-current="page"><span lang="it">Sviluppa</span><span lang="en">Develop</span></a><a href="galleria.html"><span lang="it">Esempi</span><span lang="en">Examples</span></a><a href="guida.html"><span lang="it">Guida</span><span lang="en">Guide</span></a></nav>
+ <div class="langs" role="group" aria-label="Lingua / Language"><button data-lang="it" aria-pressed="true">IT</button><button data-lang="en" aria-pressed="false">EN</button></div>
 </div></header>
-<main id="main">
-<section class="hero" aria-labelledby="hero-title"><div class="wrap">
-  <div class="hero-topline"><span class="eyebrow"><i aria-hidden="true"></i><span lang="it">Una camera oscura. Nel browser.</span><span lang="en">A darkroom. In your browser.</span></span><span class="edition">OPEN SOURCE / VOL. 01</span></div>
-  <div class="hero-grid">
-    <div class="hero-copy">
-      <h1 id="hero-title" class="heading-1"><span class="line"><span lang="it">Ogni negativo.</span><span lang="en">Every negative.</span></span><span class="line light-word"><span lang="it">Una nuova luce.</span><span lang="en">A new light.</span></span></h1>
-      <p class="hero-description" lang="it">Ci sono fotografie che aspettano solo di tornare alla luce. Parti da un negativo, ritrova i colori. Tutto sul tuo dispositivo.</p><p class="hero-description" lang="en">Some photographs are just waiting to come back to light. Start with a negative, rediscover its colours. All on your device.</p>
-      <a class="action action-primary" href="app.html"><span lang="it">Sviluppa un negativo</span><span lang="en">Develop a negative</span><span aria-hidden="true">↗</span></a>
-      <a class="quiet-link" href="#archivio"><span lang="it">Prima, guarda cosa succede</span><span lang="en">First, see what happens</span><span aria-hidden="true">↓</span></a>
-      <div class="hero-proof"><span class="proof-symbol" aria-hidden="true">⊙</span><span lang="it">Le tue foto restano tue.<br>Nessun caricamento sul server.</span><span lang="en">Your photos stay yours.<br>No uploads to a server.</span></div>
+<main id="main" class="wrap work-page">
+ <div class="work-intro"><div><h1 lang="it">Sviluppa un negativo.</h1><h1 lang="en">Develop a negative.</h1><p lang="it">Carica una foto della pellicola già sviluppata. Al resto pensa il browser.</p><p lang="en">Open a photo of your developed film. Your browser handles the conversion.</p></div><a class="intro-help" href="guida.html#scatto"><span lang="it">Come fotografare il negativo</span><span lang="en">How to photograph your negative</span></a></div>
+ <div class="mobile-actions"><button type="button" class="btn primary" id="quickOpen"><span lang="it">Apri un negativo</span><span lang="en">Open a negative</span></button><button type="button" class="btn" id="quickSample"><span lang="it">Prova l'esempio</span><span lang="en">Try the sample</span></button></div>
+ <div class="work-layout">
+  <section class="result" aria-label="Anteprima e risultato" aria-busy="false">
+   <div class="result-header"><h2 id="viewTitle"><span lang="it">Anteprima</span><span lang="en">Preview</span></h2><span class="engine-state" id="engineState"></span></div>
+   <div id="empty">
+    <div class="compare sample-compare" id="previewCmp" aria-label="Esempio: negativo e sviluppo base" data-label-it="Esempio: negativo e sviluppo base" data-label-en="Sample: negative and base development">
+     <img src="img/g/19941217A-10-tokyo_scan.jpg" width="960" height="648" alt="Sviluppo digitale del negativo di un panda a Tokyo" fetchpriority="high">
+     <img class="over" src="img/g/19941217A-10-tokyo_neg.jpg" width="960" height="648" alt="Negativo dello stesso fotogramma" fetchpriority="high">
+     <div class="bar"></div><div class="knob" aria-hidden="true">↔</div><span class="lbl l"><span lang="it">Negativo</span><span lang="en">Negative</span></span><span class="lbl r"><span lang="it">Sviluppo base</span><span lang="en">Base development</span></span>
     </div>
-    <figure class="hero-visual">
-      <div class="negative-ticket" aria-hidden="true"><span>35 MM / FUJI 100</span><span>1994 → OGGI</span></div>
-      <div class="photo-mount">
-        <div class="mount-top"><span>FRAME 10 / TOKYO, 1994</span><span class="mount-status"><i></i><span lang="it">LUCE RITROVATA</span><span lang="en">BACK TO LIGHT</span></span></div>
-        <div class="compare" id="heroCmp" aria-label="Confronto negativo e positivo" data-label-it="Confronto negativo e positivo" data-label-en="Compare negative and positive">
-          <img src="img/g/19941217A-10-tokyo_scan.jpg" width="960" height="648" alt="Un panda a Tokyo, fotografia sviluppata dal motore" fetchpriority="high">
-          <img class="over" src="img/g/19941217A-10-tokyo_neg.jpg" width="960" height="648" alt="Lo stesso fotogramma su negativo" fetchpriority="high">
-          <div class="bar"></div><div class="knob" aria-hidden="true">↔</div><span class="lbl l"><span lang="it">Negativo</span><span lang="en">Negative</span></span><span class="lbl r"><span lang="it">Positivo</span><span lang="en">Positive</span></span>
-        </div>
-        <div class="mount-bottom"><span>01 — 13</span><span lang="it">Trascina. Ritrova il colore.</span><span lang="en">Drag. Rediscover the colour.</span><button id="replay" type="button"><span aria-hidden="true">↻</span> <span lang="it">Rivedi</span><span lang="en">Replay</span></button></div>
-      </div>
-      <figcaption><span lang="it">Un negativo reale, il suo sviluppo digitale. Dataset BlueNeg.</span><span lang="en">A real negative, its digital development. BlueNeg dataset.</span></figcaption>
-    </figure>
-  </div>
-  <div class="hero-bottom"><a href="#percorso" class="scroll-cue"><span aria-hidden="true">↓</span><span lang="it">Segui la luce</span><span lang="en">Follow the light</span></a><span class="micro" lang="it">Pellicola analogica. Possibilità digitali.</span><span class="micro" lang="en">Analogue film. Digital possibilities.</span><button type="button" id="motionToggle" aria-pressed="false"><span aria-hidden="true">◌</span> <span id="motionLabel">Animazioni attive</span></button></div>
-</div></section>
-
-<section class="manifesto" id="percorso"><div class="wrap manifesto-grid">
-  <div class="section-index reveal"><span class="micro">01 / <span lang="it">IL PRINCIPIO</span><span lang="en">THE IDEA</span></span><span class="orbit-mark" aria-hidden="true">⊕</span></div>
-  <div><h2 class="statement" lang="it" data-word-reveal>Non è solo invertire i colori. È ritrovare la luce che li ha creati.</h2><h2 class="statement" lang="en" data-word-reveal>More than inverting colours. Rediscovering the light that created them.</h2><p class="section-copy reveal" lang="it">La maschera arancione della pellicola nasconde la fotografia. Il motore misura la base, ricostruisce le densità e restituisce un positivo. Un processo visibile, un passaggio alla volta.</p><p class="section-copy reveal" lang="en">The film's orange mask hides the photograph. The engine measures its base, reconstructs densities and renders a positive. A visible process, one step at a time.</p></div>
-</div><div class="wrap process">
-  <article class="process-step reveal"><span class="step-number">01</span><div class="process-drawing film-drawing" aria-hidden="true"><div></div><div></div><div></div></div><h3 lang="it">La tua pellicola.</h3><h3 lang="en">Your film.</h3><p lang="it">Parti da un negativo già sviluppato. La fotografia è lì, anche se ancora non la riconosci.</p><p lang="en">Start with developed film. The photograph is already there, even if you can't recognise it yet.</p></article>
-  <article class="process-step reveal"><span class="step-number">02</span><div class="process-drawing capture-drawing" aria-hidden="true"><div><i></i></div><span>+</span></div><h3 lang="it">Uno scatto di luce.</h3><h3 lang="en">A shot of light.</h3><p lang="it">Fotografa il negativo su una luce uniforme. Telefono fermo, pellicola piatta, un po' di bordo.</p><p lang="en">Photograph the negative over an even light. Steady phone, flat film, a little edge in the frame.</p></article>
-  <article class="process-step reveal"><span class="step-number">03</span><div class="process-drawing positive-drawing" aria-hidden="true"><span>−</span><i>→</i><span>+</span></div><h3 lang="it">La foto, di nuovo.</h3><h3 lang="en">The photograph, again.</h3><p lang="it">Il browser esegue la conversione. Confronta le versioni e scarica il risultato in JPEG o TIFF.</p><p lang="en">Your browser runs the conversion. Compare versions and download the result as JPEG or TIFF.</p></article>
-</div></section>
-
-<section class="archive-section" id="archivio"><div class="wrap">
-  <div class="section-heading reveal"><div><span class="micro">02 / <span lang="it">L'ARCHIVIO PRENDE VITA</span><span lang="en">THE ARCHIVE COMES ALIVE</span></span><h2 class="heading-2" lang="it">Storie sulla pellicola.<br><span class="secondary-text">Di nuovo davanti a te.</span></h2><h2 class="heading-2" lang="en">Stories on film.<br><span class="secondary-text">In front of you again.</span></h2></div><a class="text-link" href="galleria.html"><span lang="it">Esplora i 13 fotogrammi</span><span lang="en">Explore all 13 frames</span><span aria-hidden="true">↗</span></a></div>
-  <div class="contact-sheet">
-    <figure class="archive-photo archive-wide reveal"><button class="photo-button" type="button" data-zoom="img/g/19941218C-04-tokyo_ris.jpg" aria-label="Ingrandisci la fotografia dei musicisti a Tokyo"><img src="img/g/19941218C-04-tokyo_ris.jpg" width="960" height="658" alt="Musicisti in un parco a Tokyo nel 1994" loading="lazy"></button><figcaption><span>TOKYO / 1994</span><span>KODAK GOLD 100</span></figcaption></figure>
-    <figure class="archive-photo archive-small reveal"><button class="photo-button" type="button" data-zoom="img/g/19941222E-01-nara_ris.jpg" aria-label="Ingrandisci la fotografia dei cervi a Nara"><img src="img/g/19941222E-01-nara_ris.jpg" width="960" height="666" alt="Due cervi al sole a Nara nel 1994" loading="lazy"></button><figcaption><span>NARA / 1994</span><span>KONICA SUPER XG 100</span></figcaption></figure>
-  </div>
-  <p class="archive-caption reveal"><span class="small-cross" aria-hidden="true">+</span><span lang="it">Fotogrammi reali. Grana reale. Risultati del motore di riferimento, senza ingrandimento AI.</span><span lang="en">Real frames. Real grain. Reference engine results, without AI upscaling.</span></p>
-</div></section>
-
-<section class="color-section" id="colore"><div class="wrap color-grid">
-  <div class="color-copy reveal"><span class="micro">03 / <span lang="it">IL PROSSIMO ESPERIMENTO</span><span lang="en">THE NEXT EXPERIMENT</span></span><h2 class="heading-2" lang="it">Il colore merita<br>un secondo sguardo.</h2><h2 class="heading-2" lang="en">Colour deserves<br>a second look.</h2><p class="section-copy" lang="it">Una scena calda deve poter restare calda. Stiamo esplorando una curva sulla luminanza che conserva i rapporti tra i colori, al posto di normalizzare ogni canale separatamente.</p><p class="section-copy" lang="en">A warm scene should be allowed to stay warm. We're exploring a luminance curve that preserves colour ratios, instead of normalising each channel separately.</p><a class="action action-secondary" href="galleria.html#colore"><span lang="it">Confronta le due rese</span><span lang="en">Compare the two renderings</span><span aria-hidden="true">↗</span></a><p class="experiment-note" lang="it">Sperimentale. Nessuna promessa di maggiore fedeltà: il confronto è aperto.</p><p class="experiment-note" lang="en">Experimental. No claim of greater accuracy: the comparison is open.</p></div>
-  <div class="color-object reveal" aria-hidden="true"><span class="color-object-label">DENSITY → LIGHT → COLOUR</span><div class="color-plates"><div class="plate plate-r"><span>R</span></div><div class="plate plate-g"><span>G</span></div><div class="plate plate-b"><span>B</span></div><div class="plate plate-y"><span>Y</span><small>LUMINANCE</small></div></div><div class="color-object-foot"><span>3 CHANNELS</span><span>ONE LIGHT CURVE ↗</span></div></div>
-</div></section>
-
-<section class="principles-section"><div class="wrap principles">
-  <div class="reveal"><span class="micro">LOCALE / LOCAL</span><h3 lang="it">Sul tuo dispositivo.</h3><h3 lang="en">On your device.</h3><p lang="it">Le immagini vengono elaborate nel browser. Nessun account per provare.</p><p lang="en">Images are processed in your browser. No account needed to try it.</p></div>
-  <div class="reveal"><span class="micro">APERTO / OPEN</span><h3 lang="it">Puoi guardarci dentro.</h3><h3 lang="en">Look inside.</h3><p lang="it">Codice disponibile su GitHub. Calibrazione, conversione e limiti sono consultabili.</p><p lang="en">Code available on GitHub. Calibration, conversion and limitations are open to inspection.</p></div>
-  <div class="reveal"><span class="micro">DISTINTO / SEPARATE</span><h3 lang="it">Ogni versione ha un nome.</h3><h3 lang="en">Every version is named.</h3><p lang="it">Conversione, pulizia e ingrandimento AI restano riconoscibili. Sai cosa stai guardando.</p><p lang="en">Conversion, clean-up and AI upscaling stay distinct. You know what you're looking at.</p></div>
-</div></section>
-
-<section class="closing"><div class="wrap closing-inner reveal"><span class="micro"><span lang="it">IL PROSSIMO FOTOGRAMMA È IL TUO</span><span lang="en">THE NEXT FRAME IS YOURS</span></span><h2 lang="it">Riaccendi<br>un ricordo<span>.</span></h2><h2 lang="en">Bring a memory<br>back to light<span>.</span></h2><a class="action action-primary" href="app.html"><span lang="it">Sviluppa un negativo</span><span lang="en">Develop a negative</span><span aria-hidden="true">↗</span></a><p lang="it">Non hai una pellicola sotto mano? C'è uno scatto di esempio pronto.</p><p lang="en">No film to hand? A sample shot is ready for you.</p></div></section>
+    <div class="input-preview" id="inputStage" hidden><img id="inputPreview" alt="Negativo selezionato"><p class="unreadable-preview" id="inputUnreadable" hidden><span lang="it">Anteprima non disponibile per questo file.</span><span lang="en">Preview unavailable for this file.</span></p><span class="input-caption"><span lang="it">Negativo selezionato</span><span lang="en">Selected negative</span></span></div>
+    <div class="sample-footer"><p id="previewCaption"><span lang="it">Esempio incluso: Fuji 100, Tokyo 1994.</span><span lang="en">Included sample: Fuji 100, Tokyo 1994.</span></p><button type="button" class="btn" id="sample"><span lang="it">Prova con questo esempio</span><span lang="en">Try this sample</span></button></div>
+   </div>
+   <div id="out" hidden>
+    <div class="seg tabs" id="tabs" role="group" aria-label="Versione visualizzata"></div>
+    <div class="compare" id="cmp" aria-label="Confronto con sviluppo base"><img id="imgB" alt="Versione selezionata"><img id="imgA" class="over" alt="Sviluppo base"><div class="bar"></div><div class="knob" aria-hidden="true">↔</div><span class="lbl l" id="lblA"></span><span class="lbl r" id="lblB"></span></div>
+    <div class="result-description"><p id="note" class="note"></p><p id="meta" class="meta"></p></div>
+    <div class="export-row"><span lang="it">Scarica la versione visualizzata</span><span lang="en">Download the selected version</span><div class="dl" id="dl"></div></div>
+    <details class="detail-panel" id="detailPanel" hidden><summary><span lang="it">Confronta il dettaglio</span><span lang="en">Compare detail</span></summary><p class="lens-hint" lang="it">Muovi il puntatore sulla foto. Da tastiera, seleziona il riquadro e usa le frecce.</p><p class="lens-hint" lang="en">Move the pointer over the photo. With a keyboard, focus the detail area and use the arrow keys.</p><div class="lens" id="lens" tabindex="0" role="group" aria-label="Dettaglio: usa le frecce per spostarti" data-label-it="Dettaglio: usa le frecce per spostarti" data-label-en="Detail: use arrow keys to move"><figure><canvas id="lensA" width="320" height="320"></canvas><figcaption id="capA"></figcaption></figure><figure><canvas id="lensB" width="320" height="320"></canvas><figcaption id="capB"></figcaption></figure></div></details>
+   </div>
+   <div class="viewer-status" id="viewerStatus" role="status" aria-live="polite"></div>
+   <ul class="warns" id="warns"></ul>
+  </section>
+  <form class="control-panel" id="form" novalidate>
+   <fieldset id="controls"><legend class="sr-only"><span lang="it">Impostazioni di sviluppo</span><span lang="en">Development settings</span></legend>
+    <div class="control-section upload-section"><h2 lang="it">La tua foto</h2><h2 lang="en">Your photo</h2>
+     <div class="drop big" data-key="negativo"><input class="sr-only" type="file" id="negativeInput" accept="image/*"><img alt="" hidden><label class="ph" for="negativeInput"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 15v5h16v-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><b lang="it">Apri un negativo</b><b lang="en">Open a negative</b><span lang="it">oppure trascina qui la foto</span><span lang="en">or drop your photo here</span></label><span class="ok"></span></div>
+     <p class="hint" lang="it">JPEG, PNG o HEIC in Safari.</p><p class="hint" lang="en">JPEG, PNG or HEIC in Safari.</p>
+    </div>
+    <div class="control-section"><label class="control-label" for="profilo"><span lang="it">Pellicola</span><span lang="en">Film stock</span></label><select id="profilo" aria-label="Pellicola" disabled><option lang="it">Caricamento profili…</option><option lang="en">Loading profiles…</option></select><label class="check-row"><input type="checkbox" id="migliora" checked><span><b lang="it">Riduci polvere e rumore</b><b lang="en">Reduce dust and noise</b><small lang="it">Crea anche una versione Migliorata.</small><small lang="en">Also create an Enhanced version.</small></span></label><button class="btn primary go" id="go" type="submit" disabled><span lang="it">Sviluppa foto</span><span lang="en">Develop photo</span></button><p class="msg" id="msg" role="status" aria-live="polite"></p></div>
+    <details class="setting"><summary><span lang="it">Calibrazione facoltativa</span><span lang="en">Optional calibration</span></summary><p class="setting-copy" lang="it">Due foto di riferimento aiutano a correggere luce e maschera arancione.</p><p class="setting-copy" lang="en">Two reference photos help correct the lighting and the orange film mask.</p><div class="calibration-inputs">
+     <div><label class="control-label" for="lightInput"><span lang="it">La sola luce</span><span lang="en">Bare light</span></label><div class="drop" data-key="luce"><input class="sr-only" type="file" id="lightInput" accept="image/*"><img alt="" hidden><label class="ph" for="lightInput"><span lang="it">Scegli foto</span><span lang="en">Choose photo</span></label><span class="ok"></span></div></div>
+     <div><label class="control-label" for="baseInput"><span lang="it">Il bordo della pellicola</span><span lang="en">Film edge</span></label><div class="drop" data-key="bordo"><input class="sr-only" type="file" id="baseInput" accept="image/*"><img alt="" hidden><label class="ph" for="baseInput"><span lang="it">Scegli foto</span><span lang="en">Choose photo</span></label><span class="ok"></span></div></div>
+    </div><a href="guida.html#calibrazione" class="text-link"><span lang="it">Come scattare le foto di riferimento</span><span lang="en">How to capture reference photos</span></a></details>
+    <details class="setting"><summary><span lang="it">Ingrandimento AI</span><span lang="en">AI upscaling</span></summary><label class="check-row"><input type="checkbox" id="ai"><span><b lang="it">Crea una versione ingrandita</b><b lang="en">Create an upscaled version</b><small lang="it">Richiede da uno a qualche minuto e può inventare dettagli.</small><small lang="en">Takes one to a few minutes and may invent details.</small></span></label><div class="seg sr" id="sr" role="group" aria-label="Fattore di ingrandimento"><button type="button" data-sr="2" aria-pressed="true" disabled>×2</button><button type="button" data-sr="4" aria-pressed="false" disabled>×4</button></div></details>
+   </fieldset>
+   <p class="privacy" lang="it">Elaborazione sul tuo dispositivo.<br>Le foto non vengono inviate a un server.</p><p class="privacy" lang="en">Processed on your device.<br>Photos are not sent to a server.</p>
+  </form>
+ </div>
+ <div class="work-support"><p lang="it">Serve aiuto per iniziare? <a href="guida.html">Leggi la guida</a>.</p><p lang="en">Need help getting started? <a href="guida.html">Read the guide</a>.</p><a href="galleria.html"><span lang="it">Guarda altri esempi reali</span><span lang="en">See more real examples</span></a></div>
 </main>
-<footer class="site"><div class="wrap"><div><a class="brand" href="./">Ai-Film-Developing <span aria-hidden="true">↗</span></a><p lang="it">Dalla pellicola, alla luce.</p><p lang="en">From film, to light.</p></div><div class="footer-links"><a href="galleria.html"><span lang="it">Galleria</span><span lang="en">Gallery</span></a><a href="https://github.com/filippovisentin/Ai-Film-Developing">GitHub ↗</a><span class="credits"><span lang="it">Fotografie: dataset</span><span lang="en">Photographs: dataset</span> <a href="https://huggingface.co/datasets/ttgroup/blueneg-release">BlueNeg</a>.<br>Copyrighted by Tien-Tsin Wong.</span></div></div></footer>
-<script type="module" src="js/home.js"></script>
-</body></html>
+<footer class="site"><div class="wrap"><span lang="it">Prototipo open source. Fotografie di esempio: <a href="https://huggingface.co/datasets/ttgroup/blueneg-release">BlueNeg</a>, Copyrighted by Tien-Tsin Wong.</span><span lang="en">Open source prototype. Sample photos: <a href="https://huggingface.co/datasets/ttgroup/blueneg-release">BlueNeg</a>, Copyrighted by Tien-Tsin Wong.</span><div class="footer-links"><a href="guida.html#limiti"><span lang="it">Limiti e formati</span><span lang="en">Formats and limits</span></a><a href="https://github.com/filippovisentin/Ai-Film-Developing">GitHub</a></div></div></footer>
+<script type="module" src="js/app.js"></script></body></html>

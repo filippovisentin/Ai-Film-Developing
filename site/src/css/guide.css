@@ -1,0 +1,10 @@
+.guide-layout { display:grid; grid-template-columns:220px minmax(0,720px); gap:64px; align-items:start; padding-top:40px; }
+.guide-nav { position:sticky; top:108px; display:grid; gap:4px; }
+.guide-nav a { color:var(--muted); padding:8px 0; font-size:14px; text-decoration:none; }.guide-nav a:hover { color:var(--accent); }
+.guide-heading { margin-bottom:40px; }.guide-heading p { margin:12px 0 20px; color:var(--muted); }
+.guide-content section { padding:28px 0; border-top:1px solid var(--line); }.guide-content h2 { margin-bottom:16px; }.guide-content p,.guide-content li,.guide-content dd { color:var(--muted); font-size:14px; line-height:24px; }
+.guide-content ul,.guide-content ol { padding-left:20px; margin:16px 0; }.guide-content li { margin:8px 0; padding-left:4px; }
+.guide-content figure { background:var(--panel); border:1px solid var(--line); padding:12px; margin-top:24px; }.guide-content figure img { width:100%; height:240px; object-fit:contain; background:var(--viewer); }.guide-content figcaption { font-size:12px; color:var(--muted); margin-top:10px; }
+.guide-content dl { margin:20px 0; }.guide-content dt { font-size:14px; font-weight:600; margin-top:20px; }.guide-content dd { margin:6px 0 0; }.guide-note { padding:16px; border:1px solid var(--line); background:var(--panel); border-radius:4px; }
+@media(max-width:900px) { .guide-layout { grid-template-columns:180px minmax(0,1fr); gap:32px; } }
+@media(max-width:700px) { .guide-layout { display:block; padding-top:24px; }.guide-nav { position:static; border-bottom:1px solid var(--line); padding-bottom:20px; margin-bottom:28px; }.guide-nav a { padding:4px 0; }.guide-heading { margin-bottom:28px; }.guide-content figure img { height:180px; } }

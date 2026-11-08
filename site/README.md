@@ -3,7 +3,8 @@
 Pubblicato con GitHub Pages: **https://filippovisentin.github.io/Ai-Film-Developing/**
 (workflow `.github/workflows/pages.yml`, a ogni push su `main` che tocca `site/` o `profiles/`).
 
-Tre pagine statiche: **Progetto** (`/`), **Galleria** (`/galleria`) e **Applicativo** (`/app`).
+Tre pagine statiche: **Sviluppa** (`/`), **Esempi** (`/galleria.html`) e **Guida** (`/guida.html`).
+Il vecchio indirizzo `/app.html` rimanda allo sviluppo nella home.
 L'applicativo esegue nel browser un port JavaScript di `filmengine` (`src/engine/`): le foto non
 lasciano il dispositivo. Modalità: Originale, Migliorata e Ingrandimento AI ×2/×4 (Real-ESRGAN con
 ONNX Runtime Web). Il Restauro AI resta nella versione locale, perché i pesi non sono pubblicati.
@@ -19,11 +20,26 @@ npm run serve      # anteprima locale con le stesse regole di Cloudflare: http:/
 npm run deploy     # build + pubblicazione con wrangler (serve "npx wrangler login" una volta)
 ```
 
-## Landing e confronto colore
+## Spazio di sviluppo e confronto colore
 
-La home presenta un confronto negativo/positivo animato, rivelazioni allo scorrimento,
-una piccola parallasse della montatura e un comando per fermare il movimento. Rispetta
-`prefers-reduced-motion`; il contenuto resta leggibile anche senza JavaScript.
+La home è lo strumento di conversione: foto al centro, impostazioni accanto, calibrazione
+e ingrandimento AI in sezioni espandibili. L'esempio avvia una conversione reale in un clic.
+I risultati precedenti vengono marcati come da aggiornare quando cambiano le impostazioni;
+i riferimenti dell'esempio non vengono riutilizzati su una nuova foto. La galleria separa
+fotogrammi, pulizia/AI ed esperimento colore in tre pannelli. La guida raccoglie i dettagli.
+Direzione UX e riferimenti applicati sono documentati in `../design.md`.
+
+Anteprima completa in locale, senza account o Wrangler:
+
+```bash
+npm run build
+npm run preview
+# poi apri http://127.0.0.1:8791/
+```
+
+Per consegnare una copia funzionante: `node scripts/export_review.mjs <cartella-output>`.
+L'esportazione include il sito compilato e un piccolo server Node, necessario per worker e
+WebAssembly. Non sostituisce il convertitore con una simulazione HTML.
 
 In galleria, `#colore` confronta tredici JPEG già inclusi nel repository. Per rigenerarli:
 

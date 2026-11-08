@@ -5,6 +5,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "compare:colors": "node scripts/build_color_comparison.mjs",
+    "preview": "node scripts/preview.mjs dist",
     "test": "node --test tests/*.test.mjs",
     "serve": "npx wrangler pages dev dist",
     "deploy": "npm run build && npx wrangler pages deploy dist --project-name ai-film-developing"
