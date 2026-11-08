@@ -63,3 +63,15 @@ The negative upload offers a four-corner crop dialog. Automatic detection is a s
 Colour controls appear after development, under an optional disclosure. Temperature, tint and a median 5×5 neutral patch adjust pristine floating-point output without rerunning development or enhancement. Corrections preserve luminance and compress out-of-gamut chroma. Reset restores the original encoded files. Before/after compares the selected version with its adjusted counterpart; JPEG and TIFF use the displayed adjustment. Downloads stay disabled while a new correction is pending or development settings are stale. Source and request IDs reject superseded work.
 
 Verification: 12 Node tests pass; two private photographic-fixture checks are skipped when fixtures are absent. Browser checks cover the included sample, manual corner keyboard adjustment and resulting changed dimensions, colour adjustment, neutral selection and reset.
+
+
+## Exposure, contrast and synchronized inspection
+
+Image adjustments now include exposure (−3 to +3 linear-light stops) and contrast (a monotonic power curve around 18% gray), alongside the existing neutral patch, temperature and tint controls. Neutral-point selection retains exposure and contrast. The worker posts the JPEG preview before encoding TIFF, while downloads stay disabled until matching final output is ready. Identity reset reuses pristine encoded output.
+
+The comparison reference defaults to base development, with an option to compare the selected version before adjustments. The optional detail view offers fit, 100%, 200%, centre, synchronized pointer/touch dragging and keyboard pan. At 100%, one selected-image pixel occupies one CSS pixel; the reference maps to the same scene area, including differently sized AI output. Captions show each source’s actual magnification. Both canvases use the display pixel ratio for crisp rendering; viewport edges clamp pan.
+
+Validation adds tests for exposure stops, contrast pivot/monotonicity/limits, native pixel scale, AI reference alignment, fit and pan bounds.
+
+
+Browser validation for the new controls: sample development, exposure/contrast changes, neutral selection retaining exposure, exact original-download URL after reset, before-adjustment reference, version switch during adjustment, native 100% and 200%, keyboard and mouse synchronized pan, mobile 390px with no horizontal overflow, and a real 2048×1426 AI result aligned with its 1181×822 base at 173% reference scale. A downloaded edited TIFF was inspected for expected dimensions and RGB 16-bit samples. Local 6 MP adjustment computation measured about 200 ms (excluding JPEG/TIFF encoding).

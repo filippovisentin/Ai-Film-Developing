@@ -1,24 +1,29 @@
 import { img, median } from "./core.js";
 const weights = [0.2126, 0.7152, 0.0722];
-export function applyColorAdjustments(im, { temperature = 0, tint = 0, gains = [1, 1, 1] } = {}) {
-  if (!Number.isFinite(temperature) || !Number.isFinite(tint) || Math.abs(temperature) > 100 || Math.abs(tint) > 100 || !Array.isArray(gains) || gains.length !== 3 || gains.some(v => !Number.isFinite(v) || v <= 0 || v > 16)) throw new Error("adjust-invalid-settings");
+export function applyColorAdjustments(im, { exposure = 0, contrast = 0, temperature = 0, tint = 0, gains = [1, 1, 1] } = {}) {
+  if (!Number.isFinite(exposure) || Math.abs(exposure) > 3 || !Number.isFinite(contrast) || Math.abs(contrast) > 100 || !Number.isFinite(temperature) || !Number.isFinite(tint) || Math.abs(temperature) > 100 || Math.abs(tint) > 100 || !Array.isArray(gains) || gains.length !== 3 || gains.some(v => !Number.isFinite(v) || v <= 0 || v > 16)) throw new Error("adjust-invalid-settings");
   const out = img(im.w, im.h, im.c, new Float32Array(im.data));
-  if (temperature === 0 && tint === 0 && gains.every(v => v === 1)) return out;
+  if (exposure === 0 && contrast === 0 && temperature === 0 && tint === 0 && gains.every(v => v === 1)) return out;
   const t = temperature / 100, m = tint / 100;
+  const exposureGain = 2 ** exposure, slope = 2 ** (contrast / 100);
   const g = [Math.exp(0.35*t+0.18*m), Math.exp(-0.18*m), Math.exp(-0.35*t+0.18*m)].map((v,k) => v*gains[k]);
+  const toneIdentity = exposure === 0 && contrast === 0;
   for (let i = 0; i < im.data.length; i += im.c) {
-    const rgb = [0,1,2].map(k => Math.max(0, Math.min(1, im.data[i+k])));
-    const lum = rgb.reduce((s,v,k) => s+v*weights[k],0);
-    const corrected = rgb.map((v,k) => v*g[k]);
-    const y = corrected.reduce((s,v,k) => s+v*weights[k],0);
-    const scaled = corrected.map(v => y > 0 ? v*lum/y : 0);
-    // Compress toward the equal-luminance gray point; preserve luminance in gamut.
-    let chroma = 1;
-    for (const v of scaled) {
-      if (v > 1) chroma = Math.min(chroma, (1-lum)/(v-lum));
-      if (v < 0) chroma = Math.min(chroma, -lum/(v-lum));
-    }
-    for (let k=0;k<3;k++) out.data[i+k] = Math.max(0,Math.min(1,lum+chroma*(scaled[k]-lum)));
+    const r = Math.max(0, Math.min(1, im.data[i]));
+    const green = Math.max(0, Math.min(1, im.data[i+1]));
+    const b = Math.max(0, Math.min(1, im.data[i+2]));
+    const lum = r*weights[0]+green*weights[1]+b*weights[2];
+    const cr = r*g[0], cg = green*g[1], cb = b*g[2];
+    const y = cr*weights[0]+cg*weights[1]+cb*weights[2];
+    // Exposure is measured in stops in linear light. Contrast pivots at 18% gray.
+    const target = toneIdentity ? lum : Math.min(1, 0.18*(lum*exposureGain/0.18)**slope);
+    const scale = y > 0 ? target/y : 0;
+    const sr = cr*scale, sg = cg*scale, sb = cb*scale;
+    // Compress chroma toward equal-luminance gray instead of clipping channels.
+    const max = Math.max(sr,sg,sb), chroma = max > 1 ? (1-target)/(max-target) : 1;
+    out.data[i] = Math.max(0,Math.min(1,target+chroma*(sr-target)));
+    out.data[i+1] = Math.max(0,Math.min(1,target+chroma*(sg-target)));
+    out.data[i+2] = Math.max(0,Math.min(1,target+chroma*(sb-target)));
   }
   return out;
 }

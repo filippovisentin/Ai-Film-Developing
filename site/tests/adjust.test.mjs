@@ -30,3 +30,30 @@ test('median neutral patch removes cast and rejects unsuitable samples',()=>{
  for(const [rgb,error] of [[[.001,.001,.001],'neutral-too-dark'],[[1,.5,.5],'neutral-clipped'],[[.02,.3,.3],'neutral-extreme-color']]) assert.throws(()=>sampleNeutralGains(image(rgb),{x:.5,y:.5}),new RegExp(error));
  assert.throws(()=>sampleNeutralGains(im,{x:NaN,y:0}),/neutral-invalid-position/);
 });
+
+test('exposure uses linear stops, keeps ratios and never changes the source',()=>{
+ const im=image([.05,.1,.2]),before=im.data.slice();
+ for(const exposure of [-1,1]){
+  const out=applyColorAdjustments(im,{exposure});
+  for(let k=0;k<3;k++)assert.ok(Math.abs(out.data[k]-im.data[k]*2**exposure)<1e-6);
+ }
+ assert.deepEqual(im.data,before);
+ assert.deepEqual(applyColorAdjustments(im,{exposure:0,contrast:0}).data,before);
+});
+
+test('contrast pivots at middle gray with monotonic finite tone and neutral blacks',()=>{
+ for(const contrast of [-100,100]){
+  const mid=applyColorAdjustments(image([.18,.18,.18]),{contrast});
+  assert.ok(Math.abs(mid.data[0]-.18)<1e-6);
+  let previous=-1;
+  for(const value of [0,.001,.01,.09,.18,.4,.8,1]){
+   const out=applyColorAdjustments(image([value,value,value]),{contrast,exposure:3});
+   assert.ok(out.data.every(v=>Number.isFinite(v)&&v>=0&&v<=1));
+   assert.ok(out.data[0]>=previous);previous=out.data[0];
+   assert.ok(Math.abs(out.data[0]-out.data[2])<1e-6);
+  }
+ }
+ assert.ok(applyColorAdjustments(image([.09,.09,.09]),{contrast:100}).data[0]<.09);
+ assert.ok(applyColorAdjustments(image([.4,.4,.4]),{contrast:100}).data[0]>.4);
+ for(const settings of [{exposure:NaN},{exposure:3.1},{contrast:Infinity},{contrast:-101}])assert.throws(()=>applyColorAdjustments(image([.2,.3,.4]),settings),/adjust-invalid-settings/);
+});

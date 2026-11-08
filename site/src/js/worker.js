@@ -223,10 +223,17 @@ self.onmessage = async (e) => {
       } else {
         if (!pristine[msg.key]) throw new Error("edit-source-unavailable");
         const settings = msg.settings || {};
-        const identity = (settings.temperature || 0) === 0 && (settings.tint || 0) === 0 && (!settings.gains || settings.gains.every(v => v === 1));
+        const identity = (settings.exposure || 0) === 0 && (settings.contrast || 0) === 0 && (settings.temperature || 0) === 0 && (settings.tint || 0) === 0 && (!settings.gains || settings.gains.every(v => v === 1));
         // Validate settings even when the pristine packed output can be reused.
         const adjusted = engine.adjust.applyColorAdjustments(pristine[msg.key], settings);
-        const result = identity ? packed[msg.key] : await pack(adjusted);
+        let result;
+        if (identity) result = packed[msg.key];
+        else {
+          const jpg = await toJpeg(adjusted);
+          if (!current()) return;
+          post({ type: "adjust-preview", sourceId: msg.sourceId, requestId: msg.requestId, key: msg.key, jpg, w: adjusted.w, h: adjusted.h });
+          result = { jpg, tif: toTiff16(adjusted), w: adjusted.w, h: adjusted.h };
+        }
         if (current()) post({ type: "adjusted", sourceId: msg.sourceId, requestId: msg.requestId, key: msg.key, result });
       }
     } catch (err) {
