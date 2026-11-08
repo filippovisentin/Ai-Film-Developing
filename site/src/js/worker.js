@@ -4,6 +4,8 @@ const MAX_SIDE = 3000;      // lato lungo massimo elaborato nel browser (memoria
 const AI_MAX_IN = 1024;     // l'AI lavora su una versione ridotta: risultato fino a 4096 px
 
 let engine = null, cvReady = null, ortSession = null;
+let activeSource = null, developmentRevision = 0, editRevision = 0;
+let pristine = {}, packed = {};
 // percorsi relativi a questo file (js/): il sito può stare in una sottocartella (GitHub Pages)
 const at = (p) => new URL(p, self.location.href).href;
 const post = (m, transfer) => self.postMessage(m, transfer || []);
@@ -25,9 +27,9 @@ function loadCv() {
 async function loadEngine() {
   if (engine) return engine;
   await loadCv();
-  const [core, pipeline, enhance] = await Promise.all([
-    import(at("../engine/core.js")), import(at("../engine/pipeline.js")), import(at("../engine/enhance.js"))]);
-  engine = { core, pipeline, enhance };
+  const [core, pipeline, enhance, adjust, geometry] = await Promise.all([
+    import(at("../engine/core.js")), import(at("../engine/pipeline.js")), import(at("../engine/enhance.js")), import(at("../engine/adjust.js")), import(at("../engine/geometry.js"))]);
+  engine = { core, pipeline, enhance, adjust, geometry };
   return engine;
 }
 
@@ -144,7 +146,10 @@ const T = {
   },
 };
 
-async function develop(msg) {
+async function develop(msg, revision) {
+  const current = () => revision === developmentRevision && activeSource === msg.sourceId;
+  const send = m => { if (current()) post({ ...m, sourceId: msg.sourceId }); };
+  const progress = (stage, frac) => send({ type: "progress", stage, frac });
   const t0 = performance.now();
   const L = T[msg.lang] || T.it;
   progress("engine", 0);
@@ -152,27 +157,34 @@ async function develop(msg) {
   const { core, pipeline, enhance } = engine;
   progress("decode", 0.05);
   const neg = await decode(msg.files.negativo, MAX_SIDE);
+  if (!current()) return;
   const warnings = [];
   if (Math.max(neg.orig.w, neg.orig.h) > MAX_SIDE) warnings.push(L.warnResized(Math.max(neg.orig.w, neg.orig.h), Math.max(neg.im.w, neg.im.h)));
   const size = { from: neg.orig, to: { w: neg.im.w, h: neg.im.h } };
   const light = msg.files.luce ? (await decode(msg.files.luce, MAX_SIDE, size)).im : null;
   const baseImg = msg.files.bordo ? (await decode(msg.files.bordo, MAX_SIDE)).im : null;
+  if (!current()) return;
   progress("develop", 0.15);
-  const { positive, warnings: w } = pipeline.developFrame(cv, neg.im, { light, baseImg, profile: msg.profile, colorMode: msg.colorMode, t: (k) => L[k] || k });
+  const { positive, warnings: w } = pipeline.developFrame(cv, neg.im, { light, baseImg, profile: msg.profile, colorMode: msg.colorMode, manualCorners: msg.manualCorners, t: (k) => L[k] || k });
   warnings.push(...w);
   const results = { originale: await pack(positive) };
-  post({ type: "partial", key: "originale", result: results.originale, warnings });
+  if (!current()) return;
+  pristine.originale = positive; packed.originale = results.originale;
+  send({ type: "partial", key: "originale", result: results.originale, warnings });
   let better = null;
   if (msg.migliora || msg.ai) {
     better = enhance.enhance(cv, positive, (s) => progress("enhance-" + s, 0.45));
     if (msg.migliora) {
       results.migliorata = await pack(better);
-      post({ type: "partial", key: "migliorata", result: results.migliorata });
+      if (!current()) return;
+      pristine.migliorata = better; packed.migliorata = results.migliorata;
+      send({ type: "partial", key: "migliorata", result: results.migliorata });
     }
   }
   if (msg.ai) {
     progress("ai-load", 0.6);
     const session = await loadAi();
+    if (!current()) return;
     let src = better;
     if (Math.max(src.w, src.h) > AI_MAX_IN) {
       const s = AI_MAX_IN / Math.max(src.w, src.h);
@@ -181,16 +193,56 @@ async function develop(msg) {
     }
     const up = await enhance.superResolve(cv, ort, session, src, msg.ai, (f) => progress("ai", 0.6 + 0.38 * f));
     results.ai = await pack(up);
+    if (!current()) return;
+    pristine.ai = up; packed.ai = results.ai;
   }
-  post({ type: "done", results, warnings, ms: Math.round(performance.now() - t0) });
+  send({ type: "done", results, warnings, ms: Math.round(performance.now() - t0) });
 }
 
 self.onmessage = async (e) => {
   const msg = e.data;
+  if (msg.type === "detect-crop") {
+    try {
+      await loadEngine();
+      const { im } = await decode(msg.file, MAX_SIDE);
+      const q = engine.geometry.findFrameCorners(cv, im);
+      post({ type: "crop-detected", sourceId: msg.sourceId, requestId: msg.requestId,
+        corners: q ? q.map(([x,y]) => [Math.max(0, Math.min(1,x/(im.w-1))), Math.max(0, Math.min(1,y/(im.h-1)))]) : null });
+    } catch (err) { post({ type: "edit-error", sourceId: msg.sourceId, requestId: msg.requestId, message: err.message }); }
+    return;
+  }
+  if (msg.type === "adjust" || msg.type === "neutral") {
+    if (msg.sourceId !== activeSource) return;
+    const revision = ++editRevision, dev = developmentRevision;
+    const current = () => revision === editRevision && dev === developmentRevision && msg.sourceId === activeSource;
+    try {
+      if (msg.type === "neutral") {
+        if (!pristine.originale) throw new Error("edit-source-unavailable");
+        const gains = engine.adjust.sampleNeutralGains(pristine.originale, msg);
+        if (current()) post({ type: "neutral-picked", sourceId: msg.sourceId, requestId: msg.requestId, gains });
+      } else {
+        if (!pristine[msg.key]) throw new Error("edit-source-unavailable");
+        const settings = msg.settings || {};
+        const identity = (settings.temperature || 0) === 0 && (settings.tint || 0) === 0 && (!settings.gains || settings.gains.every(v => v === 1));
+        // Validate settings even when the pristine packed output can be reused.
+        const adjusted = engine.adjust.applyColorAdjustments(pristine[msg.key], settings);
+        const result = identity ? packed[msg.key] : await pack(adjusted);
+        if (current()) post({ type: "adjusted", sourceId: msg.sourceId, requestId: msg.requestId, key: msg.key, result });
+      }
+    } catch (err) {
+      if (current()) post({ type: "edit-error", sourceId: msg.sourceId, requestId: msg.requestId, key: msg.key, message: err.message });
+    }
+    return;
+  }
+  let revision;
   try {
     if (msg.type === "preload") { await loadEngine(); post({ type: "ready" }); }
-    else if (msg.type === "develop") await develop(msg);
+    else if (msg.type === "develop") {
+      revision = ++developmentRevision; ++editRevision;
+      activeSource = msg.sourceId; pristine = {}; packed = {};
+      await develop(msg, revision);
+    }
   } catch (err) {
-    post({ type: "error", message: err && err.message ? err.message : String(err) });
+    if (revision == null || revision === developmentRevision) post({ type: "error", sourceId: msg.sourceId, message: err && err.message ? err.message : String(err) });
   }
 };

@@ -54,3 +54,12 @@ focus, keyboard detail movement, gallery tab keys/history, IT/EN, and 390px layo
 page overflow. The sample completed in about 2.4–2.7 seconds on the test machine; this is
 an observation, not a promised product metric. AI enlargement and HEIC/Safari were not
 rerun in this UX revision. No engine algorithm was changed in this revision.
+
+
+## Manual editing
+
+The negative upload offers a four-corner crop dialog. Automatic detection is a starting point; drag, arrow keys (Shift for fine adjustment), and percentage coordinates edit the same normalized quadrilateral. Apply marks existing output stale; the next development uses the manual perspective transform without automatic trimming or aspect snapping. A new negative resets the crop.
+
+Colour controls appear after development, under an optional disclosure. Temperature, tint and a median 5×5 neutral patch adjust pristine floating-point output without rerunning development or enhancement. Corrections preserve luminance and compress out-of-gamut chroma. Reset restores the original encoded files. Before/after compares the selected version with its adjusted counterpart; JPEG and TIFF use the displayed adjustment. Downloads stay disabled while a new correction is pending or development settings are stale. Source and request IDs reject superseded work.
+
+Verification: 12 Node tests pass; two private photographic-fixture checks are skipped when fixtures are absent. Browser checks cover the included sample, manual corner keyboard adjustment and resulting changed dimensions, colour adjustment, neutral selection and reset.

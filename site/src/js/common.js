@@ -26,9 +26,10 @@ export function makeCompare(el) {
   const from = (e) => { const r = el.getBoundingClientRect(); set(((e.clientX - r.left) / r.width) * 100); };
   el.setAttribute("role", "slider"); el.setAttribute("aria-valuemin", "0"); el.setAttribute("aria-valuemax", "100");
   el.tabIndex = 0;
-  el.addEventListener("pointerdown", (e) => { el.setPointerCapture(e.pointerId); from(e); });
-  el.addEventListener("pointermove", (e) => { if (el.hasPointerCapture(e.pointerId)) from(e); });
+  el.addEventListener("pointerdown", (e) => { if(el.dataset.pickColor === "true") return; el.setPointerCapture(e.pointerId); from(e); });
+  el.addEventListener("pointermove", (e) => { if (el.dataset.pickColor !== "true" && el.hasPointerCapture(e.pointerId)) from(e); });
   el.addEventListener("keydown", (e) => {
+    if(el.dataset.pickColor === "true") return;
     if (e.key === "ArrowLeft") { set(pos - 5); e.preventDefault(); }
     if (e.key === "ArrowRight") { set(pos + 5); e.preventDefault(); }
     if (e.key === "Home") { set(0); e.preventDefault(); }

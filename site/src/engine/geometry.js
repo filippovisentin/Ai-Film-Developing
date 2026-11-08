@@ -160,7 +160,7 @@ export function warpFrame(cv, im, corners, aspect = 1.5) {
   const width = Math.max(dist(tr, tl), dist(br, bl));
   const height = Math.max(dist(bl, tl), dist(br, tr));
   const measured = Math.max(width, height) / Math.max(Math.min(width, height), 1.0);
-  const ratio = Math.abs(measured / aspect - 1) <= ASPECT_SNAP ? aspect : measured;
+  const ratio = aspect !== null && Math.abs(measured / aspect - 1) <= ASPECT_SNAP ? aspect : measured;
   let ow, oh;
   if (width >= height) { ow = pyRound(width); oh = pyRound(width / ratio); }
   else { oh = pyRound(height); ow = pyRound(height / ratio); }
@@ -267,3 +267,5 @@ export function snapAspect(cv, im, aspect = 1.5) {
 }
 
 export { img };
+
+export { validateManualCorners, manualCornersToPixels } from "./selection.js";
