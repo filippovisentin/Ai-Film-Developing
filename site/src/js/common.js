@@ -19,18 +19,6 @@ export const tr = (o) => (o && typeof o === "object" ? o[lang()] ?? o.it : o);
 setLang(document.documentElement.dataset.lang === "en" ? "en" : "it"); // scelta da lang-boot.js
 document.querySelectorAll(".langs button").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.lang)));
 
-/** Variante grafica in prova (A Camera oscura, B Archivio): stessa pagina, due mondi visivi. */
-const THEME_COLOR = { oscura: "#141413", archivio: "#e3e1db" };
-export function setTema(t) {
-  const tema = t === "archivio" ? "archivio" : "oscura";
-  document.documentElement.dataset.tema = tema;
-  try { localStorage.setItem("afd-tema", tema); } catch {}
-  document.querySelectorAll(".temi button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tema === tema)));
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", THEME_COLOR[tema]);
-  document.dispatchEvent(new CustomEvent("temachange", { detail: tema }));
-}
-setTema(document.documentElement.dataset.tema);
-document.querySelectorAll(".temi button").forEach((b) => b.addEventListener("click", () => setTema(b.dataset.tema)));
 
 /** Rende trascinabile un confronto prima/dopo (mouse, tocco, tastiera). */
 export function makeCompare(el) {
