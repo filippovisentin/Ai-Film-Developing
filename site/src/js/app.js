@@ -173,7 +173,7 @@ function show(key,resetCompare=true) {
  for (const b of [...tabs.children]) if (!results[b.dataset.version]) b.remove();
  for(const k of Object.keys(LABELS))if(results[k]){
   let b=[...tabs.children].find(b=>b.dataset.version===k);
-  if(!b){b=document.createElement("button");b.type="button";b.dataset.version=k;b.addEventListener("click",()=>{userChoice=true;show(k);});tabs.append(b);}
+  if(!b){b=document.createElement("button");b.type="button";b.dataset.version=k;b.addEventListener("click",()=>{stopPicking();userChoice=true;show(k);});tabs.append(b);}
   b.textContent=tr(LABELS[k]);b.setAttribute("aria-pressed",String(k===key));
  }
  const changed=hasColor(), display=edited[key]?.revision===colorRevision?edited[key]:results[key], comparison=changed||key!=="originale";
@@ -193,7 +193,7 @@ function show(key,resetCompare=true) {
  if(comparison){$("#capA").textContent=$("#lblA").textContent;$("#capB").textContent=$("#lblB").textContent;lensAt(.5,.5);}
  if(resetCompare)cmp.set(50);
  if(!comparison)for(const attr of ['aria-valuemin','aria-valuemax','aria-valuenow'])$("#cmp").removeAttribute(attr);
- else{$("#cmp").setAttribute('aria-valuemin','0');$("#cmp").setAttribute('aria-valuemax','100');}
+ else{$("#cmp").setAttribute('aria-valuenow',String(parseFloat($("#cmp").style.getPropertyValue('--pos'))||50));$("#cmp").setAttribute('aria-valuemin','0');$("#cmp").setAttribute('aria-valuemax','100');}
  updateControls();if(changed&&!pendingEdit&&!picking&&edited[key]?.revision!==colorRevision)requestAdjustment();
 }
 function load(src){if(!imgs[src]){imgs[src]=new Image();imgs[src].src=src;}return imgs[src];}
