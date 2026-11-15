@@ -4,20 +4,51 @@
     {
       "name": "strumento",
       "runtimeExecutable": ".venv/Scripts/python.exe",
-      "runtimeArgs": ["-m", "tools.server", "8770"],
+      "runtimeArgs": [
+        "-m",
+        "tools.server",
+        "8770"
+      ],
       "port": 8770
     },
     {
       "name": "galleria",
       "runtimeExecutable": ".venv/Scripts/python.exe",
-      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "web"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8765",
+        "--directory",
+        "web"
+      ],
       "port": 8765
     },
     {
       "name": "sito",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["--prefix", "site", "wrangler", "pages", "dev", "site/dist", "--port", "8788", "--compatibility-date", "2025-01-01"],
+      "runtimeArgs": [
+        "--prefix",
+        "site",
+        "wrangler",
+        "pages",
+        "dev",
+        "site/dist",
+        "--port",
+        "8788",
+        "--compatibility-date",
+        "2025-01-01"
+      ],
       "port": 8788
+    },
+    {
+      "name": "anteprima",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "site/scripts/preview.mjs",
+        "site/dist",
+        "8791"
+      ],
+      "port": 8791
     }
   ]
 }

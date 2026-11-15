@@ -26,15 +26,22 @@ These are patterns, not copied layouts or assets. Photographs remain the existin
 - Guide (`guida.html`): capture, calibration, version meanings, formats, limits, project.
 - Old `app.html` links forward to the working homepage.
 
-## Visual system
+## Visual system: the archive
 
-Light neutral page and controls; charcoal canvas around photographs. Manrope for the UI,
-monospace only for numeric metadata. One restrained terracotta action colour. Shared plain
-header, visible current destination, consistent vocabulary in Italian and English.
+The world is a photographer sorting rolls: the contact sheet, the lab envelope, the china marker.
+Light page (grey archive board `#e3e1db`, print paper `#fbfaf7`), photographs inside black film
+strips with sprocket holes and edge printing that names the selected film stock and frame.
+The control column is a kraft lab envelope (`#c9a56f`, fine paper grain) with printed rules and
+numbered stamped boxes for the three steps; inputs are pale field paper. One red, the china
+marker `#b3261e`, carries the primary action, the current step, the chosen version (a hand-drawn
+circle around its frame) and links. Archivo throughout (semi-condensed widths for headings,
+uppercase stamped labels); Geist Mono only for numeric metadata.
 
-No oversized slogans, floating pill navigation, decorative darkroom props, edition labels,
-rotated image mounts, ornamental status dots, card grids or scroll-reveal dependencies.
-Motion is reserved for useful feedback. Content stays visible without animation.
+Layout: the photo owns the stage at desktop width with the envelope column at its right; the
+develop step stays sticky. Below 820px the envelope follows the photo and a bottom action bar
+follows the task (open or sample, develop, download). Motion: the developed print emerges from
+a washed-out state once per development; the marker circle draws itself on selection. Both are
+removed under reduced motion. Icons are inline SVG; no unicode glyph icons.
 
 ## Acceptance checks
 

@@ -19,6 +19,7 @@ export const tr = (o) => (o && typeof o === "object" ? o[lang()] ?? o.it : o);
 setLang(document.documentElement.dataset.lang === "en" ? "en" : "it"); // scelta da lang-boot.js
 document.querySelectorAll(".langs button").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.lang)));
 
+
 /** Rende trascinabile un confronto prima/dopo (mouse, tocco, tastiera). */
 export function makeCompare(el) {
   let pos = 50;
@@ -45,7 +46,7 @@ export function enableZoom() {
   if (!dlg) {
     dlg = document.createElement("dialog");
     dlg.className = "zoom";
-    dlg.innerHTML = '<img alt=""><button type="button" class="zoom-close" aria-label="Close / Chiudi">×</button>';
+    dlg.innerHTML = '<img alt=""><button type="button" class="zoom-close" aria-label="Close / Chiudi"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="20" height="20"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>';
     dlg.setAttribute("aria-label", "Fotografia / Photograph");
     document.body.append(dlg);
     dlg.addEventListener("click", (e) => { if (e.target === dlg || e.target.closest(".zoom-close")) dlg.close(); });

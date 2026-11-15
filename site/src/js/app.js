@@ -27,7 +27,7 @@ const STAGES = {
 };
 const cmp = makeCompare($("#cmp"));
 makeCompare($("#previewCmp"));
-const worker = new Worker("js/worker.js");
+let worker, workerRestarts = 0;
 let lastStage = "engine", lastFraction = 0;
 function updateControls() {
  $("#controls").disabled = busy || loadingSample;
@@ -41,12 +41,32 @@ function updateControls() {
  $("#colorPanel").hidden=!results.originale;
  $("#colorControls").disabled=busy||stale;
  $(".result").setAttribute("aria-busy", String(busy));
+ syncChrome();
+}
+// Passi numerati, barra azioni su mobile e stampa sul bordo della pellicola seguono lo stato.
+function syncChrome() {
+ const has = !!files.negativo, fresh = Object.keys(results).length > 0 && !stale && !busy, blocked = busy || loadingSample;
+ $("#step1").dataset.state = has ? "done" : "current";
+ $("#step2").dataset.state = has ? "done" : "todo";
+ $("#step3").dataset.state = fresh ? "done" : has ? "current" : "todo";
+ $("#quickOpen").textContent = tr(has ? {it:"Altra foto",en:"Other photo"} : {it:"Apri un negativo",en:"Open a negative"});
+ $("#quickOpen").disabled = blocked;
+ $("#quickSample").textContent = tr(loadingSample ? {it:"Caricamento…",en:"Loading…"} : {it:"Prova l'esempio",en:"Try the sample"});
+ $("#quickSample").hidden = has && !loadingSample; $("#quickSample").disabled = blocked;
+ $("#mobileGo").textContent = tr(busy ? {it:"Sviluppo in corso…",en:"Developing…"} : {it:"Sviluppa foto",en:"Develop photo"});
+ $("#mobileGo").hidden = !has || fresh || loadingSample; $("#mobileGo").disabled = $("#go").disabled;
+ $("#mobileSave").textContent = tr({it:"Scarica JPEG",en:"Download JPEG"});
+ $("#mobileSave").hidden = !fresh; $("#mobileSave").disabled = !document.querySelector("#dl a[href]");
+ const p = profiles.find((x) => x.id === $("#profilo").value);
+ const stock = (p ? (lang() === "en" && p.name_en ? p.name_en : p.name) : "").replace(/\s*\(.*\)/, "").toUpperCase();
+ const n = has && !sampleFiles.has("negativo") ? 1 : 10, edge = `${stock}   ▸${n}   ▸${n}A      `.repeat(4);
+ document.querySelectorAll(".rebate .edge").forEach((el) => { if (el.textContent !== edge) el.textContent = edge; });
 }
 function engineState() {
  $("#engineState").className = "engine-state" + (ready ? " ready" : "");
  $("#engineState").textContent = tr(ready ? { it: "Elaborazione locale pronta", en: "Local processing ready" } : { it: "Elaborazione locale", en: "Local processing" });
 }
-worker.onmessage = ({ data: m }) => {
+function onWorkerMessage({ data: m }) {
  if(m.sourceId!==undefined && m.sourceId!==sourceId)return;
  if(handleEdit(m))return;
  if (m.type === "ready") { ready = true; engineState(); }
@@ -60,8 +80,18 @@ worker.onmessage = ({ data: m }) => {
   $("#viewerStatus").textContent = tr({ it: `Sviluppo completato in ${(m.ms/1000).toFixed(1)} s.`, en: `Development completed in ${(m.ms/1000).toFixed(1)} s.` });
   show(userChoice && results[current] ? current : results.migliorata ? "migliorata" : "originale");
  } else if (m.type === "error") fail(m.message);
-};
-worker.onerror = (e) => fail(e.message || tr({it:"Il motore non si è avviato. Ricarica la pagina.",en:"The engine could not start. Reload the page."}));
+}
+// Se il worker si blocca o va in crash ne avvia uno nuovo, così basta riprovare senza ricaricare la pagina.
+function startWorker() {
+ worker = new Worker("js/worker.js");
+ worker.onmessage = onWorkerMessage;
+ worker.onerror = (e) => {
+  e.preventDefault?.(); worker.terminate(); ready = false; sourceId++; engineState();
+  const restart = workerRestarts++ < 2; if (restart) startWorker();
+  fail(restart ? tr({it:"Il motore si è interrotto ed è stato riavviato. Premi di nuovo Sviluppa foto.",en:"The engine stopped and has been restarted. Press Develop photo again."}) : (e.message || tr({it:"Il motore non si è avviato. Ricarica la pagina.",en:"The engine could not start. Reload the page."})));
+ };
+}
+startWorker();
 
 function renderProfiles() {
  const sel = $("#profilo"), prev = sel.value || "generic_color";
@@ -111,7 +141,7 @@ function setFile(drop,file,name,{fromSample=false}={}) {
  else { im.removeAttribute("src"); im.hidden = true; }
  let clear = drop.querySelector(".clear");
  if (file && !clear) {
-  clear = document.createElement("button"); clear.type="button"; clear.className="clear"; clear.textContent="×";
+  clear = document.createElement("button"); clear.type="button"; clear.className="clear"; clear.innerHTML='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
   clear.addEventListener("click",()=>{setFile(drop,null);drop.querySelector("input").value="";}); drop.append(clear);
  } else if (!file && clear) clear.remove();
  if (file) clear.setAttribute("aria-label",tr({it:"Rimuovi foto",en:"Remove photo"}));
@@ -128,6 +158,8 @@ document.querySelectorAll(".drop").forEach(drop=>{
 });
 $("#quickOpen").addEventListener('click',()=>$("#negativeInput").click());
 $("#quickSample").addEventListener('click',()=>$("#sample").click());
+$("#mobileGo").addEventListener('click',()=>$("#form").requestSubmit());
+$("#mobileSave").addEventListener('click',()=>document.querySelector("#dl a[href]")?.click());
 $("#inputPreview").addEventListener('error',()=>{if(files.negativo){$("#inputPreview").hidden=true;$("#inputUnreadable").hidden=false;}});
 $("#sample").addEventListener("click",async()=>{
  loadingSample=true; updateControls(); $("#viewerStatus").textContent=tr({it:"Caricamento dell'esempio…",en:"Loading the sample…"});
@@ -143,7 +175,7 @@ $("#sample").addEventListener("click",async()=>{
  } catch { loadingSample=false;fail(tr({it:"L'esempio non è stato caricato. Riprova oppure apri una tua foto.",en:"The sample could not load. Retry or open your own photo."})); }
 });
 $("#ai").addEventListener("change",()=>{updateControls();markDirty();});
-$("#profilo").addEventListener("change",markDirty);
+$("#profilo").addEventListener("change",()=>{markDirty();syncChrome();});
 $("#migliora").addEventListener("change",markDirty);
 document.querySelectorAll("#sr button").forEach(b=>b.addEventListener("click",()=>{
  sr=+b.dataset.sr; document.querySelectorAll("#sr button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
@@ -156,7 +188,7 @@ $("#form").addEventListener("submit",e=>{
  worker.postMessage({type:"develop",sourceId,manualCorners,lang:lang(),profile:profiles.find(p=>p.id===$("#profilo").value),files:{negativo:files.negativo,luce:files.luce||null,bordo:files.bordo||null},migliora:$("#migliora").checked,ai:$("#ai").checked?sr:0});
 });
 function setProgress(stage,frac) {
- lastStage=stage;lastFraction=frac;
+ lastStage=stage;lastFraction=frac;$("#progress span").style.transform=`scaleX(${Math.max(.04,Math.min(1,frac||0))})`;
  const pct=stage==="ai"?` ${Math.max(0,Math.min(100,Math.round((frac-.6)/.38*100)))}%`:"";
  $("#viewerStatus").textContent=tr(STAGES[stage]||{it:"Elaborazione…",en:"Processing…"})+pct;
 }
@@ -176,8 +208,9 @@ function show(key,resetCompare=true) {
  for (const b of [...tabs.children]) if (!results[b.dataset.version]) b.remove();
  for(const k of Object.keys(LABELS))if(results[k]){
   let b=[...tabs.children].find(b=>b.dataset.version===k);
-  if(!b){b=document.createElement("button");b.type="button";b.dataset.version=k;b.addEventListener("click",()=>{stopPicking();userChoice=true;show(k);});tabs.append(b);}
-  b.textContent=tr(LABELS[k]);b.setAttribute("aria-pressed",String(k===key));
+  if(!b){b=document.createElement("button");b.type="button";b.dataset.version=k;b.innerHTML='<img alt="" width="96" height="64"><span></span>';b.addEventListener("click",()=>{stopPicking();userChoice=true;show(k);});tabs.append(b);}
+  const thumb=b.querySelector("img");if(thumb.getAttribute("src")!==results[k].jpg)thumb.src=results[k].jpg;
+  b.querySelector("span").textContent=tr(LABELS[k]);b.setAttribute("aria-pressed",String(k===key));
  }
  const changed=hasColor(), preview=adjustmentPreview?.key===key&&adjustmentPreview.revision===colorRevision?adjustmentPreview:null;
  const display=edited[key]?.revision===colorRevision?edited[key]:preview||results[key], comparison=changed||key!=="originale";
@@ -208,7 +241,7 @@ function show(key,resetCompare=true) {
 $("#comparisonSource").addEventListener('change',()=>show(current,false));
 $("#openDetail").addEventListener('click',()=>{const panel=$("#detailPanel");panel.open=true;panel.querySelector('[data-zoom-level="1"]').click();panel.scrollIntoView({block:'nearest',behavior:'instant'});$("#lensB").focus({preventScroll:true});});
 
-document.addEventListener('langchange',()=>{stopPicking();cropLabel();engineState();if(profiles.length)renderProfiles();previewInput();if(busy)setProgress(lastStage,lastFraction);if(results[current])show(current);if(stale)markDirty();});
+document.addEventListener('langchange',()=>{updateControls();stopPicking();cropLabel();engineState();if(profiles.length)renderProfiles();previewInput();if(busy)setProgress(lastStage,lastFraction);if(results[current])show(current);if(stale)markDirty();});
 const cropEditor=createCropEditor(corners=>{manualCorners=corners;cropLabel();markDirty();});
 function cropLabel(){$('#cropState').textContent=tr(manualCorners?{it:'Ritaglio manuale. Verrà usato al prossimo sviluppo.',en:'Manual crop. Used on the next development.'}:{it:'Riconoscimento automatico del fotogramma.',en:'Automatic frame detection.'});}
 $('#cropOpen').addEventListener('click',()=>{cropEditor.open(files.negativo,manualCorners);if(!manualCorners)worker.postMessage({type:'detect-crop',sourceId,requestId:++requestId,file:files.negativo});});
