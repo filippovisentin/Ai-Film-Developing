@@ -1,0 +1,88 @@
+/* Field notes.
+   The site in the same system as the StudioLLM posts: a research notebook, not an app advert.
+   Instrument Sans for text, IBM Plex Mono for labels and numbers, one cobalt accent, hairline rules,
+   square corners. No paper textures, no kraft, no marker; never orange, terracotta or coral as UI colour.
+   Loaded after site.css, app.css, gallery.css, editing.css and guide.css: it re-points their tokens and
+   replaces the decorations of the old archive look. */
+
+:root {
+ --bg:#F3F3F1; --bg2:#FAFAF8; --panel:#FFFFFF; --panel2:#ECECE8;
+ --text:#111113; --muted:#5E5E64; --faint:#66666C; --line:#DCDCD7; --line2:#BDBDB7;
+ --accent:#2E5BFF; --accent-hover:#1C44DB; --amber-ink:#FFFFFF; --link:#2348D8; --focus:#2E5BFF;
+ --viewer:#0E0F11; --viewer-text:#FAFAFA; --viewer-muted:#A0A0A5;
+ --ok:#1F7A3A; --warn:#8A5A14; --safelight:#C0262D;
+ --kraft:var(--panel); --kraft-ink:var(--text); --kraft-muted:var(--muted); --kraft-line:var(--line); --field:var(--bg2);
+ --kraft-grain:none; --grease:none; --edge-ink:#7C7C82;
+ --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --display:var(--sans);
+ --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+ --radius:0px; --radius-sm:0px;
+}
+
+/* type: tight bold titles, mono labels */
+body { font:400 15px/1.55 var(--sans); }
+h1,h2,h3 { font-weight:700; letter-spacing:-.035em; }
+h1 { line-height:1.02; }
+h2 { letter-spacing:-.025em; }
+.nav a { font:500 13px/1 var(--mono); letter-spacing:0; text-transform:none; }
+.nav a[aria-current="page"] { font-weight:500; }
+.brand { font-weight:700; letter-spacing:-.02em; }
+.brand svg { color:var(--accent); }
+.langs button { font-family:var(--mono); font-size:12px; }
+.btn { font-weight:600; letter-spacing:0; }
+.tag { font-family:var(--mono); letter-spacing:0; text-transform:none; }
+.compare .lbl,.input-caption { background:#0E0F11E6; font-family:var(--mono); font-weight:400; font-size:12px; letter-spacing:0; }
+footer.site { font-family:var(--mono); font-size:12px; }
+
+/* the workspace: a plain figure on the left, a white notebook column on the right */
+.top { background:var(--panel); border-bottom:1px solid var(--line); }
+.result-header h2 { font:500 12px/1 var(--mono); letter-spacing:.02em; text-transform:none; color:var(--muted); }
+.frame { background:var(--viewer); padding:0; box-shadow:none; outline:1px solid var(--line2); outline-offset:6px; }
+.rebate { display:none; }
+.result .compare,.input-preview { border-radius:0; }
+.sample-footer p,.note { color:var(--muted); }
+
+.control-panel { color:var(--text); background:var(--panel); border-left:1px solid var(--line); box-shadow:none; }
+.panel-head { border-bottom:1px solid var(--text); }
+.panel-head h1 { letter-spacing:-.04em; }
+.step { border-bottom:1px solid var(--line); }
+.step-title { font:600 15px/1.25 var(--sans); letter-spacing:-.01em; text-transform:none; color:var(--muted); }
+.step-n { border-radius:0; border:0; background:transparent; color:var(--muted); font:500 13px/1 var(--mono); transform:none; width:auto; min-width:26px; }
+.step[data-state="current"] .step-n { background:transparent; color:var(--accent); border:0; }
+.step[data-state="current"] .step-title { color:var(--text); }
+.step[data-state="done"] .step-n { border:0; }
+.step[data-state="done"] .step-n::after { background:var(--ok); inset:5px; }
+.drop { background:var(--bg2); border:1px dashed var(--line2); border-radius:0; }
+.drop:hover,.drop.over { border-color:var(--accent); border-style:solid; }
+select { background:var(--panel); border-color:var(--line2); border-radius:0; }
+.control-panel .btn:not(.primary) { background:var(--panel); border-color:var(--line2); }
+.control-panel .btn.quiet:not(.primary) { background:transparent; }
+.control-panel .btn.quiet:hover:not(:disabled) { background:var(--panel2); }
+.control-panel a { color:var(--link); }
+.setting { border-bottom:1px solid var(--line); }
+.setting summary { font:500 12px/1.2 var(--mono); letter-spacing:.02em; text-transform:none; }
+#colorControls input[type=range],input[type=range],input[type=checkbox] { accent-color:var(--accent); }
+.seg button[aria-pressed="true"] { background:var(--panel); box-shadow:inset 0 -2px 0 var(--accent); }
+.mobile-bar { background:var(--panel); border-top:1px solid var(--line); }
+.mobile-bar .btn:not(.primary) { background:var(--panel); border-color:var(--line2); color:var(--text); }
+#step3 { background:var(--panel); }
+
+/* versions: mono labels, the chosen one underlined in cobalt */
+.tabs { gap:4px; }
+.tabs button { background:transparent; border:0; border-radius:0; padding:8px 10px; color:var(--muted); box-shadow:inset 0 -1px 0 var(--line); }
+.tabs button span { font:500 12px/1 var(--mono); letter-spacing:.02em; text-transform:none; }
+.tabs button:hover { color:var(--text); }
+.tabs button[aria-pressed="true"] { color:var(--text); box-shadow:inset 0 -2px 0 var(--accent); }
+.tabs button[aria-pressed="true"]::after { content:none; }
+.export-row,.detail-panel { background:var(--panel); border-color:var(--line); border-radius:0; }
+
+/* gallery and guide */
+.thumb[aria-pressed=true] { position:relative; border-color:var(--accent); outline:2px solid var(--accent); outline-offset:2px; }
+.thumb[aria-pressed=true]::after { content:none; }
+.gallery-tabs button { font:500 12px/1 var(--mono); letter-spacing:.02em; text-transform:none; }
+.compare { border-radius:0; }
+.guide-nav a { font-family:var(--mono); font-size:13px; }
+.guide-content figure { background:var(--panel); border:1px solid var(--line); }
+.guide-content figcaption { font-family:var(--mono); font-size:12px; }
+.guide-note { border-left:2px solid var(--accent); }
+
+@media(prefers-reduced-motion:reduce) { * { animation:none !important; } }
