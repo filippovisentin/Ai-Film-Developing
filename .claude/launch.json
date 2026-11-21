@@ -49,6 +49,12 @@
         "8791"
       ],
       "port": 8791
+    },
+    {
+      "name": "instagram",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "http.server", "8792", "--directory", "social/instagram"],
+      "port": 8792
     }
   ]
 }

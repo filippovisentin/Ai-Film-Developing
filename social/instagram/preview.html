@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Instagram Preview</title>
+<style>
+body{margin:0;background:#fafafa;font-family:system-ui,sans-serif;color:#111}
+h1{font-size:18px;text-align:center;margin:24px 0 8px}
+.wrap{display:flex;flex-wrap:wrap;gap:32px;justify-content:center;padding:16px}
+.post{width:380px;background:#fff;border:1px solid #dbdbdb;border-radius:8px;overflow:hidden}
+.head{display:flex;align-items:center;gap:10px;padding:10px 12px;font-weight:600;font-size:14px}
+.av{width:32px;height:32px;border-radius:50%;background:#2e5bff}
+.car{position:relative;aspect-ratio:3/4;overflow:hidden;background:#000}
+.track{display:flex;height:100%;transition:transform .3s}
+.track img,.track video{width:100%;height:100%;object-fit:cover;flex:none}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:0;background:#fffc;cursor:pointer;font-size:16px}
+.prev{left:8px}.next{right:8px}
+.dots{display:flex;gap:4px;justify-content:center;padding:8px}
+.dots span{width:6px;height:6px;border-radius:50%;background:#c7c7c7}.dots span.on{background:#0095f6}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;width:420px;margin:0 auto 24px}
+.grid img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+.cap{padding:0 12px 14px;font-size:13px;line-height:1.4;white-space:pre-line}
+</style></head><body>
+<h1>Ai-Film-Developing · Instagram preview</h1>
+<div class="grid" id="g"></div>
+<div class="wrap" id="w"></div>
+<script>
+const posts=[
+ ["field-notes",13,"Field notes: developing film negatives with a phone and a browser.",[4,6]]];
+const g=document.getElementById('g');
+[...posts].reverse().forEach(([dir])=>{const i=document.createElement('img');i.src=`export/${dir}/01.jpg`;g.appendChild(i)});
+const w=document.getElementById('w');
+posts.forEach(([dir,n,cap,vids=[]])=>{
+ const el=document.createElement('div');el.className='post';
+ let imgs='';for(let i=1;i<=n;i++){const f=`export/${dir}/${String(i).padStart(2,'0')}`;imgs+=vids.includes(i)?`<video src="${f}.mp4" autoplay loop muted playsinline></video>`:`<img src="${f}.jpg" alt="">`;}
+ let dots='';for(let i=0;i<n;i++)dots+=`<span${i?'':' class="on"'}></span>`;
+ el.innerHTML=`<div class="head"><div class="av"></div>studiollm</div><div class="car"><div class="track">${imgs}</div><button class="nav prev">‹</button><button class="nav next">›</button></div><div class="dots">${dots}</div><div class="cap"><b>studiollm</b> ${cap}</div>`;
+ let i=0;const t=el.querySelector('.track'),ds=el.querySelectorAll('.dots span');
+ const go=d=>{i=Math.max(0,Math.min(n-1,i+d));t.style.transform=`translateX(-${i*100}%)`;ds.forEach((s,k)=>s.className=k==i?'on':'')};
+ el.querySelector('.prev').onclick=()=>go(-1);el.querySelector('.next').onclick=()=>go(1);
+ w.appendChild(el)});
+</script></body></html>

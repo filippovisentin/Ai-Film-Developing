@@ -1,0 +1,15 @@
+# generated output (rebuild with build_posts.py and raea)
+export/
+drafts/phone/
+drafts/frames/
+drafts/raea-test/
+drafts/*/stills/
+drafts/*/*.mp4
+drafts/*/*.render.json
+drafts/*/render.json
+drafts/hairline-*-look.png
+drafts/hairline-*-blind.png
+drafts/hairline-*-motion.png
+# font copies for raea renders (OFL fonts from the canvas-design skill)
+drafts/*/media/fonts/
+__pycache__/
